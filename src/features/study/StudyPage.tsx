@@ -9,6 +9,7 @@ import { getIllustration } from '../../illustrations/registry';
 import { ALL_CARDS, TRACKS, getCard } from '../../content';
 import { useStore } from '../../store/useStore';
 import { buildQueue } from '../../lib/queue';
+import { resolveStreak } from '../../lib/stats';
 import { answerRunner, startRunner, type Runner } from './queueMachine';
 
 type Phase = 'explain' | 'question' | 'feedback' | 'done';
@@ -68,7 +69,7 @@ export function StudyPage() {
               {total.current === 0 ? '今天没有要复习的卡' : '这一轮清空了'}
             </h1>
             <p className="text-sm leading-relaxed text-muted">
-              完成 {total.current} 张 · 连续打卡 {streak.current} 天
+              完成 {total.current} 张 · 连续打卡 {resolveStreak(streak, Date.now()).current} 天
             </p>
             <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
               <Link to="/" className="flex-1">

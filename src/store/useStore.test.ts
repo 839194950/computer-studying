@@ -7,13 +7,15 @@ import {
   EMPTY_STATE,
 } from './useStore';
 
+import { addDays, startOfDay } from '../lib/time';
+
 const now = new Date(2026, 2, 15, 10).getTime();
 
 it('首次作答建立进度，且同一张卡只计一次', () => {
   let s = createAppState(now);
   s = applyAnswer(s, 'c1', true, now);
   s = applyAnswer(s, 'c1', true, now);
-  expect(s.progress['c1'].box).toBe(3);
+  expect(s.progress['c1'].box).toBe(2);
   expect(s.session.reviewed).toEqual(['c1']);
 });
 
@@ -57,7 +59,24 @@ it('导出后可原样导入', () => {
   const s = applyAnswer(createAppState(now), 'c1', true, now);
   const parsed = parseState(exportState(s));
   expect(parsed.ok).toBe(true);
-  if (parsed.ok) expect(parsed.state.progress['c1'].box).toBe(2);
+  if (parsed.ok) expect(parsed.state.progress['c1'].box).toBe(1);
+});
+
+it('同一张卡当天连错两次会排到明天，不再当天反复出现', () => {
+  let s = createAppState(now);
+  s = applyAnswer(s, 'c1', false, now);
+  s = applyAnswer(s, 'c1', false, now);
+  expect(s.progress['c1'].dueAt).toBe(startOfDay(addDays(now, 1)));
+});
+
+it('导入里带损坏的卡片记录会被拒绝', () => {
+  const bad = JSON.stringify({
+    version: 1,
+    progress: { x: {} },
+    settings: { newCardsPerDay: 10 },
+    streak: { current: 0 },
+  });
+  expect(parseState(bad).ok).toBe(false);
 });
 
 it('损坏或版本不符的导入被拒绝，且不污染数据', () => {

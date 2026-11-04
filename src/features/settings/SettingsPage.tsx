@@ -3,7 +3,7 @@ import { Screen } from '../../components/Screen';
 import { StickerCard } from '../../components/StickerCard';
 import { Button } from '../../components/Button';
 import { BottomNav } from '../../components/BottomNav';
-import { useStore } from '../../store/useStore';
+import { parseState, useStore } from '../../store/useStore';
 import { ALL_CARDS } from '../../content';
 import { dayKey } from '../../lib/time';
 import { AboutCard } from './AboutCard';
@@ -29,6 +29,7 @@ export function SettingsPage() {
 
   const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [pending, setPending] = useState<{ raw: string; count: number } | null>(null);
 
   const learnedCount = Object.keys(progress).length;
 
@@ -45,12 +46,26 @@ export function SettingsPage() {
   async function handleFile(file: File | undefined) {
     if (!file) return;
     const raw = await readFile(file);
-    const result = importJson(raw);
-    if (!result.ok) {
-      setMessage({ kind: 'bad', text: `导入失败：${result.error}` });
+    const parsed = parseState(raw);
+    if (!parsed.ok) {
+      setMessage({ kind: 'bad', text: `导入失败：${parsed.error}` });
       return;
     }
-    setMessage({ kind: 'ok', text: `导入成功，覆盖了本地 ${learnedCount} 张卡的进度` });
+    setPending({ raw, count: Object.keys(parsed.state.progress).length });
+    setMessage(null);
+  }
+
+  function confirmImport() {
+    if (!pending) return;
+    download(`memory-chip-backup-${dayKey(Date.now())}.json`, exportJson());
+    const result = importJson(pending.raw);
+    const incoming = pending.count;
+    setPending(null);
+    setMessage(
+      result.ok
+        ? { kind: 'ok', text: `导入成功：${incoming} 张卡；原来的 ${learnedCount} 张已备份下载` }
+        : { kind: 'bad', text: `导入失败：${result.error}` },
+    );
   }
 
   return (
@@ -114,9 +129,23 @@ export function SettingsPage() {
                 }}
               />
             </label>
-            <p className="text-[10px] font-bold leading-relaxed text-muted">
-              导入会整包覆盖当前进度，导入前会自动导出一份备份。
-            </p>
+            {pending ? (
+              <div className="rounded-sticker border-[3px] border-ink bg-sun/40 p-3">
+                <p className="text-xs font-bold leading-relaxed text-ink">
+                  将导入 {pending.count} 张卡的进度，覆盖本地 {learnedCount} 张。确认后先自动下载一份当前数据作备份。
+                </p>
+                <div className="mt-2 flex gap-2">
+                  <Button onClick={confirmImport}>确认导入</Button>
+                  <Button variant="ghost" onClick={() => setPending(null)}>
+                    取消
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-[10px] font-bold leading-relaxed text-muted">
+                导入会整包覆盖当前进度，导入前会自动导出一份备份。
+              </p>
+            )}
 
             {message && (
               <p

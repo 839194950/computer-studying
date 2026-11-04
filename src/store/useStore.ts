@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { newProgress, review, type CardProgress } from '../lib/srs';
 import { bumpStreak, masteryPercent, resolveStreak, type Streak } from '../lib/stats';
-import { dayKey } from '../lib/time';
+import { addDays, dayKey, startOfDay } from '../lib/time';
 
 export interface DailySnapshot {
   date: string;
@@ -66,7 +66,14 @@ export function applyAnswer(
 ): AppState {
   const s = ensureToday(state, now);
   const current = s.progress[cardId] ?? newProgress(cardId, now);
-  const next = review(current, correct, now);
+  const reviewed = review(current, correct, now);
+
+  const wrongsToday = correct ? (s.session.wrongs[cardId] ?? 0) : (s.session.wrongs[cardId] ?? 0) + 1;
+  // 同一张卡当天连错两次就"放过它"：排到明天，而不是立刻重新到期。
+  const next =
+    !correct && wrongsToday >= 2
+      ? { ...reviewed, dueAt: startOfDay(addDays(now, 1)) }
+      : reviewed;
 
   return {
     ...s,
@@ -76,9 +83,7 @@ export function applyAnswer(
       reviewed: s.session.reviewed.includes(cardId)
         ? s.session.reviewed
         : [...s.session.reviewed, cardId],
-      wrongs: correct
-        ? s.session.wrongs
-        : { ...s.session.wrongs, [cardId]: (s.session.wrongs[cardId] ?? 0) + 1 },
+      wrongs: correct ? s.session.wrongs : { ...s.session.wrongs, [cardId]: wrongsToday },
     },
   };
 }
@@ -117,7 +122,21 @@ export function parseState(raw: string): { ok: true; state: AppState } | { ok: f
   if (!data || typeof data !== 'object') return { ok: false, error: '文件内容格式不对' };
   const d = data as Partial<AppState>;
   if (d.version !== 1) return { ok: false, error: '数据版本不匹配，无法导入' };
-  if (!d.progress || typeof d.progress !== 'object') return { ok: false, error: '缺少学习进度数据' };
+  if (!d.progress || typeof d.progress !== 'object' || Array.isArray(d.progress)) {
+    return { ok: false, error: '缺少学习进度数据' };
+  }
+  const brokenEntry = Object.values(d.progress as Record<string, unknown>).some((entry) => {
+    const p = entry as Partial<CardProgress> | null;
+    return (
+      !p ||
+      typeof p !== 'object' ||
+      typeof p.cardId !== 'string' ||
+      typeof p.dueAt !== 'number' ||
+      !Number.isFinite(p.dueAt) ||
+      ![1, 2, 3, 4, 5].includes(p.box as number)
+    );
+  });
+  if (brokenEntry) return { ok: false, error: '进度数据里有损坏的卡片记录' };
   if (!d.settings || typeof d.settings.newCardsPerDay !== 'number') {
     return { ok: false, error: '缺少设置数据' };
   }

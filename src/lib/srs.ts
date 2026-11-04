@@ -25,7 +25,9 @@ export function nextDueAt(box: Box, now: number): number {
 
 export function review(p: CardProgress, correct: boolean, now: number): CardProgress {
   if (correct) {
-    const box = Math.min(5, p.box + 1) as Box;
+    // 第一次答对停在第 1 档：今天学、明天复习，避免新卡直接跳到第 4 天。
+    const firstTime = p.lastReviewedAt === null;
+    const box = (firstTime ? 1 : Math.min(5, p.box + 1)) as Box;
     return { ...p, box, dueAt: nextDueAt(box, now), lastReviewedAt: now };
   }
   const box = Math.max(1, p.box - 1) as Box;

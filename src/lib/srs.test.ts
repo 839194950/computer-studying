@@ -9,24 +9,25 @@ it('新卡当天即可复习，处于第 1 档', () => {
   expect(isDue(p, at(15))).toBe(true);
 });
 
-it('答对后按新档位排期，落在目标日的本地零点', () => {
-  // 新卡（第 1 档）答对 → 第 2 档 → 3 天后；不是 24 小时后。
+it('新卡第一次答对停在第一档：第二天就复习，不会跳到第 4 天', () => {
   const p = review(newProgress('c1', at(15, 23)), true, at(15, 23));
-  expect(p.box).toBe(2);
-  expect(p.dueAt).toBe(startOfDay(addDays(at(15), 3)));
+  expect(p.box).toBe(1);
+  expect(p.dueAt).toBe(startOfDay(addDays(at(15), 1)));
   expect(isDue(p, at(15, 23))).toBe(false);
-  expect(isDue(p, at(18, 7))).toBe(true);
-  expect(isDue(p, at(17, 23))).toBe(false);
+  expect(isDue(p, at(16, 0))).toBe(true);
 });
 
 it('答对沿 1/3/7/21/60 阶梯上升，封顶第 5 档', () => {
   let p = newProgress('c1', at(1));
-  const expected = [3, 7, 21, 60, 60];
+  const expected = [1, 3, 7, 21, 60];
   expected.forEach((days, i) => {
     p = review(p, true, at(1));
-    expect(p.box).toBe(Math.min(i + 2, 5));
+    expect(p.box).toBe(i + 1);
     expect(dayKey(p.dueAt)).toBe(dayKey(addDays(at(1), days)));
   });
+  const capped = review(p, true, at(1));
+  expect(capped.box).toBe(5);
+  expect(dayKey(capped.dueAt)).toBe(dayKey(addDays(at(1), 60)));
 });
 
 it('答错降一档、最低第 1 档、并立即重新到期', () => {

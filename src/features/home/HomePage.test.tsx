@@ -28,6 +28,18 @@ it('新用户看到开始按钮，进度环不出现 NaN', () => {
   expect(container.textContent).not.toContain('NaN');
 });
 
+it('断签后首页立刻显示 0 天，而不是旧数字', () => {
+  useStore.setState({
+    streak: { current: 7, longest: 9, lastActiveDate: '2026-01-01' },
+  });
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('0 天')).toBeInTheDocument();
+});
+
 it('全部记牢且未到期时显示"今天没事了"', () => {
   const progress = Object.fromEntries(
     ALL_CARDS.map((c) => [

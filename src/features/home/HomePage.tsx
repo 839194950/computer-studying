@@ -8,7 +8,7 @@ import { Mascot } from '../../illustrations/Mascot';
 import { ALL_CARDS, TRACKS } from '../../content';
 import { useStore } from '../../store/useStore';
 import { buildQueue } from '../../lib/queue';
-import { masteryPercent } from '../../lib/stats';
+import { masteryPercent, resolveStreak } from '../../lib/stats';
 import { dayKey } from '../../lib/time';
 
 export function HomePage() {
@@ -20,6 +20,7 @@ export function HomePage() {
   const now = Date.now();
   const queue = buildQueue(TRACKS, progress, { newLimit: settings.newCardsPerDay, now });
   const mastery = masteryPercent(progress, ALL_CARDS.length);
+  const currentStreak = resolveStreak(streak, now).current;
   const doneToday = session.date === dayKey(now) ? session.reviewed.length : 0;
   const empty = queue.length === 0;
 
@@ -32,7 +33,7 @@ export function HomePage() {
             <p className="mt-1 text-sm text-muted">把计算机知识真正记住。</p>
           </div>
           <div className="text-right">
-            <div className="text-lg font-black text-brand">{streak.current} 天</div>
+            <div className="text-lg font-black text-brand">{currentStreak} 天</div>
             <div className="text-[11px] font-bold text-muted">连续打卡</div>
           </div>
         </header>
