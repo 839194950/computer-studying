@@ -17,6 +17,15 @@ function isChapterDone(track: Track, chapterId: string, progress: Record<string,
   return cards.length > 0 && cards.every((c) => (progress[c.id]?.box ?? 0) >= 4);
 }
 
+/** 还没写内容的章节不挡路：算作已满足，但不会被显示成"已通关"。 */
+function isChapterSatisfied(
+  track: Track,
+  chapterId: string,
+  progress: Record<string, CardProgress>,
+): boolean {
+  return chapterCards(track, chapterId).length === 0 || isChapterDone(track, chapterId, progress);
+}
+
 /** 首个章节永远可用；之后的章节要等前一章全部记牢才解锁。 */
 export function chapterState(
   track: Track,
@@ -27,7 +36,7 @@ export function chapterState(
   const idx = track.chapters.findIndex((c) => c.id === chapterId);
   if (idx <= 0) return 'active';
   const prev = track.chapters[idx - 1];
-  return isChapterDone(track, prev.id, progress) ? 'active' : 'locked';
+  return isChapterSatisfied(track, prev.id, progress) ? 'active' : 'locked';
 }
 
 /** 从头按顺序推进，遇到第一个还没通关的章节就停（该章本身算解锁）。 */
@@ -38,7 +47,7 @@ export function unlockedChapters(
   const result: string[] = [];
   for (const chapter of track.chapters) {
     result.push(chapter.id);
-    if (!isChapterDone(track, chapter.id, progress)) break;
+    if (!isChapterSatisfied(track, chapter.id, progress)) break;
   }
   return result;
 }
