@@ -2,12 +2,73 @@
 
 记录每个任务的落地情况、关键决策与下一步。换会话/换机器时，从这里接着干。
 
-## Task 1: 脚手架与视觉令牌 — 2026-11-04
+## 当前状态（2026-11-04）
 
-- 状态：完成
-- 提交：见 git log（`chore: scaffold vite app with candy-arcade tokens`）
-- 关键决策：
-  - 不用 `npm create vite`（当前目录非空会交互卡住），改为手写脚手架。
-  - `package.json` 名固定为 `memory-chip`（中文目录名会被 npm 判为非法包名）。
-  - vitest 用最新版时与 jsdom 27 冲突（`ERR_REQUIRE_ESM`），把 jsdom 固定到 25。
-- 下一步：Task 2 时间工具（`src/lib/time.ts`）
+- 分支：`feat/memory-chip`
+- 首发框架已完成：四个页面 + 间隔重复 + 本地存储 + PWA + 8 张样板卡。
+- 测试：50 个用例全绿（`npm test`）；`npm run build` 通过，产出 `dist/sw.js` 与 `manifest.webmanifest`。
+
+### 现在能做什么
+
+- 首页看今日队列与掌握度 → 进 `/study` 逐张学习/复习（答错当日重排、连错两次放过）。
+- `/map` 四条主线的章节路径，通关后解锁下一章。
+- `/stats` 四色图例、全卡堆叠、近 30 天掌握度折线。
+- `/settings` 每日新卡数、降低动效、导出/导入 JSON、清空。
+- 手机可"添加到桌面"，断网可打开。
+
+### 还没做什么
+
+- 只有 8 张样板卡（四条主线 × 2 张），距离 80 张还差 72 张。
+- 没做账号与云同步（V2）。
+- 没有每日提醒推送、错题本。
+
+## 任务记录
+
+### Task 1: 脚手架与视觉令牌 — 2026-11-04
+- 关键决策：不用 `npm create vite`（目录非空会交互卡住），手写脚手架；`package.json` 名固定 `memory-chip`（中文目录名会被 npm 判非法）；jsdom 固定 25（最新版与 vitest 4 有 ESM 冲突）。
+
+### Task 2: 时间工具
+- 全部用本地 `new Date(y, m, d)`，禁 `toISOString()`，避免 UTC 串日。
+
+### Task 3: 间隔算法
+- 答对 → 档位 +1，按**新档位**的间隔排期（第 1 档 1 天…第 5 档 60 天）；答错 → 降一档、`dueAt = now` 立即重到期。
+
+### Task 4: 掌握度 / 状态 / 连胜
+- 权重 1:0.1、2:0.25、3:0.5、4:0.8、5:1.0；"记牢了"= 档位 ≥ 4。
+- 四色：无进度=没学过；已过期=快忘了；未过期且 ≥4=记牢了；其余=刚学会。
+
+### Task 5: 内容模型 + 8 张样板卡
+- 四条主线 × 5 章；每卡 `explain` ≤ 40 字，干扰项必须是常见误解。
+
+### Task 6: 队列与解锁
+- 到期卡按 `dueAt` 升序排在新卡前；新卡按主线轮转、优先补最落后的线。
+- **空章节（还没写卡）视为"已满足"，不挡解锁，但不出现在地图上。**
+
+### Task 7: 持久化
+- zustand + persist，IndexedDB（无 `indexedDB` 时回落 localStorage）。
+- 导入 = 整包覆盖；`version` 必须为 1；坏文件只报错不动数据。
+
+### Task 8–9: 设计系统与插画
+- 墨 `#241A3D` 3px 描边、无模糊实心投影、`rounded-blob`。
+- 小芯四种状态：idle / happy / confused / sleep。
+
+### Task 10–14: 四个页面
+- 学习台、卡片流（讲解面 → 问题面 → 反馈）、章节地图、记忆图谱、设置。
+
+### Task 15: PWA
+- `vite-plugin-pwa` autoUpdate，预缓存 11 个资源；图标由脚本栅格化生成（192/512）。
+
+### Task 16: 收尾
+- 降级动效通过 `MotionConfig` + 根节点 `data-motion` 实现。
+
+## 下一步
+
+1. 按 `docs/superpowers/plans/2026-11-04-memory-chip.md` 的 Task 16 分批补卡（每批 10 张，每批单独提交并更新本文件）。
+2. 补完后把 `content.test.ts` 的总量断言改成 80。
+3. V2：账号与云同步、提醒推送、错题本。
+
+## 接手先读
+
+1. 本文件
+2. `docs/superpowers/specs/2026-11-04-memory-chip-design.md` 的「复习机制」「数据模型」
+3. `src/lib/`（算法都在这里，全部有单测）
