@@ -1,19 +1,18 @@
 import { Link } from 'react-router-dom';
+import { NAV_ITEMS, type NavKey } from './navItems';
 
-export type NavKey = 'home' | 'map' | 'stats' | 'me';
-
-const ITEMS: { key: NavKey; to: string; label: string; icon: string }[] = [
-  { key: 'home', to: '/', label: '学习', icon: 'M4 12 L12 4 L20 12 M6 10 V20 H18 V10' },
-  { key: 'map', to: '/map', label: '地图', icon: 'M4 6 h16 M4 12 h16 M4 18 h10' },
-  { key: 'stats', to: '/stats', label: '图谱', icon: 'M5 19 V11 M12 19 V5 M19 19 V14' },
-  { key: 'me', to: '/settings', label: '我', icon: 'M12 7 a4 4 0 1 0 0.1 0 M5 20 c1.5-4 11.5-4 14 0' },
-];
-
+/**
+ * 移动端底部导航。桌面端由 TopNav 承担，这条栏在 md 以上隐藏。
+ * active 由页面显式传入，保证学习页等不带导航的页面不会被误高亮。
+ */
 export function BottomNav({ active }: { active: NavKey }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t-[3px] border-ink bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+    <nav
+      aria-label="底部导航"
+      className="fixed inset-x-0 bottom-0 z-30 border-t-[3px] border-ink bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+    >
       <ul className="mx-auto flex max-w-[880px] items-stretch">
-        {ITEMS.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const isActive = item.key === active;
           return (
             <li key={item.key} className="flex-1">

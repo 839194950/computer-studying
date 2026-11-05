@@ -29,8 +29,9 @@ export function HomePage() {
       <Screen>
         <header className="mb-6 flex items-end justify-between">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-ink">记忆芯</h1>
-            <p className="mt-1 text-sm text-muted">把计算机知识真正记住。</p>
+            {/* 桌面端顶部导航已经有品牌名，这里只在移动端显示，避免重复 */}
+            <h1 className="text-3xl font-black tracking-tight text-ink md:sr-only">记忆芯</h1>
+            <p className="mt-1 text-sm text-muted md:mt-0 md:text-base">把计算机知识真正记住。</p>
           </div>
           <div className="text-right">
             <div className="text-lg font-black text-brand">{currentStreak} 天</div>

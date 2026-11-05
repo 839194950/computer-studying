@@ -4,7 +4,15 @@ import { useStore } from '../store/useStore';
 
 it('renders the site name', () => {
   render(<App />);
-  expect(screen.getByText('记忆芯')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: '记忆芯' })).toBeInTheDocument();
+});
+
+it('桌面导航给出四个页面入口', () => {
+  render(<App />);
+  ['学习', '地图', '图谱', '我'].forEach((label) => {
+    expect(screen.getAllByRole('link', { name: new RegExp(label) }).length).toBeGreaterThan(0);
+  });
+  expect(screen.getByRole('navigation', { name: '主导航' })).toBeInTheDocument();
 });
 
 it('设置里打开降低动效时，根节点带上降级标记', () => {

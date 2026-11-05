@@ -5,6 +5,7 @@ import { StudyPage } from '../features/study/StudyPage';
 import { MapPage } from '../features/map/MapPage';
 import { StatsPage } from '../features/stats/StatsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { TopNav } from '../components/TopNav';
 import { useStore } from '../store/useStore';
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
     <div data-motion={reduced ? 'reduced' : 'full'} className="min-h-screen overflow-x-hidden">
       <MotionConfig reducedMotion={reduced ? 'always' : 'user'}>
         <BrowserRouter>
+          <TopNav />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/study" element={<StudyPage />} />
