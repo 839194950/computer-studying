@@ -1,5 +1,17 @@
 # 记忆芯 Implementation Plan
 
+> **状态：已完成（2026-11-05）。Task 1–17 全部落地，下面的 checkbox 已勾选。**
+>
+> 本文档是 2026-11-04 的**首发实施计划**，现作为历史存档保留。实际实现与计划存在偏差，以 `docs/PROGRESS.md` 为准：
+>
+> - 依赖版本：framer-motion 11 → 14、zustand 4 → 5、Vitest 2 → 4、vite-plugin-pwa 0.20 → 1.3。
+> - 内容：计划里是"分批补到 80 张"，实际一次性补齐，并额外做了 **20 张章节概念图**与**分步图解 + 详细讲解**两层教学（计划只设计了"讲解面 + 问题面"两段）。
+> - 导航：计划只写了移动端底部栏，实际补了桌面端顶部胶囊导航。
+> - 章节入口、错题本、自由复习、键盘操作是计划外新增，见 `docs/PROGRESS.md`。
+> - 交接文档：本计划只要求 README + PROGRESS，实际多了一份 `docs/ROADMAP.md`。
+>
+> **后续计划看 `docs/ROADMAP.md`。**
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use subagent-driven-development (recommended) or executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 做一个糖果街机风格的计算机知识学习网站，用间隔重复把知识点真正记住。
@@ -44,7 +56,7 @@
 **Interfaces:**
 - Produces: 可运行的空壳应用；Tailwind 令牌 `bg-paper` `text-ink` `bg-brand` `bg-mint` `bg-sun` `bg-pink` `bg-sky` `text-muted` `shadow-pop` `shadow-pop-lg` `rounded-sticker`；`src/lib/*` 测试入口 `npm test`。
 
-- [ ] **Step 1: 初始化仓库与依赖**
+- [x] **Step 1: 初始化仓库与依赖**
 
 目录里已经有 `docs/`，不能再用 `npm create vite`（它会询问是否清空非空目录并卡住）。手写脚手架。
 
@@ -63,7 +75,7 @@ npm i -D vite@5 @vitejs/plugin-react typescript@5 @types/react @types/react-dom 
 
 `.gitignore` 加入：`node_modules`、`dist`、`.superpowers/`、`*.local`。
 
-- [ ] **Step 2: 写入 Tailwind 令牌**
+- [x] **Step 2: 写入 Tailwind 令牌**
 
 `tailwind.config.js` 的 `theme.extend`：
 
@@ -78,7 +90,7 @@ fontFamily: { sans:['system-ui','-apple-system','PingFang SC','Microsoft YaHei',
 
 `src/index.css`：`@tailwind base; @tailwind components; @tailwind utilities;`，并设 `body { background:#FFF8EE; color:#241A3D; -webkit-tap-highlight-color: transparent; }`。
 
-- [ ] **Step 3: 写第一个失败的测试**
+- [x] **Step 3: 写第一个失败的测试**
 
 `src/app/App.test.tsx`：
 
@@ -94,16 +106,16 @@ it('renders the site name', () => {
 
 `vite.config.ts` 加 `test: { environment:'jsdom', setupFiles:'./src/test/setup.ts', globals:true }`；`src/test/setup.ts` 引入 `@testing-library/jest-dom/vitest`。`package.json` 加 `"test": "vitest run"`。
 
-- [ ] **Step 4: 运行测试确认失败**
+- [x] **Step 4: 运行测试确认失败**
 
 Run: `npm test`
 Expected: FAIL —— 找不到 `App` 或文本。
 
-- [ ] **Step 5: 写最小实现**
+- [x] **Step 5: 写最小实现**
 
 `src/app/App.tsx` 导出 `export function App()`，渲染 `<h1 className="text-ink">记忆芯</h1>`。`src/main.tsx` 挂载。
 
-- [ ] **Step 6: 写交接文档**
+- [x] **Step 6: 写交接文档**
 
 `README.md` 至少包含：项目一句话说明、`npm i` / `npm run dev` / `npm test` / `npm run build` 四条命令、目录结构表、指向 `docs/superpowers/specs/` 与 `plans/` 的链接。
 
@@ -117,7 +129,7 @@ Expected: FAIL —— 找不到 `App` 或文本。
 - 下一步：<下一个任务名>
 ```
 
-- [ ] **Step 7: 运行测试确认通过并提交**
+- [x] **Step 7: 运行测试确认通过并提交**
 
 Run: `npm test` → PASS；`npm run build` → 成功。
 
@@ -135,7 +147,7 @@ git add -A && git commit -m "chore: scaffold vite app with candy-arcade tokens"
 **Interfaces:**
 - Produces: `DAY_MS`, `startOfDay(ts:number):number`, `endOfDay(ts:number):number`, `dayKey(ts:number):string`, `addDays(ts:number,n:number):number`, `daysBetweenKeys(a:string,b:string):number`。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```ts
 // src/lib/time.test.ts
@@ -163,11 +175,11 @@ it('daysBetweenKeys counts calendar days', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/lib/time.test.ts` → FAIL（模块不存在）。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 全部用 `new Date(y, m, d)` 的本地构造，**不使用** `toISOString()`（会按 UTC 偏移串日）。
 
@@ -180,7 +192,7 @@ export function dayKey(ts: number): string { const d = new Date(ts); const p=(v:
 export function daysBetweenKeys(a: string, b: string): number { return Math.round((Date.parse(b) - Date.parse(a)) / DAY_MS); }
 ```
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/lib/time.test.ts` → PASS。
 
@@ -206,7 +218,7 @@ git add src/lib/time.ts src/lib/time.test.ts && git commit -m "feat(lib): local 
   - `review(p:CardProgress, correct:boolean, now:number): CardProgress`
   - `isDue(p:CardProgress, now:number): boolean`
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```ts
 // src/lib/srs.test.ts
@@ -254,15 +266,15 @@ it('nextDueAt uses local midnight of the target day', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/lib/srs.test.ts` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 `review` 规则：答对 `box = min(5, box+1)`，`dueAt = nextDueAt(box, now)`；答错 `box = max(1, box-1)`，`lapses+1`，`dueAt = now`（立即重新到期，跨会话重开也能捡回来）。`lastReviewedAt = now`。`isDue` 用 `p.dueAt <= now`。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/lib/srs.test.ts` → PASS。
 
@@ -288,7 +300,7 @@ git add src/lib/srs.ts src/lib/srs.test.ts && git commit -m "feat(lib): leitner-
   - `bumpStreak(s:Streak, now:number): Streak`
   - `resolveStreak(s:Streak, now:number): Streak`
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```ts
 // src/lib/stats.test.ts
@@ -325,15 +337,15 @@ it('resets a broken streak but keeps the record', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/lib/stats.test.ts` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 权重 `{1:0.1, 2:0.25, 3:0.5, 4:0.8, 5:1.0}`；`masteryPercent` 在 `totalCards === 0` 时返回 0，否则 `Math.round(sumWeight / totalCards * 100)`。状态判定顺序：无进度 → `new`；`dueAt < now` → `forgotten`；`box >= 4` → `mastered`；否则 `learning`。`bumpStreak`：同一天返回原对象；昨天（`daysBetweenKeys(last, today) === 1`）→ current+1；否则 current=1；`longest = max(longest, current)`。`resolveStreak`：若 `lastActiveDate` 早于昨天则 current 归 0。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/lib/stats.test.ts` → PASS。
 
@@ -357,7 +369,7 @@ git add src/lib/stats.ts src/lib/stats.test.ts && git commit -m "feat(lib): mast
   - `const TRACKS: Track[]`（四条，各 5 章；样板阶段每章 0–1 张卡，最终每章 4 张）
   - `const ALL_CARDS: Card[]`, `getCard(id:string):Card|undefined`, `getTrack(id:TrackId):Track`, `getChapterCards(trackId:TrackId, chapterId:string):Card[]`
 
-- [ ] **Step 1: 写内容校验测试**
+- [x] **Step 1: 写内容校验测试**
 
 ```ts
 // src/content/content.test.ts
@@ -388,11 +400,11 @@ it('every card belongs to a chapter of its own track', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/content/content.test.ts` → FAIL。
 
-- [ ] **Step 3: 写类型与 8 张样板卡**
+- [x] **Step 3: 写类型与 8 张样板卡**
 
 每条主线 2 张，覆盖该线最核心的心智模型：
 
@@ -403,7 +415,7 @@ Run: `npx vitest run src/content/content.test.ts` → FAIL。
 
 每张卡的 `explain` ≤ 40 字，`options` 四个中必须有一个是**常见误解**。样板卡 `illustration` 用 `pointer` / `binary` / `process` / `hash` 四个 key，其余先写 `spark`。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/content/content.test.ts` → PASS。
 
@@ -427,7 +439,7 @@ git add src/content && git commit -m "feat(content): card model and 8 sample car
   - `interface QueueItem { cardId:string; isNew:boolean }`
   - `buildQueue(tracks:Track[], progress:Record<string,CardProgress>, opts:{ newLimit:number; now:number }): QueueItem[]`
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```ts
 // src/lib/queue.test.ts
@@ -471,15 +483,15 @@ it('never queues cards from locked chapters', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/lib/queue.test.ts` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 `chapterState`：章内每张卡都有进度且 `box >= 4` → `done`；章内任一卡有进度 → `active`；否则看是否为已解锁（前章 done 或首章）→ `active` / `locked`。`unlockedChapters` 从第一章起顺序推进，遇到第一个未 done 的章就停（该章仍算解锁）。`buildQueue`：到期卡按 `dueAt` 升序，新卡按"各主线已学卡数最少的主线优先、章内顺序"轮转取，直到达到 `newLimit`。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/lib/queue.test.ts` → PASS。
 
@@ -504,7 +516,7 @@ git add src/lib/queue.ts src/lib/queue.test.ts && git commit -m "feat(lib): chap
   - `useStore` 上的动作：`answer(cardId:string, correct:boolean): void`、`finishSession(totalCards:number): void`、`setSettings(patch:Partial<AppState['settings']>): void`、`resetAll(): void`、`exportJson(): string`、`importJson(raw:string): { ok:true } | { ok:false; error:string }`
   - 纯函数（可单测）：`EMPTY_STATE: AppState`、`createAppState(now:number): AppState`、`exportState(s:AppState): string`、`parseState(raw:string): { ok:true; state:AppState } | { ok:false; error:string }`、`applyAnswer(s:AppState, cardId:string, correct:boolean, now:number): AppState`、`applyFinish(s:AppState, totalCards:number, now:number): AppState`
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```ts
 // src/store/useStore.test.ts
@@ -553,15 +565,15 @@ it('rejects broken or foreign payloads without touching data', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/store/useStore.test.ts` → FAIL。
 
-- [ ] **Step 3: 实现纯函数 + zustand 壳**
+- [x] **Step 3: 实现纯函数 + zustand 壳**
 
 纯函数放 `src/store/useStore.ts` 顶部并 `export`；`useStore` 用 `zustand` 的 `persist` + 自定义 `storage`（`idb-keyval` 的 `get/set`，`createJSONStorage`），key 为 `memory-chip`。`applyAnswer` 在跨天时先重置 `session`（`session.date !== dayKey(now)` → 新的一天，`reviewed` 清空、`completed` 重置为 false）。`parseState` 要求 `version === 1` 且 `progress` 为对象、`settings.newCardsPerDay` 为数字，否则返回错误，不修改任何状态。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/store/useStore.test.ts` → PASS。
 
@@ -585,7 +597,7 @@ git add src/store && git commit -m "feat(store): persisted state, session tracki
   - `<BottomNav active:'home'|'map'|'stats'|'me' />` —— 移动端固定底部，桌面端隐藏。
   - `<Screen title? children>` 统一页面内边距与最大宽 880px。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/components/components.test.tsx
@@ -614,15 +626,15 @@ it('button is disabled when disabled', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/components/components.test.tsx` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 `ProgressRing`：`const v = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));`，用 `strokeDasharray` + `rotate(-90)`。`BottomNav` 四个项用 react-router `NavLink` 并设 `aria-current`。按钮统一 `active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`。全部组件尊重 `reducedMotion`（从 store 读，或直接用 Framer Motion 的 `MotionConfig reducedMotion="user"`）。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/components/components.test.tsx` → PASS。
 
@@ -643,7 +655,7 @@ git add src/components && git commit -m "feat(ui): candy-arcade design system co
   - `getIllustration(key:string): React.ComponentType<{ className?: string }>`，未知 key 回落到 `Spark`。
   - 插画组件统一接受 `className`，自身为 `viewBox` 自适应 SVG。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/illustrations/registry.test.tsx
@@ -665,15 +677,15 @@ it('resolves every known key', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/illustrations/registry.test.tsx` → FAIL。
 
-- [ ] **Step 3: 画插画**
+- [x] **Step 3: 画插画**
 
 规范：`stroke="#241A3D"` 3px、`strokeLinecap="round"`、`fill` 用色板平涂。小芯 = 圆角矩形芯片 + 天线 + 两只白眼 + 微笑 + 脸颊粉点；`idle` 用 Framer Motion 做 `y` 呼吸（2.4s 循环）、`happy` 弹跳一次、`confused` 旋转 −6°、`sleep` 显示 `zZ`。概念插画：`Pointer`（抽屉 + 箭头）、`Binary`（位开关）、`Process`（两条并行轨道）、`Hash`（单向漏斗）。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/illustrations/registry.test.tsx` → PASS。
 
@@ -693,7 +705,7 @@ git add src/illustrations && git commit -m "feat(art): mascot and hand-drawn svg
 - Consumes: `buildQueue`, `useStore`, `masteryPercent`, `cardStatus`, `ProgressRing`, `Mascot`。
 - Produces: 路由 `/`；页面显示连胜、今日剩余、掌握度环、四主线进度条、主按钮跳 `/study`；今日清空时显示 `Mascot mood="sleep"` 与「今天没事了」。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/features/home/HomePage.test.tsx
@@ -712,15 +724,15 @@ it('never renders NaN in the mastery ring', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/features/home/HomePage.test.tsx` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 读取 store（空 `progress` 也是合法输入）。掌握度用 `masteryPercent(progress, ALL_CARDS.length)`。主线进度条 = 该线 `box>=4` 的卡数 / 该线总卡数。主按钮文案「开始今天的复习 · N 张」。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/features/home/HomePage.test.tsx` → PASS。
 
@@ -744,7 +756,7 @@ git add src/features/home src/app/App.tsx && git commit -m "feat(home): study da
   - `answerRunner(r:Runner, cardId:string, correct:boolean): Runner` —— 答错且 `wrongs[cardId] < 2` 时把该项移到队尾；`>= 2` 时丢弃该项；答对则前进。
   - `<StudyPage />`：讲解面 → 问题面 → 反馈 → 下一张；队列走完显示结算（今日完成 N 张 + 连胜 + 返回）。
 
-- [ ] **Step 1: 写队列状态机的失败测试**
+- [x] **Step 1: 写队列状态机的失败测试**
 
 ```ts
 // src/features/study/queueMachine.test.ts
@@ -771,15 +783,15 @@ it('two wrong answers drop the card and finish cleanly', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/features/study/queueMachine.test.ts` → FAIL。
 
-- [ ] **Step 3: 实现状态机并接入页面**
+- [x] **Step 3: 实现状态机并接入页面**
 
 状态机纯函数持有自己的 `wrongs: Record<string, number>`。页面：答对 → `Mascot mood="happy"`、星星炸开（6 个 SVG 星，`scale 0→1.4→0`，300ms）、进度条前进；答错 → 卡片 `x: [-6,6,-4,0]` 抖动 200ms 并高亮正确项。每次作答调用 store 的 `answer(cardId, correct)`；队列走完调用 `finishSession(ALL_CARDS.length)`。
 
-- [ ] **Step 4: 写页面集成测试**
+- [x] **Step 4: 写页面集成测试**
 
 ```tsx
 // src/features/study/StudyPage.test.tsx
@@ -791,7 +803,7 @@ it('walks from explanation to question and reports the answer', async () => {
 });
 ```
 
-- [ ] **Step 5: 运行确认通过并提交**
+- [x] **Step 5: 运行确认通过并提交**
 
 Run: `npx vitest run src/features/study` → PASS。
 
@@ -810,7 +822,7 @@ git add src/features/study && git commit -m "feat(study): card flow with answer 
 - Consumes: `TRACKS`, `chapterState`, `useStore`, `StickerCard`。
 - Produces: 路由 `/map`；四条主线各一条竖向路径；节点三态样式（locked 灰/active 黄/done 薄荷 + 对勾）；点击任意 `active` 节点跳 `/study`（进入当天队列，队列本身不带章节过滤）。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/features/map/MapPage.test.tsx
@@ -822,15 +834,15 @@ it('renders all tracks and locks later chapters for a new user', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/features/map/MapPage.test.tsx` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 节点用绝对定位的虚线连接；`done` 节点播放一次描边生长动画（`pathLength 0→1`）。地图页在桌面端两栏排列（两条线一列）。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/features/map/MapPage.test.tsx` → PASS。
 
@@ -849,7 +861,7 @@ git add src/features/map && git commit -m "feat(map): chapter paths with unlock 
 - Consumes: `cardStatus`, `masteryPercent`, `useStore`。
 - Produces: 路由 `/stats`；四色图例 + 全卡堆叠条（一格一卡，`aria-label` 带状态）+ 按主线的卡片列表（显示下次复习日期）+ 近 30 天掌握度折线；无快照时显示占位文案而不是空折线。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/features/stats/StatsPage.test.tsx
@@ -862,15 +874,15 @@ it('shows the legend and a placeholder when there is no history', () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/features/stats/StatsPage.test.tsx` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 堆叠条按 `new/learning/mastered/forgotten` 顺序切分宽度百分比（0 张时整条显示为纸色）。折线用内联 SVG `polyline`，`snapshots.slice(-30)`，少于 2 个点时画点不画线。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/features/stats/StatsPage.test.tsx` → PASS。
 
@@ -889,7 +901,7 @@ git add src/features/stats && git commit -m "feat(stats): mastery map, legend an
 - Consumes: `useStore` 的 `setSettings/exportJson/importJson/resetAll`。
 - Produces: 路由 `/settings`；每日新卡数量（5/10/20）、降低动效开关、导出（下载 `memory-chip-YYYY-MM-DD.json`）、导入（文件选择 → 预览「将覆盖本地 N 张」→ 确认）、清空（二次确认）。
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
 ```tsx
 // src/features/settings/SettingsPage.test.tsx
@@ -903,15 +915,15 @@ it('reports an error for a broken import file and keeps local data', async () =>
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `npx vitest run src/features/settings/SettingsPage.test.tsx` → FAIL。
 
-- [ ] **Step 3: 实现**
+- [x] **Step 3: 实现**
 
 导入前自动触发一次导出（浏览器下载）作为备份；确认弹窗显示本地已有进度张数；`importJson` 失败时只显示错误，不写库。
 
-- [ ] **Step 4: 运行确认通过并提交**
+- [x] **Step 4: 运行确认通过并提交**
 
 Run: `npx vitest run src/features/settings/SettingsPage.test.tsx` → PASS。
 
@@ -930,20 +942,20 @@ git add src/features/settings && git commit -m "feat(settings): preferences and 
 **Interfaces:**
 - Produces: `manifest`（name 记忆芯、`display: standalone`、`theme_color: #7B5CFF`、`background_color: #FFF8EE`）；`registerType: 'autoUpdate'` 的 service worker 预缓存 `dist` 全部资源。
 
-- [ ] **Step 1: 配置 PWA**
+- [x] **Step 1: 配置 PWA**
 
 `vite-plugin-pwa` 的 `VitePWA({ registerType:'autoUpdate', includeAssets:['icon-192.png','icon-512.png'], manifest:{...} })`，`workbox.globPatterns: ['**/*.{js,css,html,svg,png,woff2}']`。
 
-- [ ] **Step 2: 验证构建产物**
+- [x] **Step 2: 验证构建产物**
 
 Run: `npm run build && ls dist` 
 Expected: 输出含 `sw.js`、`manifest.webmanifest`、`index.html`。
 
-- [ ] **Step 3: 手动验收离线**
+- [x] **Step 3: 手动验收离线**
 
 Run: `npx serve -s dist -p 4173`，浏览器打开 → DevTools Application → Service Workers 显示 activated → 勾 Offline → 刷新 → 首页仍可渲染、可进入 `/study`。
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```bash
 git add vite.config.ts index.html public && git commit -m "feat(pwa): offline app shell and installable manifest"
@@ -962,11 +974,11 @@ git add vite.config.ts index.html public && git commit -m "feat(pwa): offline ap
 - Consumes: Task 5 的 `Card` 结构与校验测试。
 - Produces: `ALL_CARDS.length === 80`，每条主线 20 张。
 
-- [ ] **Step 1: 按五章 × 四卡补齐**
+- [x] **Step 1: 按五章 × 四卡补齐**
 
 每章 4 张、每张一个知识点；`illustration` 在已实现的 `spark/pointer/binary/process/hash` 中复用。写作硬要求：`explain` ≤ 40 字且说明"它解决什么问题"；三个错误项必须是常见误解。
 
-- [ ] **Step 2: 加总量断言**
+- [x] **Step 2: 加总量断言**
 
 在 `content.test.ts` 增加：
 
@@ -977,15 +989,15 @@ it('ships the full first release', () => {
 });
 ```
 
-- [ ] **Step 3: 运行全部测试**
+- [x] **Step 3: 运行全部测试**
 
 Run: `npm test` → PASS（80 张卡全部通过格式校验）。
 
-- [ ] **Step 4: 人工抽检**
+- [x] **Step 4: 人工抽检**
 
 逐条读四条主线的"正确项"，把不确定的说法改成确定表述或删卡；指针、内存管理、密码学、Web 攻击四类必须逐条自查。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/content && git commit -m "content: complete 80 cards across four tracks"
@@ -1002,7 +1014,7 @@ git add src/content && git commit -m "content: complete 80 cards across four tra
 **Interfaces:**
 - Produces: 375px / 768px / 1280px 三档下均无横向滚动；底部导航不遮挡内容（`pb-24` 安全区）；`prefers-reduced-motion` 下无位移类动画。
 
-- [ ] **Step 1: 补无障碍与降级测试**
+- [x] **Step 1: 补无障碍与降级测试**
 
 ```tsx
 it('honours reduced motion via MotionConfig', () => {
@@ -1013,21 +1025,21 @@ it('honours reduced motion via MotionConfig', () => {
 });
 ```
 
-- [ ] **Step 2: 三档宽度手动走查**
+- [x] **Step 2: 三档宽度手动走查**
 
 375 / 768 / 1280 各走一遍：首页 → 地图 → 学 3 张 → 图谱 → 设置导出。记录横向滚动、文字截断、按钮点不到的问题并修掉。
 
-- [ ] **Step 3: 全量验证**
+- [x] **Step 3: 全量验证**
 
 Run: `npm test && npm run build` → 全绿。
 
-- [ ] **Step 4: 收口交接文档**
+- [x] **Step 4: 收口交接文档**
 
 `docs/PROGRESS.md` 追加完整收尾：已完成任务清单与提交 hash、九条关键决策（间隔算法、自然日、解锁、导入策略等）、已知缺口（未完成的卡片数量、V2 计划）、下一个人接手时先读哪三个文件。
 
 `README.md` 补一节「现在能做什么 / 还没做什么」，让新人不用读代码就知道当前边界。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add -A && git commit -m "polish: responsive passes, reduced-motion fallback, handoff docs"

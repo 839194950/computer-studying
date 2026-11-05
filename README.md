@@ -2,10 +2,14 @@
 
 一个用间隔重复把计算机知识真正记住的网站：每个知识点是一张卡，答对往后推、答错拉回来，像背单词那样复习。
 
-- 设计文档：`docs/superpowers/specs/2026-11-04-memory-chip-design.md`
-- 实施计划：`docs/superpowers/plans/2026-11-04-memory-chip.md`
-- 进度与决策：`docs/PROGRESS.md`
-- 下一步路线图：`docs/ROADMAP.md`
+## 文档
+
+| 文档 | 作用 | 什么时候看 |
+|---|---|---|
+| `docs/PROGRESS.md` | 进度日志：每次改动做了什么、为什么这么决定 | 接手时先读「当前状态」和最后两节 |
+| `docs/ROADMAP.md` | **剩余**计划与优先级，含已关闭的缺口清单 | 想知道接下来做什么 |
+| `docs/superpowers/specs/2026-11-04-memory-chip-design.md` | 原始设计稿（已冻结，仅标注实现差异） | 想了解设计意图与取舍 |
+| `docs/superpowers/plans/2026-11-04-memory-chip.md` | 首发实施计划 Task 1–17（已完成，历史存档） | 想看首发是怎么一步步做出来的 |
 
 ## 跑起来
 
@@ -16,21 +20,17 @@ npm test         # 单元测试（vitest）
 npm run build    # 类型检查 + 生产构建
 ```
 
-Node 需要 20+。如果 `node` 不在 PATH 里，本机可用：
-
-```bash
-export PATH="/home/nicola/.workbuddy/binaries/node/versions/20.18.0/bin:$PATH"
-```
+Node 需要 20+（本机验证用 v22.22.2）。若 `node` 不在 PATH 里，按 [Node 官网](https://nodejs.org)的方式安装，或把它的 `bin` 目录加进 PATH 后再执行上面的命令。
 
 ## 目录
 
 | 路径 | 职责 |
 |---|---|
 | `src/app/` | 应用外壳与路由 |
-| `src/components/` | 设计系统基件（按钮、卡片、进度环、底部导航） |
+| `src/components/` | 设计系统基件：按钮、卡片、进度环、底部导航（移动）、顶部导航（桌面） |
 | `src/illustrations/` | 20 张章节概念图 + 吉祥物小芯（手写 SVG，`base.tsx` 是共用图元） |
 | `src/features/` | 页面：home / study / map / stats / settings |
-| `src/content/` | 知识卡数据（按主线分文件） |
+| `src/content/` | 知识卡数据（`tracks/` 放卡片，`details/` 放详细讲解长文） |
 | `src/lib/` | 与 UI 无关的算法：时间、间隔重复、统计、队列 |
 | `src/store/` | 持久化状态（zustand + IndexedDB） |
 
@@ -56,9 +56,13 @@ export PATH="/home/nicola/.workbuddy/binaries/node/versions/20.18.0/bin:$PATH"
 
 ## 还没做什么
 
-- 没有每日提醒推送、错题本
-- 没有账号与云同步（计划在 V2）
+- 图谱页还没做按主线分组的卡片下钻（设计文档 5.4 的欠账）
+- 80 张卡的事实准确性还没逐条审校（重点是补码、TLS 握手、RBAC 三处）
+- 没有账号与云同步、每日提醒推送（计划在 V2）
 
 ## 换环境接手
 
-先读 `docs/PROGRESS.md` 的最后一节，再读设计文档的「复习机制」和「数据模型」，然后 `npm test` 确认基线是绿的。
+1. 读 `docs/ROADMAP.md`——看还剩什么、为什么先做那个；
+2. 读 `docs/PROGRESS.md` 的「当前状态」与最后两节——看已经做到哪；
+3. 读设计文档的「复习机制」「数据模型」两节——理解算法约束；
+4. `npm test` 确认基线是绿的（应为 **84 个用例**）。
