@@ -6,6 +6,14 @@ export interface Chapter {
   blurb: string;
 }
 
+/** 讲解面的一步：把注意力聚到图上的某几块，并配一句旁白。 */
+export interface TeachStep {
+  /** 这一步的旁白，≤ 44 字 */
+  caption: string;
+  /** 要点亮的图元 id，见插画的 parts 定义 */
+  focus: string[];
+}
+
 export interface Card {
   id: string;
   track: TrackId;
@@ -15,6 +23,8 @@ export interface Card {
   illustration: string;
   /** 讲解面的一句话，≤ 40 字 */
   explain: string;
+  /** 分步图解；至少两步，最后一步讲完才允许进入答题 */
+  steps: TeachStep[];
   question: string;
   options: string[];
   answerIndex: number;

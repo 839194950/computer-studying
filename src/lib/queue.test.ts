@@ -10,6 +10,7 @@ const mk = (id: string, chapter: string): Card => ({
   title: id,
   illustration: 'spark',
   explain: 'e',
+  steps: [{ caption: 's', focus: [] }],
   question: 'q',
   options: ['a', 'b', 'c', 'd'],
   answerIndex: 0,

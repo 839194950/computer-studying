@@ -28,6 +28,7 @@ export function StudyPage() {
   );
   const [phase, setPhase] = useState<Phase>(runner.done ? 'done' : 'explain');
   const [picked, setPicked] = useState<number | null>(null);
+  const [stepIndex, setStepIndex] = useState(0);
   const [finished, setFinished] = useState(false);
   const total = useRef(runner.items.length);
 
@@ -36,6 +37,12 @@ export function StudyPage() {
   const Illustration = getIllustration(card?.illustration ?? 'spark');
   const isCorrect = picked !== null && card ? picked === card.answerIndex : false;
 
+  const steps = card?.steps ?? [];
+  const safeIndex = Math.min(stepIndex, Math.max(0, steps.length - 1));
+  const step = steps[safeIndex];
+  const lastStep = safeIndex >= steps.length - 1;
+  const focus = step?.focus ?? [];
+
   function pick(index: number) {
     if (!card || phase !== 'question') return;
     setPicked(index);
@@ -43,11 +50,20 @@ export function StudyPage() {
     answer(card.id, index === card.answerIndex);
   }
 
+  function nextStep() {
+    if (lastStep) {
+      setPhase('question');
+      return;
+    }
+    setStepIndex(safeIndex + 1);
+  }
+
   function advance() {
     if (!card) return;
     const next = answerRunner(runner, card.id, isCorrect);
     setRunner(next);
     setPicked(null);
+    setStepIndex(0);
     if (next.done) {
       if (!finished) {
         finishSession(ALL_CARDS.length);
@@ -61,29 +77,27 @@ export function StudyPage() {
 
   if (phase === 'done' || !card) {
     return (
-      <>
-        <Screen>
-          <StickerCard tone="paper" className="flex flex-col items-center gap-3 p-8 text-center">
-            <Mascot mood={finished ? 'happy' : 'sleep'} size={110} />
-            <h1 className="text-xl font-black text-ink">
-              {total.current === 0 ? '今天没有要复习的卡' : '这一轮清空了'}
-            </h1>
-            <p className="text-sm leading-relaxed text-muted">
-              完成 {total.current} 张 · 连续打卡 {resolveStreak(streak, Date.now()).current} 天
-            </p>
-            <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
-              <Link to="/" className="flex-1">
-                <Button full>回学习台</Button>
-              </Link>
-              <Link to="/map" className="flex-1">
-                <Button full variant="ghost">
-                  去地图看看
-                </Button>
-              </Link>
-            </div>
-          </StickerCard>
-        </Screen>
-      </>
+      <Screen>
+        <StickerCard tone="paper" className="flex flex-col items-center gap-3 p-8 text-center">
+          <Mascot mood={finished ? 'happy' : 'sleep'} size={110} />
+          <h1 className="text-xl font-black text-ink">
+            {total.current === 0 ? '今天没有要复习的卡' : '这一轮清空了'}
+          </h1>
+          <p className="text-sm leading-relaxed text-muted">
+            完成 {total.current} 张 · 连续打卡 {resolveStreak(streak, Date.now()).current} 天
+          </p>
+          <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
+            <Link to="/" className="flex-1">
+              <Button full>回学习台</Button>
+            </Link>
+            <Link to="/map" className="flex-1">
+              <Button full variant="ghost">
+                去地图看看
+              </Button>
+            </Link>
+          </div>
+        </StickerCard>
+      </Screen>
     );
   }
 
@@ -109,21 +123,56 @@ export function StudyPage() {
         <div className="flex items-center gap-3 border-b-[3px] border-ink bg-sun/60 px-4 py-3">
           <Mascot mood={phase === 'feedback' ? (isCorrect ? 'happy' : 'confused') : 'idle'} size={52} />
           <p className="text-xs font-bold leading-relaxed text-ink">
-            {phase === 'explain' ? card.explain : phase === 'question' ? '想清楚再点，不要猜。' : isCorrect ? '答对了，记忆加深。' : '答错了，这张会再回来。'}
+            {phase === 'explain'
+              ? card.explain
+              : phase === 'question'
+                ? '想清楚再点，不要猜。'
+                : isCorrect
+                  ? '答对了，记忆加深。'
+                  : '答错了，这张会再回来。'}
           </p>
         </div>
 
-        <div className="flex justify-center bg-paper px-6 py-6">
-          <Illustration className="h-32 w-auto" />
+        <div className="flex justify-center bg-paper px-4 py-4">
+          <Illustration className="h-36 w-auto sm:h-44" focus={focus} />
         </div>
 
         <div className="p-5">
           {phase === 'explain' ? (
             <>
               <h2 className="text-lg font-black text-ink">{card.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{card.explain}</p>
-              <Button full size="lg" className="mt-5" onClick={() => setPhase('question')}>
-                懂了，考考我
+
+              <div
+                className="mt-3 rounded-sticker border-[3px] border-ink bg-paper px-3 py-3"
+                aria-live="polite"
+              >
+                <p className="text-sm font-bold leading-relaxed text-ink">
+                  {step?.caption ?? card.explain}
+                </p>
+                <div className="mt-2 flex items-center gap-1.5">
+                  {steps.map((_, i) => (
+                    <span
+                      key={i}
+                      aria-hidden="true"
+                      className={
+                        i === safeIndex
+                          ? 'h-2 w-5 rounded-full bg-brand'
+                          : i < safeIndex
+                            ? 'h-2 w-2 rounded-full bg-brand/40'
+                            : 'h-2 w-2 rounded-full bg-ink/15'
+                      }
+                    />
+                  ))}
+                  {steps.length > 0 && (
+                    <span className="ml-auto font-mono text-[11px] font-bold text-muted">
+                      {safeIndex + 1}/{steps.length}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <Button full size="lg" className="mt-4" onClick={nextStep}>
+                {lastStep ? '懂了，考考我' : '看下一步'}
               </Button>
             </>
           ) : (
@@ -171,7 +220,7 @@ export function StudyPage() {
 
               {phase === 'feedback' && (
                 <Button full size="lg" className="mt-4" onClick={advance}>
-                  {runner.items.length === 1 ? '完成' : '下一张'}
+                  {runner.index >= runner.items.length - 1 ? '完成' : '下一张'}
                 </Button>
               )}
             </>

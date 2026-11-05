@@ -11,10 +11,21 @@ beforeEach(() => {
     snapshots: [],
     streak: { current: 0, longest: 0, lastActiveDate: null },
     session: { date: dayKey(Date.now()), reviewed: [], wrongs: {}, completed: false },
+    settings: { newCardsPerDay: 10, reducedMotion: false },
   });
 });
 
-it('从讲解面走到问题面，作答后出现下一张', async () => {
+/** 把讲解面的所有步骤走完，停在「懂了，考考我」之前。 */
+async function walkExplain(user: ReturnType<typeof userEvent.setup>) {
+  for (let guard = 0; guard < 12; guard += 1) {
+    const next = screen.queryByRole('button', { name: '看下一步' });
+    if (!next) return;
+    await user.click(next);
+  }
+  throw new Error('讲解步骤似乎没有终点');
+}
+
+it('讲解面要一步步走完，才出现答题选项', async () => {
   const user = userEvent.setup();
   render(
     <MemoryRouter>
@@ -22,7 +33,29 @@ it('从讲解面走到问题面，作答后出现下一张', async () => {
     </MemoryRouter>,
   );
 
+  expect(screen.queryAllByRole('button', { name: /^[ABCD]\./ })).toHaveLength(0);
+  expect(screen.getByRole('button', { name: '看下一步' })).toBeInTheDocument();
+
+  await walkExplain(user);
+
+  expect(screen.getByRole('button', { name: /懂了/ })).toBeInTheDocument();
+  expect(screen.queryAllByRole('button', { name: /^[ABCD]\./ })).toHaveLength(0);
+
   await user.click(screen.getByRole('button', { name: /懂了/ }));
+  expect(screen.getAllByRole('button', { name: /^[ABCD]\./ })).toHaveLength(4);
+});
+
+it('作答后出现解释与下一张按钮', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  await walkExplain(user);
+  await user.click(screen.getByRole('button', { name: /懂了/ }));
+
   const options = screen.getAllByRole('button', { name: /^[ABCD]\./ });
   await user.click(options[0]);
 
