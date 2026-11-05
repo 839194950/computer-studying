@@ -1,4 +1,5 @@
-import { TRACKS, ALL_CARDS } from './index';
+import { TRACKS, ALL_CARDS, getDetail } from './index';
+import { DETAILS } from './details';
 import { getDiagramParts, hasIllustration } from '../illustrations/registry';
 
 it('四条主线，每条五章', () => {
@@ -38,6 +39,27 @@ it('每张卡都有至少两步图解，旁白不超长', () => {
       expect(s.caption.length).toBeLessThanOrEqual(44);
       expect(Array.isArray(s.focus)).toBe(true);
     });
+  });
+});
+
+it('每张卡都有详细讲解，且小节完整', () => {
+  ALL_CARDS.forEach((c) => {
+    const detail = getDetail(c.id);
+    expect(detail.length).toBeGreaterThanOrEqual(2);
+    detail.forEach((s) => {
+      expect(s.heading.trim().length).toBeGreaterThan(0);
+      expect(s.heading.length).toBeLessThanOrEqual(16);
+      expect(s.body.length).toBeGreaterThanOrEqual(40);
+      expect(s.body.length).toBeLessThanOrEqual(180);
+    });
+    expect(new Set(detail.map((s) => s.heading)).size).toBe(detail.length);
+  });
+});
+
+it('详细讲解表里没有指向不存在卡片的条目', () => {
+  const ids = new Set(ALL_CARDS.map((c) => c.id));
+  Object.keys(DETAILS).forEach((id) => {
+    expect(ids.has(id)).toBe(true);
   });
 });
 

@@ -14,6 +14,14 @@ export interface TeachStep {
   focus: string[];
 }
 
+/** 详细讲解的一节：逐步图解给框架，这里补原理与易错点。 */
+export interface DetailSection {
+  /** ≤ 16 字 */
+  heading: string;
+  /** 60–160 字 */
+  body: string;
+}
+
 export interface Card {
   id: string;
   track: TrackId;

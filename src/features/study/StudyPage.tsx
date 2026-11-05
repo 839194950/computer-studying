@@ -6,7 +6,7 @@ import { Button } from '../../components/Button';
 import { StickerCard } from '../../components/StickerCard';
 import { Mascot } from '../../illustrations/Mascot';
 import { getIllustration } from '../../illustrations/registry';
-import { ALL_CARDS, TRACKS, getCard } from '../../content';
+import { ALL_CARDS, TRACKS, getCard, getDetail } from '../../content';
 import { useStore } from '../../store/useStore';
 import { buildQueue } from '../../lib/queue';
 import { resolveStreak } from '../../lib/stats';
@@ -38,6 +38,7 @@ export function StudyPage() {
   const isCorrect = picked !== null && card ? picked === card.answerIndex : false;
 
   const steps = card?.steps ?? [];
+  const detail = card ? getDetail(card.id) : [];
   const safeIndex = Math.min(stepIndex, Math.max(0, steps.length - 1));
   const step = steps[safeIndex];
   const lastStep = safeIndex >= steps.length - 1;
@@ -133,8 +134,8 @@ export function StudyPage() {
           </p>
         </div>
 
-        <div className="flex justify-center bg-paper px-4 py-4">
-          <Illustration className="h-36 w-auto sm:h-44" focus={focus} />
+        <div className="flex justify-center bg-paper px-3 py-4">
+          <Illustration className="h-auto w-full max-w-[620px]" focus={focus} />
         </div>
 
         <div className="p-5">
@@ -170,6 +171,26 @@ export function StudyPage() {
                   )}
                 </div>
               </div>
+
+              <details key={card.id} className="group mt-3 rounded-sticker border-[3px] border-ink bg-white">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                  <span className="text-sm font-black text-ink">详细讲解</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-muted">
+                    {detail.length} 节
+                    <span aria-hidden="true" className="transition-transform group-open:rotate-180">
+                      ▾
+                    </span>
+                  </span>
+                </summary>
+                <div className="space-y-3.5 border-t-[3px] border-ink px-3 py-3.5">
+                  {detail.map((section) => (
+                    <section key={section.heading}>
+                      <h3 className="text-[13px] font-black text-brand">{section.heading}</h3>
+                      <p className="mt-1 text-[13px] leading-[1.9] text-ink/85">{section.body}</p>
+                    </section>
+                  ))}
+                </div>
+              </details>
 
               <Button full size="lg" className="mt-4" onClick={nextStep}>
                 {lastStep ? '懂了，考考我' : '看下一步'}

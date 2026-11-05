@@ -4,7 +4,8 @@ import { os } from './tracks/os';
 import { security } from './tracks/security';
 import type { Card, Track, TrackId } from './types';
 
-export type { Card, Chapter, Track, TrackId } from './types';
+export type { Card, Chapter, DetailSection, TeachStep, Track, TrackId } from './types';
+export { getDetail } from './details';
 
 export const TRACKS: Track[] = [hardware, language, os, security];
 
