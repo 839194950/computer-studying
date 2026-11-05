@@ -8,7 +8,7 @@ import { Mascot } from '../../illustrations/Mascot';
 import { ALL_CARDS, TRACKS } from '../../content';
 import { useStore } from '../../store/useStore';
 import { buildQueue } from '../../lib/queue';
-import { masteryPercent, resolveStreak } from '../../lib/stats';
+import { masteryPercent, resolveStreak, weakCards } from '../../lib/stats';
 import { dayKey } from '../../lib/time';
 
 export function HomePage() {
@@ -23,6 +23,7 @@ export function HomePage() {
   const currentStreak = resolveStreak(streak, now).current;
   const doneToday = session.date === dayKey(now) ? session.reviewed.length : 0;
   const empty = queue.length === 0;
+  const weak = weakCards(progress, ALL_CARDS);
 
   return (
     <>
@@ -72,6 +73,24 @@ export function HomePage() {
             <Button size="lg" full>
               开始今天的复习 · {queue.length} 张
             </Button>
+          </Link>
+        )}
+
+        {weak.length > 0 && (
+          <Link to="/study?mode=weak" className="mb-4 block">
+            <StickerCard
+              tone="pink"
+              className="flex items-center gap-3 p-4 transition-[transform,box-shadow] duration-150 hover:-translate-y-[3px] hover:shadow-pop-lg"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-white text-base font-black text-ink">
+                !
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-black text-ink">薄弱 {weak.length} 张</div>
+                <p className="mt-0.5 text-[11px] font-bold text-ink/70">答错过、还没记牢的卡</p>
+              </div>
+              <span className="shrink-0 text-sm font-black text-ink">去练 →</span>
+            </StickerCard>
           </Link>
         )}
 

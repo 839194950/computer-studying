@@ -1,4 +1,4 @@
-import { cardStatus, masteryPercent, bumpStreak, resolveStreak } from './stats';
+import { cardStatus, masteryPercent, bumpStreak, resolveStreak, weakCards } from './stats';
 import type { CardProgress } from './srs';
 
 const now = new Date(2026, 2, 15, 10).getTime();
@@ -35,4 +35,38 @@ it('断签清零但保留最长记录', () => {
   const s = resolveStreak({ current: 7, longest: 9, lastActiveDate: '2026-03-01' }, now);
   expect(s.current).toBe(0);
   expect(s.longest).toBe(9);
+});
+
+describe('weakCards', () => {
+  const cards = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }];
+  const lp = (id: string, box: 1 | 2 | 3 | 4 | 5, lapses: number): CardProgress => ({
+    cardId: id,
+    box,
+    dueAt: now,
+    lastReviewedAt: now,
+    lapses,
+  });
+
+  it('只挑答错过、且还没记牢的卡', () => {
+    const progress = {
+      a: lp('a', 2, 3),
+      b: lp('b', 4, 5),
+      c: lp('c', 1, 1),
+      d: lp('d', 3, 0),
+    };
+    expect(weakCards(progress, cards)).toEqual(['a', 'c']);
+  });
+
+  it('错得多的排前面；同错次时档位低的排前面', () => {
+    const progress = {
+      a: lp('a', 3, 1),
+      b: lp('b', 1, 1),
+      c: lp('c', 2, 4),
+    };
+    expect(weakCards(progress, cards)).toEqual(['c', 'b', 'a']);
+  });
+
+  it('没有任何进度时返回空数组', () => {
+    expect(weakCards({}, cards)).toEqual([]);
+  });
 });

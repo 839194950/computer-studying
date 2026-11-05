@@ -112,3 +112,112 @@ it('未解锁的章节直接进会给出空态而不是白屏', () => {
   );
   expect(screen.getByText(/这一章今天没有安排/)).toBeInTheDocument();
 });
+
+const hwCpuMastered = () =>
+  Object.fromEntries(
+    ['hw-cpu-01', 'hw-cpu-02', 'hw-cpu-03', 'hw-cpu-04'].map((id) => [
+      id,
+      {
+        cardId: id,
+        box: 5 as const,
+        dueAt: Date.now() + 9e9,
+        lastReviewedAt: Date.now(),
+        lapses: 0,
+      },
+    ]),
+  );
+
+it('错题本模式只出现答错过且没记牢的卡', () => {
+  useStore.setState({
+    progress: {
+      'hw-cpu-01': { cardId: 'hw-cpu-01', box: 1, dueAt: Date.now() + 9e9, lastReviewedAt: Date.now(), lapses: 3 },
+      // 记牢了，不算薄弱
+      'hw-cpu-02': { cardId: 'hw-cpu-02', box: 5, dueAt: Date.now() + 9e9, lastReviewedAt: Date.now(), lapses: 5 },
+      // 没错过，不算薄弱
+      'hw-cpu-03': { cardId: 'hw-cpu-03', box: 3, dueAt: Date.now() + 9e9, lastReviewedAt: Date.now(), lapses: 0 },
+    },
+  });
+
+  render(
+    <MemoryRouter initialEntries={['/study?mode=weak']}>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText('CPU 到底在重复什么')).toBeInTheDocument();
+  expect(screen.queryByText('缓存是桌边那摞常用书')).toBeNull();
+  expect(screen.queryByText('内存是张会擦掉的草稿纸')).toBeNull();
+});
+
+it('通关的章节给出再练一遍的入口', () => {
+  useStore.setState({ progress: hwCpuMastered() });
+
+  render(
+    <MemoryRouter initialEntries={['/study?chapter=hw-cpu']}>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText(/这一章今天没有安排/)).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: '再练一遍' })).toHaveAttribute(
+    'href',
+    '/study?chapter=hw-cpu&free=1',
+  );
+});
+
+it('自由复习会把整章的卡都列出来', () => {
+  useStore.setState({ progress: hwCpuMastered() });
+
+  render(
+    <MemoryRouter initialEntries={['/study?chapter=hw-cpu&free=1']}>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText('CPU 到底在重复什么')).toBeInTheDocument();
+  expect(screen.getByText('1/4')).toBeInTheDocument();
+});
+
+it('答错时详细讲解自动展开，答对时保持收起', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  await walkExplain(user);
+  await user.click(screen.getByRole('button', { name: /懂了/ }));
+
+  const options = screen.getAllByRole('button', { name: /^[ABCD]\./ });
+  await user.click(options[0]); // 第一张卡答案是 B，选 A 必然错
+  expect(screen.getByText('详细讲解').closest('details')).toHaveAttribute('open');
+});
+
+it('键盘可以选答案并进入反馈', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  await walkExplain(user);
+  await user.click(screen.getByRole('button', { name: /懂了/ }));
+
+  await user.keyboard('1');
+  expect(screen.getByRole('button', { name: /下一张|完成/ })).toBeInTheDocument();
+});
+
+it('Enter 可以推进讲解步骤', async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText('1/3')).toBeInTheDocument();
+  await user.keyboard('{Enter}');
+  expect(screen.getByText('2/3')).toBeInTheDocument();
+});

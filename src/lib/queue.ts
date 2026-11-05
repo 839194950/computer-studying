@@ -52,15 +52,30 @@ export function unlockedChapters(
   return result;
 }
 
+/** 把给定的卡按顺序排成队列，用于错题本这类定向练习。 */
+export function buildCardQueue(cardIds: readonly string[]): QueueItem[] {
+  return cardIds.map((id) => ({ cardId: id, isNew: false }));
+}
+
 /** 到期卡（按到期时间升序）+ 新卡（按主线轮转、章内顺序，受每日上限约束）。 */
 export function buildQueue(
   tracks: Track[],
   progress: Record<string, CardProgress>,
-  opts: { newLimit: number; now: number; chapterId?: string },
+  opts: { newLimit: number; now: number; chapterId?: string; includeAll?: boolean },
 ): QueueItem[] {
-  const { newLimit, now, chapterId } = opts;
+  const { newLimit, now, chapterId, includeAll } = opts;
   /** 指定章节时只看这一章的卡；不指定就是全局队列。 */
   const inScope = (card: Card) => !chapterId || card.chapter === chapterId;
+
+  // 自由复习：范围内所有卡都上，已到期的排前面，不受每日新卡上限约束。
+  if (includeAll) {
+    const all = tracks.flatMap((t) => t.cards).filter(inScope);
+    const due = all
+      .filter((c) => progress[c.id] && isDue(progress[c.id], now))
+      .sort((a, b) => progress[a.id]!.dueAt - progress[b.id]!.dueAt);
+    const rest = all.filter((c) => !due.includes(c));
+    return [...due, ...rest].map((c) => ({ cardId: c.id, isNew: !progress[c.id] }));
+  }
 
   const due: QueueItem[] = [];
   for (const track of tracks) {

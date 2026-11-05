@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom';
 import { Screen } from '../../components/Screen';
 import { StickerCard } from '../../components/StickerCard';
 import { ProgressRing } from '../../components/ProgressRing';
 import { BottomNav } from '../../components/BottomNav';
 import { ALL_CARDS, TRACKS } from '../../content';
 import { useStore } from '../../store/useStore';
-import { cardStatus, masteryPercent, type CardStatus } from '../../lib/stats';
+import { cardStatus, masteryPercent, weakCards, type CardStatus } from '../../lib/stats';
 import { MasteryBar } from './MasteryBar';
 import { TrendChart } from './TrendChart';
 
@@ -31,6 +32,7 @@ export function StatsPage() {
     ...l,
     count: cards.filter((c) => c.status === l.status).length,
   }));
+  const weak = weakCards(progress, ALL_CARDS);
 
   return (
     <>
@@ -52,6 +54,15 @@ export function StatsPage() {
         <div className="mb-5">
           <MasteryBar cards={cards} />
         </div>
+
+        {weak.length > 0 && (
+          <Link to="/study?mode=weak" className="mb-5 block">
+            <div className="flex items-center justify-between rounded-sticker border-[3px] border-ink bg-pink px-4 py-3 transition-[transform,box-shadow] duration-150 hover:-translate-y-[3px] hover:shadow-pop-lg">
+              <span className="text-sm font-black text-ink">薄弱卡 {weak.length} 张</span>
+              <span className="text-xs font-black text-ink">单独练一遍 →</span>
+            </div>
+          </Link>
+        )}
 
         <h2 className="mb-2 text-sm font-black text-ink">近 30 天掌握度</h2>
         <div className="mb-5">

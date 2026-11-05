@@ -50,3 +50,24 @@ export function resolveStreak(s: Streak, now: number): Streak {
   if (gap <= 1) return s;
   return { ...s, current: 0 };
 }
+
+/**
+ * 薄弱卡：答错过、且还没到「记牢」档的卡。
+ * 排序按答错次数降序、档位升序——错得最多的、记得最浅的排最前。
+ */
+export function weakCards(
+  progress: Record<string, CardProgress>,
+  cards: readonly { id: string }[],
+): string[] {
+  return cards
+    .filter((c) => {
+      const p = progress[c.id];
+      return !!p && p.lapses >= 1 && p.box < 4;
+    })
+    .sort((a, b) => {
+      const pa = progress[a.id]!;
+      const pb = progress[b.id]!;
+      return pb.lapses - pa.lapses || pa.box - pb.box;
+    })
+    .map((c) => c.id);
+}

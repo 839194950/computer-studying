@@ -57,3 +57,28 @@ it('全部记牢且未到期时显示"今天没事了"', () => {
   expect(screen.getByText('今天没事了')).toBeInTheDocument();
   expect(screen.getByText('100')).toBeInTheDocument();
 });
+
+it('有答错未记牢的卡时出现薄弱卡入口', () => {
+  useStore.setState({
+    progress: {
+      'hw-cpu-01': { cardId: 'hw-cpu-01', box: 1, dueAt: now + 9e9, lastReviewedAt: now, lapses: 2 },
+    },
+  });
+
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('薄弱 1 张')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /薄弱/ })).toHaveAttribute('href', '/study?mode=weak');
+});
+
+it('没有薄弱卡时不显示入口', () => {
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByText(/薄弱/)).toBeNull();
+});

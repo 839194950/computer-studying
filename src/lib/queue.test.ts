@@ -1,4 +1,4 @@
-import { buildQueue, chapterState, unlockedChapters } from './queue';
+import { buildQueue, buildCardQueue, chapterState, unlockedChapters } from './queue';
 import type { Card, Track } from '../content/types';
 import type { CardProgress } from './srs';
 
@@ -83,4 +83,25 @@ it('指定章节时，该章的到期卡仍然排在前面', () => {
   };
   const q = buildQueue([track], progress, { newLimit: 10, now, chapterId: 'c1' });
   expect(q).toEqual([{ cardId: 'a2', isNew: false }]);
+});
+
+it('includeAll 把整章都排进队列，到期的排前面，且不受每日新卡上限约束', () => {
+  const progress: Record<string, CardProgress> = {
+    a1: mastered('a1'),
+    a2: { cardId: 'a2', box: 2, dueAt: now - 1, lastReviewedAt: now, lapses: 0 },
+  };
+  const q = buildQueue([track], progress, {
+    newLimit: 0,
+    now,
+    chapterId: 'c1',
+    includeAll: true,
+  });
+  expect(q.map((i) => i.cardId)).toEqual(['a2', 'a1']);
+});
+
+it('buildCardQueue 按给定顺序原样返回', () => {
+  expect(buildCardQueue(['b1', 'a1'])).toEqual([
+    { cardId: 'b1', isNew: false },
+    { cardId: 'a1', isNew: false },
+  ]);
 });
