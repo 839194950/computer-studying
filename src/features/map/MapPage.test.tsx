@@ -34,3 +34,21 @@ it('有卡片的章节全部出现在地图上，共 20 章', () => {
   });
   expect(screen.queryByText('这一条线还在写卡')).toBeNull();
 });
+
+it('每个可进入的章节都链到自己的 chapter 参数', () => {
+  render(
+    <MemoryRouter>
+      <MapPage />
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole('link', { name: /计算机组成/ })).toHaveAttribute(
+    'href',
+    '/study?chapter=hw-cpu',
+  );
+  expect(screen.getByRole('link', { name: /变量与类型/ })).toHaveAttribute(
+    'href',
+    '/study?chapter=lang-var',
+  );
+  // 未解锁的章节不给链接
+  expect(screen.queryByRole('link', { name: /二进制与编码/ })).toBeNull();
+});

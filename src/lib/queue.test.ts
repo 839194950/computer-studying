@@ -69,3 +69,18 @@ it('没有可学的卡时返回空队列而不是崩', () => {
   };
   expect(buildQueue([track], progress, { newLimit: 10, now })).toEqual([]);
 });
+
+it('指定章节时只返回该章节的卡', () => {
+  const progress = { a1: mastered('a1'), a2: mastered('a2') };
+  expect(buildQueue([track], progress, { newLimit: 10, now, chapterId: 'c2' }).map((i) => i.cardId)).toEqual(['b1']);
+  expect(buildQueue([track], progress, { newLimit: 10, now, chapterId: 'c1' })).toEqual([]);
+});
+
+it('指定章节时，该章的到期卡仍然排在前面', () => {
+  const progress: Record<string, CardProgress> = {
+    a1: mastered('a1'),
+    a2: { cardId: 'a2', box: 2, dueAt: now - 1, lastReviewedAt: now, lapses: 0 },
+  };
+  const q = buildQueue([track], progress, { newLimit: 10, now, chapterId: 'c1' });
+  expect(q).toEqual([{ cardId: 'a2', isNew: false }]);
+});

@@ -80,3 +80,35 @@ it('队列为空时直接给出结算而不是白屏', async () => {
   );
   expect(screen.getByText(/今天没有要复习的卡/)).toBeInTheDocument();
 });
+
+it('带 chapter 参数时只学这一章，不串到别的章节', () => {
+  const now = Date.now();
+  // 先把第一章全部记牢，解锁第二章
+  useStore.setState({
+    progress: Object.fromEntries(
+      ['hw-cpu-01', 'hw-cpu-02', 'hw-cpu-03', 'hw-cpu-04'].map((id) => [
+        id,
+        { cardId: id, box: 5 as const, dueAt: now + 9e9, lastReviewedAt: now, lapses: 0 },
+      ]),
+    ),
+  });
+
+  render(
+    <MemoryRouter initialEntries={['/study?chapter=hw-binary']}>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText('一个字节有多大')).toBeInTheDocument();
+  expect(screen.queryByText('CPU 到底在重复什么')).toBeNull();
+  expect(screen.getByRole('link', { name: /二进制与编码/ })).toBeInTheDocument();
+});
+
+it('未解锁的章节直接进会给出空态而不是白屏', () => {
+  render(
+    <MemoryRouter initialEntries={['/study?chapter=hw-network']}>
+      <StudyPage />
+    </MemoryRouter>,
+  );
+  expect(screen.getByText(/这一章今天没有安排/)).toBeInTheDocument();
+});

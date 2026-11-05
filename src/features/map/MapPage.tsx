@@ -41,6 +41,7 @@ export function MapPage() {
                       return (
                         <ChapterNode
                           key={chapter.id}
+                          chapterId={chapter.id}
                           index={i}
                           title={chapter.title}
                           blurb={chapter.blurb}

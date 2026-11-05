@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
 import { StickerCard } from '../../components/StickerCard';
 import { Mascot } from '../../illustrations/Mascot';
 import { getIllustration } from '../../illustrations/registry';
-import { ALL_CARDS, TRACKS, getCard, getDetail } from '../../content';
+import { ALL_CARDS, TRACKS, findChapter, getCard, getDetail } from '../../content';
 import { useStore } from '../../store/useStore';
 import { buildQueue } from '../../lib/queue';
 import { resolveStreak } from '../../lib/stats';
@@ -16,15 +16,33 @@ type Phase = 'explain' | 'question' | 'feedback' | 'done';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
+/**
+ * 带 ?chapter=xxx 时只学这一章，否则是今天全局的复习队列。
+ * 外壳负责读参数并用 key 重建会话，保证换章节时队列跟着换。
+ */
 export function StudyPage() {
+  const [params] = useSearchParams();
+  const chapterId = params.get('chapter') ?? undefined;
+  return <StudySession key={chapterId ?? 'all'} chapterId={chapterId} />;
+}
+
+function StudySession({ chapterId }: { chapterId?: string }) {
   const answer = useStore((s) => s.answer);
   const finishSession = useStore((s) => s.finishSession);
   const progress = useStore((s) => s.progress);
   const settings = useStore((s) => s.settings);
   const streak = useStore((s) => s.streak);
 
+  const scope = chapterId ? findChapter(chapterId) : undefined;
+
   const [runner, setRunner] = useState<Runner>(() =>
-    startRunner(buildQueue(TRACKS, progress, { newLimit: settings.newCardsPerDay, now: Date.now() })),
+    startRunner(
+      buildQueue(TRACKS, progress, {
+        newLimit: settings.newCardsPerDay,
+        now: Date.now(),
+        chapterId,
+      }),
+    ),
   );
   const [phase, setPhase] = useState<Phase>(runner.done ? 'done' : 'explain');
   const [picked, setPicked] = useState<number | null>(null);
@@ -77,23 +95,28 @@ export function StudyPage() {
   }
 
   if (phase === 'done' || !card) {
+    const empty = total.current === 0;
     return (
       <Screen>
         <StickerCard tone="paper" className="flex flex-col items-center gap-3 p-8 text-center">
           <Mascot mood={finished ? 'happy' : 'sleep'} size={110} />
           <h1 className="text-xl font-black text-ink">
-            {total.current === 0 ? '今天没有要复习的卡' : '这一轮清空了'}
+            {empty ? (scope ? '这一章今天没有安排' : '今天没有要复习的卡') : '这一轮清空了'}
           </h1>
           <p className="text-sm leading-relaxed text-muted">
-            完成 {total.current} 张 · 连续打卡 {resolveStreak(streak, Date.now()).current} 天
+            {empty
+              ? scope
+                ? '本章到期的卡和今天的新卡都处理完了，明天再来，也可以换一章。'
+                : '到期的卡都做完了，明天再来。想多学可以先去地图上开新章节。'
+              : `完成 ${total.current} 张 · 连续打卡 ${resolveStreak(streak, Date.now()).current} 天`}
           </p>
           <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
-            <Link to="/" className="flex-1">
-              <Button full>回学习台</Button>
+            <Link to={scope ? '/map' : '/'} className="flex-1">
+              <Button full>{scope ? '回章节地图' : '回学习台'}</Button>
             </Link>
-            <Link to="/map" className="flex-1">
+            <Link to="/stats" className="flex-1">
               <Button full variant="ghost">
-                去地图看看
+                去图谱看看
               </Button>
             </Link>
           </div>
@@ -105,8 +128,8 @@ export function StudyPage() {
   return (
     <Screen>
       <div className="mb-4 flex items-center gap-3">
-        <Link to="/" className="text-sm font-bold text-muted">
-          ← 退出
+        <Link to={scope ? '/map' : '/'} className="shrink-0 text-sm font-bold text-muted">
+          ← {scope ? scope.chapter.title : '退出'}
         </Link>
         <div className="h-2.5 flex-1 overflow-hidden rounded-full border-2 border-ink bg-white">
           <motion.div

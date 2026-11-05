@@ -56,13 +56,16 @@ export function unlockedChapters(
 export function buildQueue(
   tracks: Track[],
   progress: Record<string, CardProgress>,
-  opts: { newLimit: number; now: number },
+  opts: { newLimit: number; now: number; chapterId?: string },
 ): QueueItem[] {
-  const { newLimit, now } = opts;
+  const { newLimit, now, chapterId } = opts;
+  /** 指定章节时只看这一章的卡；不指定就是全局队列。 */
+  const inScope = (card: Card) => !chapterId || card.chapter === chapterId;
 
   const due: QueueItem[] = [];
   for (const track of tracks) {
     for (const card of track.cards) {
+      if (!inScope(card)) continue;
       const p = progress[card.id];
       if (p && isDue(p, now)) due.push({ cardId: card.id, isNew: false });
     }
@@ -74,7 +77,10 @@ export function buildQueue(
     const learned = (t: Track) => t.cards.filter((c) => progress[c.id]).length;
     const pools = tracks.map((t) => {
       const open = new Set(unlockedChapters(t, progress));
-      return { track: t, cards: t.cards.filter((c) => open.has(c.chapter) && !progress[c.id]) };
+      return {
+        track: t,
+        cards: t.cards.filter((c) => inScope(c) && open.has(c.chapter) && !progress[c.id]),
+      };
     });
 
     while (newItems.length < newLimit) {
