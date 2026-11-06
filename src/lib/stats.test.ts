@@ -1,4 +1,11 @@
-import { cardStatus, masteryPercent, bumpStreak, resolveStreak, weakCards } from './stats';
+import {
+  cardStatus,
+  masteryPercent,
+  bumpStreak,
+  resolveStreak,
+  weakCards,
+  pickFocusTrack,
+} from './stats';
 import type { CardProgress } from './srs';
 
 const now = new Date(2026, 2, 15, 10).getTime();
@@ -68,5 +75,43 @@ describe('weakCards', () => {
 
   it('没有任何进度时返回空数组', () => {
     expect(weakCards({}, cards)).toEqual([]);
+  });
+});
+
+describe('pickFocusTrack', () => {
+  const tracks = [
+    { id: 'a', cards: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }] },
+    { id: 'b', cards: [{ id: 'b1' }, { id: 'b2' }] },
+  ];
+  const at = (id: string, box: 1 | 2 | 3 | 4 | 5, dueAt: number): CardProgress => ({
+    cardId: id,
+    box,
+    dueAt,
+    lastReviewedAt: now,
+    lapses: 0,
+  });
+
+  it('"快忘了"压过数量更多的"没学过"', () => {
+    const progress = { b1: at('b1', 2, now - 1) };
+    expect(pickFocusTrack(tracks, progress, now)).toBe('b');
+  });
+
+  it('同一档位里挑卡数最多的那条', () => {
+    const progress = {
+      a1: at('a1', 3, now + 1000),
+      b1: at('b1', 3, now + 1000),
+      b2: at('b2', 3, now + 1000),
+    };
+    expect(pickFocusTrack(tracks, progress, now)).toBe('b');
+  });
+
+  it('"刚学会"压过"没学过"', () => {
+    const progress = { a1: at('a1', 2, now + 1000) };
+    expect(pickFocusTrack(tracks, progress, now)).toBe('a');
+  });
+
+  it('全都没学过时展开第一条，没有主线时返回 null', () => {
+    expect(pickFocusTrack(tracks, {}, now)).toBe('a');
+    expect(pickFocusTrack([], {}, now)).toBeNull();
   });
 });

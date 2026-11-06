@@ -100,17 +100,23 @@ export function HomePage() {
             const learned = track.cards.filter((c) => (progress[c.id]?.box ?? 0) >= 4).length;
             const percent = track.cards.length === 0 ? 0 : Math.round((learned / track.cards.length) * 100);
             return (
-              <StickerCard key={track.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-black text-ink">{track.title}</span>
-                  <span className="text-xs font-bold text-muted">
-                    {learned}/{track.cards.length}
-                  </span>
-                </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper">
-                  <div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
-                </div>
-              </StickerCard>
+              <Link
+                key={track.id}
+                to="/map"
+                className="group block rounded-blob focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              >
+                <StickerCard className="p-4 transition-[transform,box-shadow,background-color] duration-150 group-hover:-translate-y-[3px] group-hover:bg-brand/[0.06] group-hover:shadow-pop-lg active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black text-ink">{track.title}</span>
+                    <span className="text-xs font-bold text-muted">
+                      {learned}/{track.cards.length}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper">
+                    <div className="h-full rounded-full bg-brand" style={{ width: `${percent}%` }} />
+                  </div>
+                </StickerCard>
+              </Link>
             );
           })}
         </div>

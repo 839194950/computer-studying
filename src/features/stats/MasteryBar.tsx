@@ -1,13 +1,5 @@
 import type { CardStatus } from '../../lib/stats';
-
-const ORDER: CardStatus[] = ['mastered', 'learning', 'forgotten', 'new'];
-
-const STYLE: Record<CardStatus, { bg: string; label: string }> = {
-  mastered: { bg: 'bg-mint', label: '记牢了' },
-  learning: { bg: 'bg-sun', label: '刚学会' },
-  forgotten: { bg: 'bg-pink', label: '快忘了' },
-  new: { bg: 'bg-brand/30', label: '没学过' },
-};
+import { STATUS_ORDER, STATUS_STYLE } from './statusStyle';
 
 interface MasteryBarProps {
   cards: { id: string; status: CardStatus }[];
@@ -25,15 +17,15 @@ export function MasteryBar({ cards }: MasteryBarProps) {
 
   return (
     <div className="flex flex-wrap gap-1.5 rounded-sticker border-[3px] border-ink bg-white p-3">
-      {ORDER.flatMap((status) =>
+      {STATUS_ORDER.flatMap((status) =>
         cards
           .filter((c) => c.status === status)
           .map((c) => (
             <span
               key={c.id}
-              aria-label={STYLE[status].label}
-              title={STYLE[status].label}
-              className={`h-6 w-6 rounded-md border-2 border-ink ${STYLE[status].bg}`}
+              aria-label={STATUS_STYLE[status].label}
+              title={STATUS_STYLE[status].label}
+              className={`h-6 w-6 rounded-md border-2 border-ink ${STATUS_STYLE[status].bg}`}
             />
           )),
       )}

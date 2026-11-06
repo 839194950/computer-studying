@@ -82,3 +82,15 @@ it('没有薄弱卡时不显示入口', () => {
   );
   expect(screen.queryByText(/薄弱/)).toBeNull();
 });
+
+it('四条主线都能点进章节地图', () => {
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+
+  for (const title of ['硬件与原理', '编程语言', '操作系统', '网络安全']) {
+    expect(screen.getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', '/map');
+  }
+});

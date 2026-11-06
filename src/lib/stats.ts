@@ -51,6 +51,33 @@ export function resolveStreak(s: Streak, now: number): Streak {
   return { ...s, current: 0 };
 }
 
+/** 关注优先级：快要忘的 → 刚学会的 → 还没学的。记牢的不参与。 */
+const FOCUS_TIERS: CardStatus[] = ['forgotten', 'learning', 'new'];
+
+/**
+ * 图谱页默认展开哪条主线：先看谁有「快忘了」的卡，没有就看「刚学会」，
+ * 再没有就看「没学过」最多的一条；全都没学过时展开第一条。
+ */
+export function pickFocusTrack<T extends { id: string; cards: readonly { id: string }[] }>(
+  tracks: readonly T[],
+  progress: Record<string, CardProgress>,
+  now: number,
+): T['id'] | null {
+  for (const tier of FOCUS_TIERS) {
+    let best: T | null = null;
+    let bestCount = 0;
+    for (const track of tracks) {
+      const count = track.cards.filter((c) => cardStatus(progress[c.id], now) === tier).length;
+      if (count > bestCount) {
+        best = track;
+        bestCount = count;
+      }
+    }
+    if (best) return best.id;
+  }
+  return tracks[0]?.id ?? null;
+}
+
 /**
  * 薄弱卡：答错过、且还没到「记牢」档的卡。
  * 排序按答错次数降序、档位升序——错得最多的、记得最浅的排最前。

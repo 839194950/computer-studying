@@ -1,38 +1,41 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Screen } from '../../components/Screen';
 import { StickerCard } from '../../components/StickerCard';
 import { ProgressRing } from '../../components/ProgressRing';
 import { BottomNav } from '../../components/BottomNav';
-import { ALL_CARDS, TRACKS } from '../../content';
+import { ALL_CARDS, TRACKS, type TrackId } from '../../content';
 import { useStore } from '../../store/useStore';
-import { cardStatus, masteryPercent, weakCards, type CardStatus } from '../../lib/stats';
+import { cardStatus, masteryPercent, pickFocusTrack, weakCards } from '../../lib/stats';
+import { formatMonthDay } from '../../lib/time';
+import { CardRow } from './CardRow';
+import { readFoldTrack, writeFoldTrack } from './foldState';
 import { MasteryBar } from './MasteryBar';
+import { STATUS_ORDER, STATUS_STYLE } from './statusStyle';
 import { TrendChart } from './TrendChart';
-
-const LEGEND: { status: CardStatus; label: string; dot: string }[] = [
-  { status: 'mastered', label: '记牢了', dot: 'bg-mint' },
-  { status: 'learning', label: '刚学会', dot: 'bg-sun' },
-  { status: 'forgotten', label: '快忘了', dot: 'bg-pink' },
-  { status: 'new', label: '没学过', dot: 'bg-brand/30' },
-];
-
-function formatDue(ts: number): string {
-  const d = new Date(ts);
-  return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
-}
 
 export function StatsPage() {
   const progress = useStore((s) => s.progress);
   const snapshots = useStore((s) => s.snapshots);
   const now = Date.now();
+  const [openTrack, setOpenTrack] = useState<TrackId | null | undefined>(readFoldTrack);
 
   const mastery = masteryPercent(progress, ALL_CARDS.length);
   const cards = ALL_CARDS.map((c) => ({ id: c.id, status: cardStatus(progress[c.id], now) }));
-  const counts = LEGEND.map((l) => ({
-    ...l,
-    count: cards.filter((c) => c.status === l.status).length,
+  const counts = STATUS_ORDER.map((status) => ({
+    status,
+    ...STATUS_STYLE[status],
+    count: cards.filter((c) => c.status === status).length,
   }));
   const weak = weakCards(progress, ALL_CARDS);
+
+  // 没手动选过就用默认规则挑一条；手动收起后不再自动展开。
+  const activeTrack = openTrack === undefined ? pickFocusTrack(TRACKS, progress, now) : openTrack;
+  const toggleTrack = (id: TrackId) => {
+    const next = activeTrack === id ? null : id;
+    setOpenTrack(next);
+    writeFoldTrack(next);
+  };
 
   return (
     <>
@@ -42,7 +45,7 @@ export function StatsPage() {
           <ul className="m-0 flex-1 list-none space-y-1.5 p-0">
             {counts.map((item) => (
               <li key={item.status} className="flex items-center gap-2 text-xs font-bold text-ink">
-                <i className={`inline-block h-3 w-3 rounded-[3px] border-2 border-ink ${item.dot}`} />
+                <i className={`inline-block h-3 w-3 rounded-[3px] border-2 border-ink ${item.bg}`} />
                 <span>{item.label}</span>
                 <span className="ml-auto font-mono text-muted">{item.count}</span>
               </li>
@@ -77,21 +80,56 @@ export function StatsPage() {
               .map((c) => progress[c.id])
               .filter((p) => p && p.dueAt > now)
               .sort((a, b) => a!.dueAt - b!.dueAt)[0];
+            const isOpen = activeTrack === track.id;
             return (
               <StickerCard key={track.id} className="p-4">
-                <div className="flex items-center justify-between text-sm font-black text-ink">
+                <button
+                  type="button"
+                  onClick={() => toggleTrack(track.id)}
+                  aria-expanded={isOpen}
+                  aria-controls={`track-${track.id}`}
+                  className="flex w-full items-center justify-between gap-2 text-left text-sm font-black text-ink"
+                >
                   <span>{track.title}</span>
-                  <span className="font-mono text-xs text-muted">
-                    {learned}/{track.cards.length}
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-normal text-muted">
+                      {learned}/{track.cards.length}
+                    </span>
+                    <span
+                      aria-hidden
+                      className={`text-[10px] text-muted transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+                    >
+                      ▼
+                    </span>
                   </span>
-                </div>
+                </button>
                 <p className="mt-1 text-[11px] font-bold text-muted">
                   {track.cards.length === 0
                     ? '这一条线还在写卡'
                     : due
-                      ? `下一张到期：${formatDue(due.dueAt)}`
+                      ? `下一张到期：${formatMonthDay(due.dueAt)}`
                       : '暂无排期，去学一张就会有'}
                 </p>
+                {isOpen && (
+                  <ul
+                    id={`track-${track.id}`}
+                    role="list"
+                    aria-label={`${track.title}的卡片`}
+                    className="m-0 mt-2 list-none border-t-2 border-ink/10 p-0"
+                  >
+                    {track.cards.map((card) => {
+                      const p = progress[card.id];
+                      return (
+                        <CardRow
+                          key={card.id}
+                          title={card.title}
+                          status={cardStatus(p, now)}
+                          dueAt={p?.dueAt}
+                        />
+                      );
+                    })}
+                  </ul>
+                )}
               </StickerCard>
             );
           })}

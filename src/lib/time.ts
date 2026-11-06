@@ -25,6 +25,12 @@ export function dayKey(ts: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+/** 给人看的日期：`11 月 9 日`。 */
+export function formatMonthDay(ts: number): string {
+  const d = new Date(ts);
+  return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+}
+
 /** b 比 a 晚多少个自然日。 */
 export function daysBetweenKeys(a: string, b: string): number {
   const [ay, am, ad] = a.split('-').map(Number);
