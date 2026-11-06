@@ -11,6 +11,13 @@ import { buildQueue } from '../../lib/queue';
 import { masteryPercent, resolveStreak, weakCards } from '../../lib/stats';
 import { dayKey } from '../../lib/time';
 
+/** 首次进入的三步说明。固定文案，不随进度变化。 */
+const STEPS = [
+  { title: '看懂一张图', hint: '图解一步步点亮，先有画面' },
+  { title: '选一个答案', hint: '答错会当场展开详解' },
+  { title: '到点再见一次', hint: '快忘的时候自动回来' },
+];
+
 export function HomePage() {
   const progress = useStore((s) => s.progress);
   const streak = useStore((s) => s.streak);
@@ -32,13 +39,44 @@ export function HomePage() {
           <div>
             {/* 桌面端顶部导航已经有品牌名，这里只在移动端显示，避免重复 */}
             <h1 className="text-3xl font-black tracking-tight text-ink md:sr-only">记忆芯</h1>
-            <p className="mt-1 text-sm text-muted md:mt-0 md:text-base">把计算机知识真正记住。</p>
           </div>
           <div className="text-right">
             <div className="text-lg font-black text-brand">{currentStreak} 天</div>
             <div className="text-[11px] font-bold text-muted">连续打卡</div>
           </div>
         </header>
+
+        <StickerCard tone="paper" className="mb-4 p-5">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base font-black text-ink">这是什么</h2>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                把计算机知识真正记住。每张卡先看图解、再答一道题；快忘的时候，它自己回来找你。
+              </p>
+            </div>
+            <Mascot mood="happy" size={64} className="shrink-0" />
+          </div>
+
+          <ol className="m-0 mt-3 grid list-none gap-2 p-0 sm:grid-cols-3">
+            {STEPS.map((step, index) => (
+              <li key={step.title} className="flex items-start gap-2">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-sun text-[10px] font-black text-ink">
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-black text-ink">{step.title}</span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-muted">
+                    {step.hint}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-3 text-[11px] font-bold text-muted">
+            四条主线 · {ALL_CARDS.length} 张卡：{TRACKS.map((t) => t.title).join(' / ')}
+          </p>
+        </StickerCard>
 
         <StickerCard className="mb-4 flex items-center gap-5 p-5">
           <ProgressRing value={mastery} size={104} />

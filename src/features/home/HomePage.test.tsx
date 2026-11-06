@@ -84,6 +84,42 @@ it('没有薄弱卡时不显示入口', () => {
   expect(screen.queryByText(/薄弱/)).toBeNull();
 });
 
+it('首页先讲清这是什么，再给复习入口', () => {
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+
+  const intro = screen.getByRole('heading', { name: '这是什么' });
+  const cta = screen.getByRole('link', { name: /开始今天的复习/ });
+
+  expect(intro.compareDocumentPosition(cta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.getByText('看懂一张图')).toBeInTheDocument();
+  expect(screen.getByText('选一个答案')).toBeInTheDocument();
+  expect(screen.getByText('到点再见一次')).toBeInTheDocument();
+  expect(screen.getByText(/四条主线 · 80 张卡/)).toBeInTheDocument();
+});
+
+it('今天没有待复习时，介绍依然在', () => {
+  const progress = Object.fromEntries(
+    ALL_CARDS.map((c) => [
+      c.id,
+      { cardId: c.id, box: 5 as const, dueAt: now + 9e9, lastReviewedAt: now, lapses: 0 },
+    ]),
+  );
+  useStore.setState({ progress });
+
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByRole('heading', { name: '这是什么' })).toBeInTheDocument();
+  expect(screen.getByText('今天没事了')).toBeInTheDocument();
+});
+
 it('四条主线都能点进章节地图', () => {
   render(
     <MemoryRouter>
