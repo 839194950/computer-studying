@@ -163,6 +163,8 @@ it('通关的章节给出再练一遍的入口', () => {
     'href',
     '/study?chapter=hw-cpu&free=1',
   );
+  // 入口是链接本身，不再把 <button> 套进 <a>
+  expect(screen.queryByRole('button')).toBeNull();
 });
 
 it('自由复习会把整章的卡都列出来', () => {

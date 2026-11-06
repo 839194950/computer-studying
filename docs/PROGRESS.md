@@ -17,7 +17,7 @@
 - 分支：`main`，基线 `ab6ded3`，此后为 P1 收尾改动（尚未提交）
 - **首发框架 + 全部内容 + P0 学习闭环 + P1 设计欠账全部完成。**
 - 规模：80 张卡 / 20 张章节概念图 / 160 节详细讲解 / 约 7600 行代码
-- 测试：**103 个用例全绿**（`npm test`）；`npm run build` 通过，产出 `dist/sw.js` 与 `manifest.webmanifest`
+- 测试：**104 个用例全绿**（`npm test`）；`npm run build` 通过，产出 `dist/sw.js` 与 `manifest.webmanifest`
 
 ### 现在能做什么
 
@@ -37,7 +37,7 @@
 
 ### 已知技术债
 
-- **`<Link>` 包 `<Button>`** 产生 `<a><button>` 嵌套：辅助技术会读成两个控件，等设计系统重构时一起处理。（新增的保存提示改用 `useNavigate`，没有再添新坑。）
+目前没有。最后一条（`<a><button>` 嵌套）在 2026-11-06 清掉了，见下节。
 
 ## 任务记录
 
@@ -265,10 +265,26 @@
 
 **测试**：92 → **103 用例全绿**。新增：写盘成功/失败的状态迁移与订阅广播、重试重放原数据、无失败记录时不碰磁盘、成功写入清掉旧快照、IndexedDB 失败被记成未保存、无 IndexedDB 时回落 localStorage、提示组件三态（正常不渲染 / 失败出现 / 重试后消失）、App 级集成（失败时全站浮出警告）。
 
+## 按钮与链接拆分（2026-11-06）
+
+**问题**：5 处入口写成 `<Link><Button>…</Button></Link>`，渲染出来是 `<a><button>`。读屏会把它当成两个控件（"链接，按钮"），Tab 焦点也会在同一块停两次；这是首发就记下的最后一条技术债。
+
+**做了什么**：
+- `Button.tsx` 抽出 `buttonClasses({ variant, size, full, className })`，按钮外观的唯一来源；`Button` 仍是 `<button>`，顺带补了 `focus-visible` ring。
+- 新增 `ButtonLink.tsx`：语义是导航就渲染 `<Link>`，套用同一套按钮外观，不存在第二层控件。
+- 替换 5 处：首页「开始今天的复习」，学习页空态的「再练一遍 / 回章节地图 / 回地图 / 去图谱看看」。
+- 保存提示的「去导出」上一轮已用 `useNavigate`，没有新坑。
+
+**关键决策**：
+- **不引入 `as` 多态 prop**：`<Button as={Link}>` 这类写法会让 `Button` 的 props 类型迅速变复杂。单独一个 `ButtonLink` 更直白，也更容易测。
+- **`full` 不再必需**：原来靠外层 `<Link className="flex-1">` 撑满，现在直接把 `flex-1` 传给 `ButtonLink`，DOM 少一层。
+
+**测试**：103 → **104 用例全绿**。新增 `ButtonLink` 只渲染一个链接、不含 `button`；首页与学习页空态各补一条「入口里不再有 button」的断言，防止以后又写回嵌套。
+
 ## 接手先读
 
 1. `docs/ROADMAP.md` —— 还剩什么、为什么先做那个
 2. 本文件的「当前状态」与最后两节 —— 已经做到哪
 3. `docs/superpowers/specs/2026-11-04-memory-chip-design.md` 的「复习机制」「数据模型」
 4. `src/lib/` —— 算法都在这里，全部有单测
-5. `npm test` —— 应为 **103 个用例全绿**
+5. `npm test` —— 应为 **104 个用例全绿**

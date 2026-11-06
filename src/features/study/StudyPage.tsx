@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
+import { ButtonLink } from '../../components/ButtonLink';
 import { StickerCard } from '../../components/StickerCard';
 import { Mascot } from '../../illustrations/Mascot';
 import { getIllustration } from '../../illustrations/registry';
@@ -223,25 +224,21 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
           <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
             {canReplay ? (
               <>
-                <Link to={`/study?chapter=${chapterId}&free=1`} className="flex-1">
-                  <Button full>再练一遍</Button>
-                </Link>
-                <Link to="/map" className="flex-1">
-                  <Button full variant="ghost">
-                    回章节地图
-                  </Button>
-                </Link>
+                <ButtonLink to={`/study?chapter=${chapterId}&free=1`} className="flex-1">
+                  再练一遍
+                </ButtonLink>
+                <ButtonLink to="/map" variant="ghost" className="flex-1">
+                  回章节地图
+                </ButtonLink>
               </>
             ) : (
               <>
-                <Link to={backTo} className="flex-1">
-                  <Button full>{backLabel}</Button>
-                </Link>
-                <Link to="/stats" className="flex-1">
-                  <Button full variant="ghost">
-                    去图谱看看
-                  </Button>
-                </Link>
+                <ButtonLink to={backTo} className="flex-1">
+                  {backLabel}
+                </ButtonLink>
+                <ButtonLink to="/stats" variant="ghost" className="flex-1">
+                  去图谱看看
+                </ButtonLink>
               </>
             )}
           </div>

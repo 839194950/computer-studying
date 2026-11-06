@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Screen } from '../../components/Screen';
-import { Button } from '../../components/Button';
+import { ButtonLink } from '../../components/ButtonLink';
 import { ProgressRing } from '../../components/ProgressRing';
 import { StickerCard } from '../../components/StickerCard';
 import { BottomNav } from '../../components/BottomNav';
@@ -69,11 +69,9 @@ export function HomePage() {
             </div>
           </StickerCard>
         ) : (
-          <Link to="/study" className="mb-4 block">
-            <Button size="lg" full>
-              开始今天的复习 · {queue.length} 张
-            </Button>
-          </Link>
+          <ButtonLink to="/study" size="lg" full className="mb-4">
+            开始今天的复习 · {queue.length} 张
+          </ButtonLink>
         )}
 
         {weak.length > 0 && (

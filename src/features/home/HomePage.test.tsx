@@ -17,7 +17,7 @@ beforeEach(() => {
   });
 });
 
-it('新用户看到开始按钮，进度环不出现 NaN', () => {
+it('新用户看到开始链接，且链接里不再套 button，进度环不出现 NaN', () => {
   const { container } = render(
     <MemoryRouter>
       <HomePage />
@@ -25,6 +25,7 @@ it('新用户看到开始按钮，进度环不出现 NaN', () => {
   );
   expect(screen.getByText('记忆芯')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /开始今天的复习/ })).toBeInTheDocument();
+  expect(screen.queryByRole('button')).toBeNull();
   expect(container.textContent).not.toContain('NaN');
 });
 
