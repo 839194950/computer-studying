@@ -16,7 +16,7 @@ export function SaveNotice() {
   return (
     <div
       role="alert"
-      className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 rounded-blob border-[3px] border-ink bg-pink p-4 shadow-pop md:inset-x-auto md:bottom-6 md:right-6 md:max-w-sm"
+      className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 rounded-blob border-2 border-[#FFC9D2] bg-bad-soft p-4 shadow-float md:inset-x-auto md:bottom-6 md:right-6 md:max-w-sm"
     >
       <div className="text-sm font-black text-ink">进度没能保存</div>
       <p className="mt-1 text-[11px] font-bold leading-relaxed text-ink/70">

@@ -1,17 +1,23 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-export type ButtonVariant = 'primary' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'success' | 'ghost' | 'danger' | 'sun';
 export type ButtonSize = 'md' | 'lg';
 
+/**
+ * 3D 按钮：底部一道深色"唇边"，按下时整体下沉、唇边消失，
+ * 和手机游戏里的实体按钮一样有回弹感。
+ */
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-brand text-white',
-  ghost: 'bg-white text-ink',
-  danger: 'bg-pink text-ink',
+  primary: 'bg-brand text-white shadow-[0_4px_0_#5A3DE6] hover:bg-[#8668FF]',
+  success: 'bg-mint text-white shadow-[0_4px_0_#1FA463] hover:bg-[#3AD688]',
+  danger: 'bg-bad text-white shadow-[0_4px_0_#DB3654] hover:bg-[#FF6680]',
+  sun: 'bg-sun text-ink shadow-[0_4px_0_#E0A300] hover:bg-[#FFCD4A]',
+  ghost: 'border-2 border-line bg-white text-ink shadow-[0_4px_0_#E7E3F3] hover:bg-paper',
 };
 
 const SIZES: Record<ButtonSize, string> = {
-  md: 'px-4 py-2.5 text-sm',
-  lg: 'px-6 py-4 text-base',
+  md: 'min-h-[44px] px-4 py-2 text-sm',
+  lg: 'min-h-[54px] px-6 py-3 text-base',
 };
 
 interface ButtonClassesOptions {
@@ -32,11 +38,11 @@ export function buttonClasses({
   className = '',
 }: ButtonClassesOptions = {}): string {
   return [
-    'inline-flex select-none items-center justify-center gap-2 rounded-sticker border-[3px] border-ink',
-    'font-black shadow-pop transition-transform duration-150',
-    'active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
-    'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-pop',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper',
+    'relative inline-flex select-none items-center justify-center gap-2 rounded-2xl',
+    'font-extrabold tracking-wide transition-[transform,box-shadow,background-color] duration-100 ease-out',
+    'active:translate-y-[4px] active:shadow-none',
+    'disabled:cursor-not-allowed disabled:border-transparent disabled:bg-[#E9E6F2] disabled:text-muted disabled:shadow-none disabled:active:translate-y-0',
+    'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30',
     VARIANTS[variant],
     SIZES[size],
     full ? 'w-full' : '',
@@ -50,6 +56,6 @@ interface ButtonProps
   className?: string;
 }
 
-export function Button({ variant, size, full, className = '', ...rest }: ButtonProps) {
-  return <button className={buttonClasses({ variant, size, full, className })} {...rest} />;
+export function Button({ variant, size, full, className = '', type = 'button', ...rest }: ButtonProps) {
+  return <button type={type} className={buttonClasses({ variant, size, full, className })} {...rest} />;
 }

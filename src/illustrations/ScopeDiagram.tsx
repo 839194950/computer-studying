@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { MINT, Ripple, Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const SCOPE_PARTS = ['global', 'local', 'block', 'closure'];
 
@@ -52,6 +52,7 @@ export function ScopeDiagram({ className, focus }: DiagramProps) {
         <Label x={262} y={110} size={9}>
           闭包
         </Label>
+        <Ripple cx={169} cy={111} r={9} color={MINT} />
         <Label x={262} y={124} size={7.5} fill="#8B85A6">
           函数 + 记住的 n
         </Label>

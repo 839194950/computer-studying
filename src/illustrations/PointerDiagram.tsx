@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { anim, Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const POINTER_PARTS = ['value', 'address', 'deref', 'null'];
 
@@ -74,7 +74,7 @@ export function PointerDiagram({ className, focus }: DiagramProps) {
         <Label x={30} y={136} size={8} anchor="start" fill="#8B85A6">
           地址 0 不指向任何东西
         </Label>
-        <path d="M120 112 L140 140 M140 112 L120 140" stroke="#FF7AB5" strokeWidth={3.5} strokeLinecap="round" />
+        <path d="M120 112 L140 140 M140 112 L120 140" stroke="#FF7AB5" strokeWidth={3.5} strokeLinecap="round" {...anim('shake')} />
       </Part>
     </svg>
   );

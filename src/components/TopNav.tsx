@@ -1,5 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Icon } from './Icon';
+import { StatChips } from './StatChips';
 import { activeNavKey, NAV_ITEMS } from './navItems';
+import { Mascot } from '../illustrations/Mascot';
 
 /**
  * 桌面端导航。移动端用底部栏（BottomNav），这里只在 md 以上出现。
@@ -13,17 +17,17 @@ export function TopNav() {
   return (
     <nav
       aria-label="主导航"
-      className="sticky top-0 z-30 hidden border-b-[3px] border-ink bg-paper/95 backdrop-blur md:block"
+      className="sticky top-0 z-30 hidden border-b-2 border-line bg-white/85 backdrop-blur-md md:block"
     >
-      <div className="mx-auto flex max-w-[880px] items-center gap-3 px-4 py-2.5">
+      <div className="mx-auto flex max-w-[920px] items-center gap-4 px-4 py-2.5">
         <Link
           to="/"
-          className="mr-auto text-lg font-black leading-none tracking-tight text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="flex items-center gap-2 rounded-xl text-lg font-black tracking-tight text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
         >
+          <Mascot size={30} mood="idle" still />
           记忆芯
         </Link>
-
-        <ul className="m-0 flex list-none items-center gap-1.5 p-0">
+        <ul className="m-0 flex list-none items-center gap-1 p-0">
           {NAV_ITEMS.map((item) => {
             const isActive = item.key === active;
             return (
@@ -32,28 +36,28 @@ export function TopNav() {
                   to={item.to}
                   aria-current={isActive ? 'page' : undefined}
                   className={[
-                    'flex items-center gap-1.5 rounded-sticker border-[3px] px-3 py-1.5 text-sm font-bold transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper',
-                    isActive
-                      ? 'border-ink bg-brand text-white shadow-pop-sm'
-                      : 'border-transparent text-ink/70 hover:border-ink/25 hover:text-ink',
+                    'relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-extrabold transition-colors',
+                    'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30',
+                    isActive ? 'text-brand-dark' : 'text-muted hover:bg-paper hover:text-ink',
                   ].join(' ')}
                 >
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d={item.icon}
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                  {isActive && (
+                    <motion.span
+                      layoutId="top-nav-pill"
+                      className="absolute inset-0 rounded-xl border-2 border-[#DCD3FF] bg-brand-soft"
+                      transition={{ type: 'spring', stiffness: 520, damping: 36 }}
                     />
-                  </svg>
-                  {item.label}
+                  )}
+                  <Icon name={item.icon} size={18} className="relative" />
+                  <span className="relative">{item.label}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
+        <div className="ml-auto">
+          <StatChips compact />
+        </div>
       </div>
     </nav>
   );

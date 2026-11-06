@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
+import { Ripple, Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const PROCESS_PARTS = ['proc', 'thread', 'shared', 'switch'];
 
@@ -53,13 +53,14 @@ export function ProcessDiagram({ className, focus }: DiagramProps) {
       <ProcBox x={6} title="进程 A" fill={BRAND_SOFT} focus={focus} />
       <ProcBox x={160} title="进程 B" fill={SUN_SOFT} focus={focus} />
 
-      <line x1={155} y1={20} x2={155} y2={120} stroke="#241A3D" strokeWidth={2} strokeDasharray="5 5" opacity="0.4" />
+      <line x1={155} y1={20} x2={155} y2={120} stroke="#8E84B3" strokeWidth={1.6} strokeDasharray="5 5" opacity="0.4" />
       <Label x={155} y={140} size={8} fill="#8B85A6">
         地址空间隔离
       </Label>
 
       <Part id="switch" focus={focus}>
-        <circle cx={155} cy={160} r={11} fill="#FFFFFF" stroke="#241A3D" strokeWidth={2.4} />
+        <circle cx={155} cy={160} r={11} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
+        <Ripple cx={155} cy={160} r={11} />
         <Label x={155} y={164} size={7}>
           CPU
         </Label>

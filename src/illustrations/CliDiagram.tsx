@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
+import { anim, Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const CLI_PARTS = ['shell', 'ps', 'pipe', 'signal'];
 
@@ -27,6 +27,7 @@ export function CliDiagram({ className, focus }: DiagramProps) {
         <Label x={16} y={96} size={8} anchor="start" mono>
           $ kill -TERM 1234
         </Label>
+        <rect x={102} y={89} width={5} height={9} rx={1} fill={BRAND} {...anim('blink', { dur: 1.1 })} />
         <Label x={16} y={118} size={7} anchor="start" fill="#8B85A6">
           shell 把命令翻译成系统调用
         </Label>

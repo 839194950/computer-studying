@@ -60,7 +60,7 @@ export function WebAttackDiagram({ className, focus }: DiagramProps) {
         <Label x={148} y={79} size={7}>
           SQL 注入
         </Label>
-        <Label x={148} y={112} size={7} fill="#C1437E">
+        <Label x={148} y={97} size={7} fill="#C1437E">
           输入拼进了命令
         </Label>
       </Part>

@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
+import { MINT, anim, Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const FS_PARTS = ['tree', 'inode', 'block', 'journal'];
 
@@ -32,9 +32,9 @@ export function FsDiagram({ className, focus }: DiagramProps) {
         <Label x={81} y={82} size={6.5} mono>
           a.md
         </Label>
-        <path d="M39 58 V66" stroke="#241A3D" strokeWidth={1.8} />
-        <path d="M36 78 V94" stroke="#241A3D" strokeWidth={1.8} />
-        <path d="M58 78 H64" stroke="#241A3D" strokeWidth={1.8} />
+        <path d="M39 58 V66" stroke="#8E84B3" strokeWidth={1.6} />
+        <path d="M30 88 V96" stroke="#8E84B3" strokeWidth={1.6} />
+        <path d="M58 78 H64" stroke="#8E84B3" strokeWidth={1.6} />
       </Part>
 
       <Part id="inode" focus={focus}>
@@ -88,6 +88,7 @@ export function FsDiagram({ className, focus }: DiagramProps) {
         <Label x={264} y={77} size={6.5} mono>
           block 9 ← a.md
         </Label>
+        <circle cx={300} cy={73} r={2.4} fill={MINT} {...anim('blink')} />
         <Label x={264} y={102} size={6.5} mono fill="#8B85A6">
           block 10
         </Label>

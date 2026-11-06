@@ -13,15 +13,15 @@ interface CardRowProps {
 export function CardRow({ title, status, dueAt }: CardRowProps) {
   const style = STATUS_STYLE[status];
   return (
-    <li className="flex items-center gap-2 border-b border-ink/10 py-2 last:border-b-0">
+    <li className="flex items-center gap-2.5 border-b border-line py-2.5 last:border-b-0">
       <i
         role="img"
         aria-label={style.label}
         title={style.label}
-        className={`h-3 w-3 shrink-0 rounded-[3px] border-2 border-ink ${style.bg}`}
+        className={`h-3 w-3 shrink-0 rounded-full ${style.bg}`}
       />
-      <span className="min-w-0 flex-1 text-xs font-bold text-ink">{title}</span>
-      <span className="shrink-0 font-mono text-[11px] text-muted">
+      <span className="min-w-0 flex-1 text-sm font-bold text-ink">{title}</span>
+      <span className="tabular shrink-0 text-xs font-semibold text-muted">
         {dueAt === undefined ? '还没开始' : formatMonthDay(dueAt)}
       </span>
     </li>

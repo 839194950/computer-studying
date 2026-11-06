@@ -5,6 +5,7 @@ import { newProgress, review, type CardProgress } from '../lib/srs';
 import { bumpStreak, masteryPercent, resolveStreak, type Streak } from '../lib/stats';
 import { addDays, dayKey, startOfDay } from '../lib/time';
 import { attemptSave, registerWriter } from './persistence';
+import { DEFAULT_DAILY_GOAL, pruneDaily, type DayStat } from '../lib/xp';
 
 export interface DailySnapshot {
   date: string;
@@ -24,16 +25,38 @@ export interface AppState {
   streak: Streak;
   snapshots: DailySnapshot[];
   session: SessionState;
-  settings: { newCardsPerDay: number; reducedMotion: boolean };
+  settings: Settings;
+  /** 累计经验 */
+  xp: number;
+  /** 每天的经验、答对数、最高连对，按 dayKey 存 */
+  daily: Record<string, DayStat>;
   version: number;
 }
+
+export interface Settings {
+  newCardsPerDay: number;
+  reducedMotion: boolean;
+  /** 每日经验目标；老存档没有这个字段，读的时候用默认值兜底 */
+  dailyGoal?: number;
+  /** 音效开关；缺省视为开 */
+  sound?: boolean;
+}
+
+export const DEFAULT_SETTINGS: Required<Settings> = {
+  newCardsPerDay: 10,
+  reducedMotion: false,
+  dailyGoal: DEFAULT_DAILY_GOAL,
+  sound: true,
+};
 
 export const EMPTY_STATE: AppState = {
   progress: {},
   streak: { current: 0, longest: 0, lastActiveDate: null },
   snapshots: [],
   session: { date: '', reviewed: [], wrongs: {}, completed: false },
-  settings: { newCardsPerDay: 10, reducedMotion: false },
+  settings: { ...DEFAULT_SETTINGS },
+  xp: 0,
+  daily: {},
   version: 1,
 };
 
@@ -47,7 +70,9 @@ export function createAppState(now: number): AppState {
     streak: { current: 0, longest: 0, lastActiveDate: null },
     snapshots: [],
     session: emptySession(now),
-    settings: { newCardsPerDay: 10, reducedMotion: false },
+    settings: { ...DEFAULT_SETTINGS },
+    xp: 0,
+    daily: {},
     version: 1,
   };
 }
@@ -109,6 +134,26 @@ export function applyFinish(state: AppState, totalCards: number, now: number): A
   };
 }
 
+/** 记一次得分：累计经验、当天经验、当天答对数与最高连对。 */
+export function applyGain(
+  state: AppState,
+  gain: { xp: number; correct?: boolean; combo?: number },
+  now: number,
+): AppState {
+  const key = dayKey(now);
+  const prev = state.daily?.[key] ?? { xp: 0, correct: 0, bestCombo: 0 };
+  const today: DayStat = {
+    xp: prev.xp + Math.max(0, gain.xp),
+    correct: prev.correct + (gain.correct ? 1 : 0),
+    bestCombo: Math.max(prev.bestCombo, gain.combo ?? 0),
+  };
+  return {
+    ...state,
+    xp: (state.xp ?? 0) + Math.max(0, gain.xp),
+    daily: pruneDaily({ ...(state.daily ?? {}), [key]: today }, now),
+  };
+}
+
 export function exportState(s: AppState): string {
   return JSON.stringify(s, null, 2);
 }
@@ -151,6 +196,8 @@ export function parseState(raw: string): { ok: true; state: AppState } | { ok: f
       snapshots: Array.isArray(d.snapshots) ? d.snapshots : [],
       session: d.session ?? emptySession(Date.now()),
       settings: { ...EMPTY_STATE.settings, ...d.settings },
+      xp: typeof d.xp === 'number' && Number.isFinite(d.xp) && d.xp >= 0 ? d.xp : 0,
+      daily: d.daily && typeof d.daily === 'object' && !Array.isArray(d.daily) ? d.daily : {},
       version: 1,
     },
   };
@@ -189,7 +236,8 @@ const idbStorage = createJSONStorage(() => ({
 interface Actions {
   answer: (cardId: string, correct: boolean) => void;
   finishSession: (totalCards: number) => void;
-  setSettings: (patch: Partial<AppState['settings']>) => void;
+  gain: (gain: { xp: number; correct?: boolean; combo?: number }) => void;
+  setSettings: (patch: Partial<Settings>) => void;
   resetAll: () => void;
   exportJson: () => string;
   importJson: (raw: string) => { ok: true } | { ok: false; error: string };
@@ -201,6 +249,7 @@ export const useStore = create<AppState & Actions>()(
       ...createAppState(Date.now()),
       answer: (cardId, correct) => set((s) => applyAnswer(s, cardId, correct, Date.now())),
       finishSession: (totalCards) => set((s) => applyFinish(s, totalCards, Date.now())),
+      gain: (g) => set((s) => applyGain(s, g, Date.now())),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       resetAll: () => set(() => createAppState(Date.now())),
       exportJson: () => exportState(get()),
@@ -220,6 +269,8 @@ export const useStore = create<AppState & Actions>()(
         snapshots: s.snapshots,
         session: s.session,
         settings: s.settings,
+        xp: s.xp,
+        daily: s.daily,
         version: s.version,
       }),
     },

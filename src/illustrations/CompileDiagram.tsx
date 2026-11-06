@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { MINT, Ripple, anim, Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const COMPILE_PARTS = ['source', 'compile', 'link', 'runtime'];
 
@@ -39,7 +39,7 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
         <Label x={120} y={70} size={8}>
           语义 · 优化
         </Label>
-        <rect x={94} y={82} width={52} height={18} rx={5} fill="#FFFFFF" stroke="#241A3D" strokeWidth={2.2} />
+        <rect x={94} y={82} width={52} height={18} rx={5} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
         <Label x={120} y={95} size={8} mono>
           main.o
         </Label>
@@ -53,16 +53,16 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
         <Label x={202} y={30} size={10}>
           链接
         </Label>
-        <rect x={176} y={50} width={22} height={14} rx={4} fill="#FFFFFF" stroke="#241A3D" strokeWidth={2.2} />
-        <rect x={176} y={68} width={22} height={14} rx={4} fill="#FFFFFF" stroke="#241A3D" strokeWidth={2.2} />
+        <rect x={176} y={50} width={22} height={14} rx={4} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
+        <rect x={176} y={68} width={22} height={14} rx={4} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
         <Label x={187} y={60} size={7} mono>
           .o
         </Label>
         <Label x={187} y={78} size={7} mono>
           .a
         </Label>
-        <path d="M200 58 H208 M200 76 H208" stroke="#241A3D" strokeWidth={2} strokeLinecap="round" />
-        <rect x={210} y={58} width={18} height={24} rx={5} fill="#7B5CFF" stroke="#241A3D" strokeWidth={2.4} />
+        <path d="M200 58 H208 M200 76 H208" stroke="#8E84B3" strokeWidth={1.6} strokeLinecap="round" />
+        <rect x={210} y={58} width={18} height={24} rx={5} fill="#7B5CFF" stroke="#8E84B3" strokeWidth={1.6} />
         <Label x={202} y={124} size={8} fill="#8B85A6">
           拼成一个文件
         </Label>
@@ -74,7 +74,8 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
           运行
         </Label>
         <Box x={258} y={50} w={48} h={40} fill={SKY_SOFT} rx={8} strokeWidth={2.4} />
-        <circle cx={282} cy={66} r={7} fill="#2ECC8F" stroke="#241A3D" strokeWidth={2.2} />
+        <circle cx={282} cy={66} r={7} fill="#2ECC8F" stroke="#8E84B3" strokeWidth={1.6} {...anim('pulse')} />
+        <Ripple cx={282} cy={66} r={7} color={MINT} />
         <rect x={266} y={78} width={32} height={4} rx={2} fill="#241A3D" opacity="0.22" />
         <Label x={282} y={124} size={8} fill="#8B85A6">
           内存里跑起来

@@ -6,6 +6,6 @@ export const STATUS_ORDER: CardStatus[] = ['mastered', 'learning', 'forgotten', 
 export const STATUS_STYLE: Record<CardStatus, { bg: string; label: string }> = {
   mastered: { bg: 'bg-mint', label: '记牢了' },
   learning: { bg: 'bg-sun', label: '刚学会' },
-  forgotten: { bg: 'bg-pink', label: '快忘了' },
-  new: { bg: 'bg-brand/30', label: '没学过' },
+  forgotten: { bg: 'bg-bad', label: '快忘了' },
+  new: { bg: 'bg-[#DCD6EE]', label: '没学过' },
 };

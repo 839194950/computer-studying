@@ -1,4 +1,4 @@
-import { Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
+import { PINK, anim, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const DEFENSE_PARTS = ['input', 'least', 'encrypt', 'log'];
 
@@ -19,7 +19,7 @@ export function DefenseDiagram({ className, focus }: DiagramProps) {
       </Part>
 
       <Part id="least" focus={focus}>
-        <Box x={26} y={34} w={268} h={120} fill={SUN_SOFT} rx={14} strokeWidth={2.8} />
+        <Box x={26} y={34} w={268} h={114} fill={SUN_SOFT} rx={14} strokeWidth={2.8} />
         <Label x={38} y={50} size={8} anchor="start" fill="#8A6A16">
           最小权限 · 拿不到就不用防
         </Label>
@@ -43,10 +43,12 @@ export function DefenseDiagram({ className, focus }: DiagramProps) {
       </Part>
 
       <Part id="input" focus={focus}>
-        <Label x={160} y={160} size={7.5} fill="#8B85A6">
+        <Label x={160} y={162} size={7.5} fill="#8B85A6">
           任何一层被绕过，其余几层还在 —— 单点防御迟早会被打穿
         </Label>
       </Part>
+      {/* 攻击从外面往里钻，到输入校验那层就被拦下 */}
+      <circle cx={10} cy={118} r={3.5} fill={PINK} {...anim('travel', { dx: 50, dur: 2.6 })} />
     </svg>
   );
 }

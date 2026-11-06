@@ -24,8 +24,8 @@ export function TlsDiagram({ className, focus }: DiagramProps) {
         <Label x={218} y={27} size={7.5}>
           证书 · 公钥 + 签名
         </Label>
-        <path d="M264 30 C 280 40, 282 52, 281 64" fill="none" stroke="#241A3D" strokeWidth={1.8} strokeDasharray="4 4" />
-        <Label x={306} y={56} size={6.5} anchor="end" fill="#8B85A6">
+        <path d="M264 30 C 280 40, 282 52, 281 64" fill="none" stroke="#8E84B3" strokeWidth={1.6} strokeDasharray="4 4" />
+        <Label x={276} y={52} size={6.5} anchor="end" fill="#8B85A6">
           证明「这公钥是它的」
         </Label>
       </Part>

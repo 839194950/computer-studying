@@ -1,4 +1,4 @@
-import { Arrow, Box, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { PINK, anim, Arrow, Box, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const AUTH_PARTS = ['authn', 'session', 'authz', 'idoref'];
 
@@ -72,6 +72,12 @@ export function AuthDiagram({ className, focus }: DiagramProps) {
         <Label x={163} y={112} size={8}>
           越权 · 把 1234 改成 1235
         </Label>
+        <g {...anim('pop')}>
+          <circle cx={228} cy={98} r={7} fill={PINK} />
+          <Label x={228} y={101.5} size={9} fill="#FFFFFF">
+            !
+          </Label>
+        </g>
         <Label x={163} y={127} size={6.5} fill="#C1437E">
           只查了「登录了吗」，没查「是你的吗」
         </Label>

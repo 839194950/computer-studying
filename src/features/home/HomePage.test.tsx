@@ -84,7 +84,7 @@ it('没有薄弱卡时不显示入口', () => {
   expect(screen.queryByText(/薄弱/)).toBeNull();
 });
 
-it('首页先讲清这是什么，再给复习入口', () => {
+it('首页同时给出复习入口和产品介绍，入口在最前面', () => {
   render(
     <MemoryRouter>
       <HomePage />
@@ -94,7 +94,8 @@ it('首页先讲清这是什么，再给复习入口', () => {
   const intro = screen.getByRole('heading', { name: '这是什么' });
   const cta = screen.getByRole('link', { name: /开始今天的复习/ });
 
-  expect(intro.compareDocumentPosition(cta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  // 改版后主按钮放在首屏最显眼处，介绍卡紧随其后，依然常驻
+  expect(cta.compareDocumentPosition(intro) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(screen.getByText('看懂一张图')).toBeInTheDocument();
   expect(screen.getByText('选一个答案')).toBeInTheDocument();
   expect(screen.getByText('到点再见一次')).toBeInTheDocument();

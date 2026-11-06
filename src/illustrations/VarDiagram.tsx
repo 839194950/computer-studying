@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { MINT, Ripple, Arrow, Box, BRAND, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const VAR_PARTS = ['name', 'box', 'type', 'ref'];
 
@@ -36,7 +36,7 @@ export function VarDiagram({ className, focus }: DiagramProps) {
         </Label>
       </Part>
 
-      <line x1={10} y1={82} x2={310} y2={82} stroke="#241A3D" strokeWidth={1.5} strokeDasharray="4 5" opacity="0.28" />
+      <line x1={10} y1={82} x2={310} y2={82} stroke="#8E84B3" strokeWidth={1.6} strokeDasharray="4 5" opacity="0.28" />
 
       <Label x={10} y={102} size={9} anchor="start" fill="#8B85A6">
         两个名字可以指向同一个对象
@@ -73,6 +73,7 @@ export function VarDiagram({ className, focus }: DiagramProps) {
           b 看到的一样变
         </Label>
       </Part>
+      <Ripple cx={95} cy={44} r={14} color={MINT} dur={2.6} />
     </svg>
   );
 }

@@ -1,4 +1,4 @@
-import { Box, BRAND_SOFT, DiagramDefs, Label, Part, type DiagramProps } from './base';
+import { BRAND, anim, Box, BRAND_SOFT, DiagramDefs, Label, Part, type DiagramProps } from './base';
 
 export const PERM_PARTS = ['owner', 'group', 'other', 'root'];
 
@@ -44,7 +44,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
 
       <Part id="owner" focus={focus}>
         <Bits x={44} bits={OWNER} fill={OWNER_FILL} />
-        <path d="M42 68 V72 H118 V68" fill="none" stroke="#241A3D" strokeWidth={2} strokeLinecap="round" />
+        <path d="M42 68 V72 H118 V68" fill="none" stroke="#8E84B3" strokeWidth={1.6} strokeLinecap="round" />
         <Label x={80} y={86} size={8}>
           所有者
         </Label>
@@ -55,7 +55,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
 
       <Part id="group" focus={focus}>
         <Bits x={126} bits={GROUP} fill={GROUP_FILL} />
-        <path d="M124 68 V72 H200 V68" fill="none" stroke="#241A3D" strokeWidth={2} strokeLinecap="round" />
+        <path d="M124 68 V72 H200 V68" fill="none" stroke="#8E84B3" strokeWidth={1.6} strokeLinecap="round" />
         <Label x={162} y={86} size={8}>
           同组用户
         </Label>
@@ -66,7 +66,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
 
       <Part id="other" focus={focus}>
         <Bits x={208} bits={OTHER} fill={OTHER_FILL} />
-        <path d="M206 68 V72 H282 V68" fill="none" stroke="#241A3D" strokeWidth={2} strokeLinecap="round" />
+        <path d="M206 68 V72 H282 V68" fill="none" stroke="#8E84B3" strokeWidth={1.6} strokeLinecap="round" />
         <Label x={244} y={86} size={8}>
           其他人
         </Label>
@@ -90,6 +90,10 @@ export function PermDiagram({ className, focus }: DiagramProps) {
           所以服务进程要用专用低权限账号跑，别拿 root 顶
         </Label>
       </Part>
+      {/* 一格一格扫过去：权限就是按位读的 */}
+      <g opacity={0.16}>
+        <rect x={43} y={28} width={26} height={34} rx={6} fill={BRAND} {...anim('travel', { dx: 234, dur: 4.2 })} />
+      </g>
     </svg>
   );
 }

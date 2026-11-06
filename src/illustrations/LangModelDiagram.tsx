@@ -1,4 +1,4 @@
-import { Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { anim, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const LANGMODEL_PARTS = ['c', 'python', 'js', 'choose'];
 
@@ -71,8 +71,10 @@ export function LangModelDiagram({ className, focus }: DiagramProps) {
         <Label x={261} y={52} size={7.5} fill="#5B4B9E">
           单线程 + 队列
         </Label>
-        <circle cx={234} cy={80} r={15} fill="#FFFFFF" stroke="#241A3D" strokeWidth={2.4} />
-        <path d="M226 74 A 12 12 0 1 1 228 90" fill="none" stroke={BRAND} strokeWidth={2} strokeLinecap="round" />
+        <circle cx={234} cy={80} r={15} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
+        <g {...anim('spin', { dur: 2.6 })}>
+          <path d="M226 74 A 12 12 0 1 1 228 90" fill="none" stroke={BRAND} strokeWidth={2} strokeLinecap="round" />
+        </g>
         <Label x={234} y={84} size={7} mono>
           loop
         </Label>

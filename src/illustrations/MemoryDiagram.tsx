@@ -1,4 +1,4 @@
-import { Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, type DiagramProps } from './base';
+import { PINK, Ripple, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, type DiagramProps } from './base';
 
 export const MEMORY_PARTS = ['virtual', 'page', 'fault', 'swap'];
 
@@ -32,6 +32,8 @@ export function MemoryDiagram({ className, focus }: DiagramProps) {
 
       <Part id="fault" focus={focus}>
         <Box x={14} y={96} w={72} h={22} fill={PINK_SOFT} rx={5} strokeWidth={2.2} dashed />
+        <Ripple cx={78} cy={107} r={4} color={PINK} />
+        <circle cx={78} cy={107} r={2.6} fill={PINK} />
         <Label x={50} y={109} size={8} mono>
           页 2
         </Label>

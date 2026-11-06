@@ -1,4 +1,4 @@
-import { Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN, SUN_SOFT, type DiagramProps } from './base';
+import { Flow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN, SUN_SOFT, type DiagramProps } from './base';
 
 export const NETWORK_PARTS = ['app', 'transport', 'network', 'link'];
 
@@ -90,6 +90,8 @@ export function NetworkDiagram({ className, focus }: DiagramProps) {
       <Label x={160} y={166} size={9} fill="#8B85A6">
         接收端反过来，一层层把头剥掉
       </Label>
+      {/* 同一份数据从上往下走，每过一层就多一个头 */}
+      <Flow d="M101 38 V128" color={BRAND} dur={2.4} />
     </svg>
   );
 }

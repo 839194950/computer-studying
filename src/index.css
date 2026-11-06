@@ -1,3 +1,5 @@
+@import '@fontsource-variable/nunito';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,17 +7,188 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
-    background: #fff8ee;
-    color: #241a3d;
     margin: 0;
-    font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #2b2347;
+    background-color: #f7f5fe;
+    background-image:
+      radial-gradient(1200px 520px at 10% -10%, rgba(123, 92, 255, 0.1), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, rgba(51, 182, 245, 0.08), transparent 60%);
+    background-attachment: fixed;
+    font-family: 'Nunito Variable', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
 
-  button {
+  button,
+  input {
     font-family: inherit;
   }
+
+  ::selection {
+    background: rgba(123, 92, 255, 0.22);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* 降低动效：设置里手动打开，或系统偏好减少动态效果 */
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ───────── 概念图动效 ─────────
+ * 所有循环动画的"静止状态"就是元素本来的样子，降低动效时直接停在那里；
+ * 只在动起来才有意义的元素（光点、移动的包、波纹）在降低动效时隐藏。 */
+.dg-part {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 280ms ease-out,
+    transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 280ms ease-out;
+}
+.dg-dim {
+  opacity: 0.18;
+  filter: saturate(0.4);
+}
+.dg-on {
+  transform: scale(1.035);
+  filter: drop-shadow(0 4px 10px rgba(123, 92, 255, 0.28));
+}
+.dg-enter {
+  animation: dg-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+svg > .dg-part:nth-of-type(2) > .dg-enter { animation-delay: 70ms; }
+svg > .dg-part:nth-of-type(3) > .dg-enter { animation-delay: 140ms; }
+svg > .dg-part:nth-of-type(4) > .dg-enter { animation-delay: 210ms; }
+svg > .dg-part:nth-of-type(5) > .dg-enter { animation-delay: 280ms; }
+svg > .dg-part:nth-of-type(6) > .dg-enter { animation-delay: 350ms; }
+svg > .dg-part:nth-of-type(n + 7) > .dg-enter { animation-delay: 420ms; }
+@keyframes dg-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.dg-flow {
+  animation: dg-flow 2.4s linear infinite;
+}
+@keyframes dg-flow {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+.dg-march {
+  animation: dg-march 1.2s linear infinite;
+}
+@keyframes dg-march {
+  to { stroke-dashoffset: -14; }
+}
+
+.dg-pulse,
+.dg-float,
+.dg-spin,
+.dg-pop,
+.dg-ripple,
+.dg-shake,
+.dg-grow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.dg-pulse { animation: dg-pulse 2s ease-in-out infinite; }
+@keyframes dg-pulse {
+  50% { transform: scale(1.12); opacity: 0.75; }
+}
+.dg-float { animation: dg-float 3s ease-in-out infinite; }
+@keyframes dg-float {
+  50% { transform: translateY(-3px); }
+}
+.dg-spin { animation: dg-spin 3s linear infinite; }
+@keyframes dg-spin {
+  to { transform: rotate(360deg); }
+}
+.dg-blink { animation: dg-blink 1.6s steps(1) infinite; }
+@keyframes dg-blink {
+  50% { opacity: 0.15; }
+}
+.dg-pop { animation: dg-pop 2.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+@keyframes dg-pop {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.18); }
+  24% { transform: scale(1); }
+}
+.dg-shake { animation: dg-shake 3s ease-in-out infinite; }
+@keyframes dg-shake {
+  0%, 80%, 100% { transform: rotate(0); }
+  84% { transform: rotate(-8deg); }
+  88% { transform: rotate(8deg); }
+  92% { transform: rotate(-5deg); }
+  96% { transform: rotate(4deg); }
+}
+.dg-grow {
+  transform-origin: left center;
+  animation: dg-grow 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes dg-grow {
+  0% { transform: scaleX(0); }
+  45%, 85% { transform: scaleX(1); }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+.dg-travel { animation: dg-travel 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes dg-travel {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(var(--dx, 0), var(--dy, 0)); opacity: 0; }
+}
+.dg-ripple { animation: dg-ripple 2.2s ease-out infinite; }
+@keyframes dg-ripple {
+  0% { transform: scale(0.7); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+[data-motion='reduced'] :is(.dg-flow, .dg-travel, .dg-ripple) {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.dg-flow, .dg-travel, .dg-ripple) {
+    display: none;
+  }
+}
+.dg-scan { animation: dg-scan 1.8s ease-in-out infinite; }
+@keyframes dg-scan {
+  0%, 100% { opacity: 0; }
+  20% { opacity: 1; }
+  45% { opacity: 0; }
 }

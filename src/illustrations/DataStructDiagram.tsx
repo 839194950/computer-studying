@@ -1,4 +1,4 @@
-import { Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
+import { anim, Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const DS_PARTS = ['array', 'list', 'hash', 'tradeoff'];
 
@@ -73,7 +73,9 @@ export function DataStructDiagram({ className, focus }: DiagramProps) {
           hash()
         </Label>
         {BUCKETS.map((b) => (
-          <Box key={b} x={112 + b * 18} y={112} w={14} h={28} fill={b === 2 ? BRAND : PAPER} rx={4} strokeWidth={2.2} />
+          <g key={b} {...(b === 2 ? anim('pop', { dur: 2.4 }) : {})}>
+            <Box x={112 + b * 18} y={112} w={14} h={28} fill={b === 2 ? BRAND : PAPER} rx={4} strokeWidth={2.2} />
+          </g>
         ))}
         <Label x={204} y={126} size={8} anchor="start" fill="#5B4B9E">
           算一下落到哪个桶，

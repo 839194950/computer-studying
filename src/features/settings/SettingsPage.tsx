@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Screen } from '../../components/Screen';
 import { StickerCard } from '../../components/StickerCard';
 import { Button } from '../../components/Button';
-import { BottomNav } from '../../components/BottomNav';
+import { ProfileCard } from './ProfileCard';
+import { Toggle } from './Toggle';
 import { parseState, useStore } from '../../store/useStore';
 import { ALL_CARDS } from '../../content';
+import { DEFAULT_SETTINGS } from '../../store/useStore';
+import { playSound } from '../../lib/sound';
 import { dayKey } from '../../lib/time';
 import { AboutCard } from './AboutCard';
 
@@ -69,40 +72,46 @@ export function SettingsPage() {
   }
 
   return (
-    <>
-      <Screen title="我的" subtitle="数据只存在这台设备的浏览器里。">
-        <StickerCard className="mb-4 p-4">
-          <h2 className="mb-3 text-sm font-black text-ink">每天的新卡</h2>
-          <div className="flex gap-2">
-            {[5, 10, 20].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setSettings({ newCardsPerDay: n })}
-                className={[
-                  'flex-1 rounded-sticker border-[3px] border-ink py-2.5 text-sm font-black',
-                  settings.newCardsPerDay === n ? 'bg-sun shadow-pop-sm' : 'bg-white text-muted',
-                ].join(' ')}
-              >
-                {n} 张
-              </button>
-            ))}
-          </div>
+    <Screen title="我的" subtitle="数据只存在这台设备的浏览器里。">
+        <ProfileCard />
 
-          <label className="mt-4 flex items-center justify-between gap-3 text-sm font-bold text-ink">
-            降低动效
-            <input
-              type="checkbox"
-              checked={settings.reducedMotion}
-              onChange={(e) => setSettings({ reducedMotion: e.target.checked })}
-              className="h-6 w-6 accent-[#7B5CFF]"
-              aria-label="降低动效"
+        <StickerCard className="mb-4 p-5">
+          <h2 className="mb-3 text-base font-black text-ink">学习偏好</h2>
+          <div className="mb-1.5 text-sm font-bold text-ink">每天的新卡</div>
+          <Segmented
+            options={[5, 10, 20]}
+            value={settings.newCardsPerDay}
+            unit="张"
+            onChange={(n) => setSettings({ newCardsPerDay: n })}
+          />
+          <div className="mb-1.5 mt-4 text-sm font-bold text-ink">每日经验目标</div>
+          <Segmented
+            options={[20, 30, 50, 80]}
+            value={settings.dailyGoal ?? DEFAULT_SETTINGS.dailyGoal}
+            unit="经验"
+            onChange={(n) => setSettings({ dailyGoal: n })}
+          />
+          <div className="mt-4 divide-y-2 divide-line">
+            <Toggle
+              label="音效"
+              hint="答对、答错和完成时播放提示音"
+              checked={settings.sound ?? DEFAULT_SETTINGS.sound}
+              onChange={(v) => {
+                setSettings({ sound: v });
+                if (v) playSound('correct');
+              }}
             />
-          </label>
+            <Toggle
+              label="降低动效"
+              hint="关掉纸屑、弹跳和滑动动画"
+              checked={settings.reducedMotion}
+              onChange={(v) => setSettings({ reducedMotion: v })}
+            />
+          </div>
         </StickerCard>
 
-        <StickerCard className="mb-4 p-4">
-          <h2 className="mb-1 text-sm font-black text-ink">数据</h2>
+        <StickerCard className="mb-4 p-5">
+          <h2 className="mb-1 text-base font-black text-ink">数据</h2>
           <p className="mb-3 text-[11px] font-bold text-muted">
             已记录 {learnedCount} 张卡的进度，共 {ALL_CARDS.length} 张。
           </p>
@@ -116,7 +125,7 @@ export function SettingsPage() {
               导出数据
             </Button>
 
-            <label className="block cursor-pointer rounded-sticker border-[3px] border-ink bg-brand px-4 py-2.5 text-center text-sm font-black text-white shadow-pop">
+            <label className="flex min-h-[44px] cursor-pointer items-center justify-center rounded-2xl bg-brand px-4 py-2 text-center text-sm font-extrabold text-white shadow-[0_4px_0_#5A3DE6] transition-transform focus-within:ring-4 focus-within:ring-brand/30 active:translate-y-[4px] active:shadow-none">
               导入数据
               <input
                 type="file"
@@ -130,7 +139,7 @@ export function SettingsPage() {
               />
             </label>
             {pending ? (
-              <div className="rounded-sticker border-[3px] border-ink bg-sun/40 p-3">
+              <div className="rounded-2xl border-2 border-[#FBE3A0] bg-sun-soft p-3">
                 <p className="text-xs font-bold leading-relaxed text-ink">
                   将导入 {pending.count} 张卡的进度，覆盖本地 {learnedCount} 张。确认后先自动下载一份当前数据作备份。
                 </p>
@@ -150,10 +159,10 @@ export function SettingsPage() {
             {message && (
               <p
                 role="status"
-                className={`rounded-sticker border-2 px-3 py-2 text-xs font-bold ${
+                className={`rounded-xl border-2 px-3 py-2 text-xs font-bold ${
                   message.kind === 'ok'
-                    ? 'border-mint bg-mint/20 text-ink'
-                    : 'border-pink bg-pink/20 text-ink'
+                    ? 'border-mint/40 bg-mint-soft text-ink'
+                    : 'border-bad/40 bg-bad-soft text-ink'
                 }`}
               >
                 {message.text}
@@ -162,8 +171,8 @@ export function SettingsPage() {
           </div>
         </StickerCard>
 
-        <StickerCard tone="paper" className="mb-4 p-4">
-          <h2 className="mb-2 text-sm font-black text-ink">清空数据</h2>
+        <StickerCard className="mb-4 p-5">
+          <h2 className="mb-2 text-base font-black text-ink">清空数据</h2>
           {confirmReset ? (
             <div className="space-y-2">
               <p className="text-xs font-bold text-ink">
@@ -193,8 +202,42 @@ export function SettingsPage() {
         </StickerCard>
 
         <AboutCard />
-      </Screen>
-      <BottomNav active="me" />
-    </>
+    </Screen>
+  );
+}
+
+function Segmented({
+  options,
+  value,
+  unit,
+  onChange,
+}: {
+  options: number[];
+  value: number;
+  unit: string;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <div className="flex gap-2">
+      {options.map((n) => {
+        const active = value === n;
+        return (
+          <button
+            key={n}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(n)}
+            className={[
+              'flex-1 rounded-2xl border-2 py-2.5 text-sm font-black transition-[transform,box-shadow,background-color] duration-100 active:translate-y-[3px] active:shadow-none',
+              active
+                ? 'border-brand bg-brand-soft text-brand-dark shadow-[0_3px_0_#7B5CFF]'
+                : 'border-line bg-white text-muted shadow-[0_3px_0_#E7E3F3] hover:text-ink',
+            ].join(' ')}
+          >
+            {n} {unit}
+          </button>
+        );
+      })}
+    </div>
   );
 }
