@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { MotionConfig } from 'framer-motion';
 import { HomePage } from '../features/home/HomePage';
 import { StudyPage } from '../features/study/StudyPage';
-import { MapPage } from '../features/map/MapPage';
+import { MapPage, TrackMapPage } from '../features/map/MapPage';
 import { StatsPage } from '../features/stats/StatsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { WikiPage } from '../features/wiki/WikiPage';
@@ -38,6 +38,7 @@ export function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/study" element={<StudyPage />} />
             <Route path="/map" element={<MapPage />} />
+            <Route path="/map/:trackId" element={<TrackMapPage />} />
             <Route path="/wiki" element={<WikiPage />} />
             <Route path="/wiki/:cardId" element={<WikiEntryPage />} />
             <Route path="/stats" element={<StatsPage />} />

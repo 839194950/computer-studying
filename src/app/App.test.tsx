@@ -2,6 +2,18 @@ import { render, screen } from '@testing-library/react';
 import { App } from './App';
 import { useStore } from '../store/useStore';
 import { attemptSave } from '../store/persistence';
+import { TRACKS } from '../content';
+
+afterEach(() => window.history.replaceState({}, '', '/'));
+
+it('主线子路由直达时，桌面和移动导航都高亮地图', () => {
+  window.history.replaceState({}, '', `/map/${TRACKS[0].id}`);
+  render(<App />);
+  expect(screen.getByRole('heading', { name: `${TRACKS[0].title} · 章节路径` })).toBeInTheDocument();
+  const links = screen.getAllByRole('link', { name: '地图' });
+  expect(links).toHaveLength(2);
+  links.forEach((link) => expect(link).toHaveAttribute('aria-current', 'page'));
+});
 
 it('renders the site name', () => {
   render(<App />);

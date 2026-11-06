@@ -305,3 +305,38 @@
 3. `docs/superpowers/specs/2026-11-04-memory-chip-design.md` 的「复习机制」「数据模型」
 4. `src/lib/` —— 算法都在这里，全部有单测
 5. `npm test` —— 应为 **106 个用例全绿**
+
+## 新版记忆芯 SVG 落地（2026-11-06）
+
+- 按已确认的文字设计实现圆润哑光紫色陶瓷外壳、深茄紫玻璃面屏、薄荷白小眼睛与微笑、香槟金短触点和琥珀状态灯；不裁切概念板，不引入位图背景。
+- 保留 `Mascot` 的 `mood`（idle/happy/confused/sleep）、`size`、`className`、`still` API，以及原 120:130 画布比例。检查首页、顶部导航、设置卡片、学习对话与结算全部调用，未修改页面布局。
+- 所有渐变和滤镜用 React `useId` 隔离。`still` 仅停身体动作；系统 reduced motion 或站内 MotionConfig 的 always 均停止身体与眨眼动作。
+- `registry.test.tsx` 新增尺寸/装饰语义、多实例 ID 引用隔离、降低动效下四表情切换测试。插画专项 **8/8 通过**；`npm run build` 通过；`git diff --check` 通过。
+- 最终全量 `npm test`：**73 通过、36 失败，另 1 个套件加载失败**（19 文件中 10 通过、9 失败）。失败集中在既有测试的 `Invalid Chai property`（jest-dom 匹配器未注册）及 `xp.test.ts` 的 `Vitest failed to find the current suite`。切换线程池及显式 root 仍复现，未修改无关配置或依赖；不能宣称全量通过。
+- 复用现有 `http://127.0.0.1:5173`，用缓存 Playwright + 本地 Chromium 对首页、设置、学习、空队列结算在 1440px/390px 下生成 8 张截图。DOM 检查无横向溢出、无 pageerror，系统降低动效时身体 transform 为 none，尺寸保持原比例。
+- 截图位于 `.workbuddy/memory/mascot-{home,settings,study,sleep}-{1440,390}.png`。图像查看工具不支持当前模型，**仅完成真实浏览器渲染/截图和 DOM 检查，尚未完成截图视觉审阅及与概念板的逐图对照**。
+- 未启动额外服务、未提交；保留原有 `generated-images/` 内容。
+
+### 验证更正：Windows 盘符大小写
+
+- 此前失败与进程 cwd 的小写 `d:/...` 相关，仅传大写 `--root` 不足以修复。PowerShell 的实际 cwd 为 `D:\workbuddy_programs\computer_studying`，执行 `npm test` **19 文件 / 116 测试全部通过，退出码 0**；显式用 spawnSync 的大写 `D:/...` cwd 运行 Vitest 也再次全绿。
+- 本次独立执行 `npm run build`（不受测试 && 短路影响），**tsc + Vite + PWA 构建通过，退出码 0**。仅有大于 500 kB 的分块警告。
+- 未修改测试配置、依赖或业务代码。测试输出仍含 Router future flag、降低动效、jsdom navigation 提示，但测试无失败。
+- 已核实 8 张截图与 `.workbuddy/memory/2026-11-06.md` 实际存在；记忆日志已追加本次更正。截图视觉审阅限制不变。
+
+## 地图总览与独立主线路径（2026-11-06）
+
+- `/map` 改为四条主线入口，不再同时渲染 20 个章节；`/map/:trackId` 只显示该线的 5 个章节。复用现有配色、彩色横幅和 ChapterNode 蛇形节点。
+- 首页 TrackTile 直接指向对应主线子页；移除原地图 `#track-*` 锚点入口。子页提供「返回章节地图」，无效 trackId 显示友好空态与返回入口。
+- App 注册子路由；现有共享导航前缀匹配和按 pathname 回顶部逻辑无需修改，子页继续高亮「地图」。学习入口保持 `/study?chapter=`，ChapterNode、解锁与队列算法未改，学习页返回行为保持原样。
+- 更新地图、首页和 App 测试：总览无章节、四条子页内容隔离、初始锁定、通关后解锁、已通关链接、无效路径、返回切线、首页链接、桌面/移动导航高亮。
+- 使用 Node spawnSync 显式 `cwd: D:/workbuddy_programs/computer_studying` 执行 `npm test`：**19 文件 / 122 测试通过**（此前 116，本次净增 6）。独立 `npm run build` 通过，PWA 产物正常。
+- 复用 `http://127.0.0.1:5173`，缓存 Playwright + Chromium，在 **1440/390/320px** 下完成 **105 项断言/检查**：四线入口、单线 5 章、4 章锁定、学习链接可跳转、首页链接、导航高亮、返回顶部、无效路径恢复和页面横向溢出。pageerror 与 console.error 均为 0。未截图或声称视觉审阅。
+- 保留已有 Mascot、插画测试、generated-images 与历史日志；未提交或推送。剩余提示为既有 Router future flag / 降低动效 / jsdom navigation，以及构建分块超过 500 kB 警告；本次功能无已知阻塞。
+
+## 本轮提交与规划交接（2026-11-06）
+
+- 本轮提交范围为 Mascot SVG 升级、地图总览及独立主线子页、对应测试和本进度记录；不推送远端。
+- `generated-images/` 中的概念 PNG 仅本地保留，不纳入提交；已有截图与每日记忆同样保持本地。
+- 提交后只读核对 README、ROADMAP、PROGRESS 与关键实现，输出下一步小迭代及验收标准，不实现新功能。真实提交 hash、复核结果及具体规划追加到被忽略的 `.workbuddy/memory/2026-11-06.md`，避免仅为交接再次修改已跟踪文件。
+- Mascot 截图仍需人工视觉验收；已有 DOM 检查不替代视觉审阅。

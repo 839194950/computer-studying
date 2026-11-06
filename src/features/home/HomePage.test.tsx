@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from './HomePage';
 import { useStore } from '../../store/useStore';
-import { ALL_CARDS } from '../../content';
+import { ALL_CARDS, TRACKS } from '../../content';
 import { dayKey } from '../../lib/time';
 
 const now = Date.now();
@@ -128,7 +128,7 @@ it('四条主线都能点进章节地图', () => {
     </MemoryRouter>,
   );
 
-  for (const title of ['硬件与原理', '编程语言', '操作系统', '网络安全']) {
-    expect(screen.getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', '/map');
+  for (const track of TRACKS) {
+    expect(screen.getByRole('link', { name: new RegExp(track.title) })).toHaveAttribute('href', `/map/${track.id}`);
   }
 });

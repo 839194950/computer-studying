@@ -19,7 +19,7 @@ export function TrackTile({ track, learned, nextChapter }: TrackTileProps) {
 
   return (
     <Link
-      to="/map"
+      to={`/map/${track.id}`}
       className="group block rounded-blob focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
     >
       <div className="flex items-center gap-4 rounded-blob border-2 border-line bg-white p-4 shadow-lip transition-transform duration-150 group-hover:-translate-y-0.5 group-active:translate-y-[3px] group-active:shadow-none">
