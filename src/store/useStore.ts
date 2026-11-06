@@ -4,6 +4,7 @@ import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { newProgress, review, type CardProgress } from '../lib/srs';
 import { bumpStreak, masteryPercent, resolveStreak, type Streak } from '../lib/stats';
 import { addDays, dayKey, startOfDay } from '../lib/time';
+import { attemptSave, registerWriter } from './persistence';
 
 export interface DailySnapshot {
   date: string;
@@ -155,18 +156,27 @@ export function parseState(raw: string): { ok: true; state: AppState } | { ok: f
   };
 }
 
+/**
+ * 真正的写盘：IndexedDB 优先，浏览器不支持时回落 localStorage。
+ * 抛出的错误交给 attemptSave 记录，界面才能提示「进度没能保存」。
+ */
+export async function persistToDisk(name: string, value: string): Promise<void> {
+  if (typeof indexedDB === 'undefined') {
+    localStorage.setItem(name, value);
+    return;
+  }
+  await idbSet(name, value);
+}
+
+registerWriter(persistToDisk);
+
 const idbStorage = createJSONStorage(() => ({
   getItem: async (name: string) => {
     if (typeof indexedDB === 'undefined') return localStorage.getItem(name);
     return (await idbGet(name)) ?? null;
   },
-  setItem: async (name: string, value: string) => {
-    if (typeof indexedDB === 'undefined') {
-      localStorage.setItem(name, value);
-      return;
-    }
-    await idbSet(name, value);
-  },
+  // 失败不往外抛：persist 会把 reject 变成未处理异常，界面也拿不到信号。
+  setItem: (name: string, value: string) => attemptSave(name, value, persistToDisk),
   removeItem: async (name: string) => {
     if (typeof indexedDB === 'undefined') {
       localStorage.removeItem(name);

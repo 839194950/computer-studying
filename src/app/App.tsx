@@ -6,6 +6,7 @@ import { MapPage } from '../features/map/MapPage';
 import { StatsPage } from '../features/stats/StatsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { TopNav } from '../components/TopNav';
+import { SaveNotice } from '../components/SaveNotice';
 import { useStore } from '../store/useStore';
 
 export function App() {
@@ -16,6 +17,7 @@ export function App() {
       <MotionConfig reducedMotion={reduced ? 'always' : 'user'}>
         <BrowserRouter>
           <TopNav />
+          <SaveNotice />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/study" element={<StudyPage />} />
