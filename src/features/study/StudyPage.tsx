@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Screen } from '../../components/Screen';
 import { Button } from '../../components/Button';
@@ -37,7 +37,9 @@ export function StudyPage() {
   const chapterId = params.get('chapter') ?? undefined;
   const mode: Mode = params.get('mode') === 'weak' ? 'weak' : 'today';
   const free = params.get('free') === '1';
-  const sessionKey = `${mode}:${chapterId ?? ''}:${free ? 'free' : ''}`;
+  const location = useLocation();
+  // 同一自由复习地址再次进入时，也要重建本轮队列与战绩。
+  const sessionKey = `${location.key}:${mode}:${chapterId ?? ''}:${free ? 'free' : ''}`;
 
   return <StudySession key={sessionKey} chapterId={chapterId} mode={mode} free={free} />;
 }
@@ -52,11 +54,14 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
   const navigate = useNavigate();
   const soundOn = settings.sound ?? DEFAULT_SETTINGS.sound;
 
-  const scope = chapterId ? findChapter(chapterId) : undefined;
-  const chapterIsDone = scope ? chapterState(scope.track, scope.chapter.id, progress) === 'done' : false;
+  const scope = mode !== 'weak' && chapterId ? findChapter(chapterId) : undefined;
+  const invalidChapter = mode !== 'weak' && chapterId !== undefined && !scope;
+  const chapterStatus = scope ? chapterState(scope.track, scope.chapter.id, progress) : undefined;
+  const chapterIsDone = chapterStatus === 'done';
 
   const [runner, setRunner] = useState<Runner>(() => {
     if (mode === 'weak') return startRunner(buildCardQueue(weakCards(progress, ALL_CARDS)));
+    if (invalidChapter) return startRunner([]);
     return startRunner(
       buildQueue(TRACKS, progress, {
         newLimit: settings.newCardsPerDay,
@@ -89,7 +94,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
   const lastStep = safeIndex >= steps.length - 1;
   const focus = phase === 'explain' ? (step?.focus ?? []) : [];
 
-  const backTo = mode === 'weak' ? '/' : scope ? '/map' : '/';
+  const backTo = scope ? `/map/${scope.track.id}` : '/';
   /** 顶部返回链接上写的字：告诉用户「现在在哪一章」。 */
   const backText = mode === 'weak' ? '薄弱卡' : scope ? scope.chapter.title : '退出';
   /** 空态主按钮上的字。 */
@@ -206,14 +211,14 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
           : '到期的卡都做完了，明天再来。想多学可以先去地图上开新章节。'
       : `完成 ${total.current} 张 · 连续打卡 ${resolveStreak(streak, Date.now()).current} 天`;
 
-    const canReplay = empty && chapterIsDone && chapterId;
+    const canReplay = scope && chapterStatus !== 'locked' && (finished || (empty && chapterIsDone));
     const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
 
     return (
       <Screen withNav={false}>
         <SessionDone
-          title={title}
-          hint={hint}
+          title={invalidChapter ? '未找到这个章节' : title}
+          hint={invalidChapter ? '章节链接可能有误，请回学习台重新选择主线。' : canReplay ? `${hint} 提前复习会重排下次到期时间。` : hint}
           celebrate={finished}
           xp={stats.xp}
           accuracy={accuracy}
@@ -222,17 +227,17 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
           actions={
             canReplay ? (
               <>
-                <ButtonLink to={`/study?chapter=${chapterId}&free=1`} size="lg" className="flex-1">
-                  再练一遍
+                <ButtonLink to={backTo} variant={finished ? 'success' : 'primary'} size="lg" className="flex-1">
+                  {backLabel}
                 </ButtonLink>
-                <ButtonLink to="/map" variant="ghost" size="lg" className="flex-1">
-                  回章节地图
+                <ButtonLink to={`/study?chapter=${chapterId}&free=1`} variant="ghost" size="lg" className="flex-1">
+                  再练一遍
                 </ButtonLink>
               </>
             ) : (
               <>
                 <ButtonLink to={backTo} size="lg" variant={finished ? 'success' : 'primary'} className="flex-1">
-                  {finished ? '继续' : backLabel}
+                  {backLabel}
                 </ButtonLink>
                 <ButtonLink to="/stats" variant="ghost" size="lg" className="flex-1">
                   去图谱看看
