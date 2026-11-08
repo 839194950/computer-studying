@@ -209,6 +209,113 @@ it('前章四卡记牢后可阅读二进制导读与关联，不改变存档', (
   expect(useStore.getState()).toBe(before);
 });
 
+it('前章记牢后网络导读四卡往返复用概念图，不写存档', () => {
+  useStore.setState({ progress: Object.fromEntries(['01', '02', '03', '04'].map((suffix) => {
+    const cardId = 'hw-compile-' + suffix;
+    return [cardId, { cardId, box: 4 as const, dueAt: 1900000000000, lastReviewedAt: 1794000000000, lapses: 0 }];
+  })) });
+  const before = useStore.getState();
+  open('/map/hardware');
+  const entry = screen.getByRole('region', { name: '网络分层导读入口' });
+  expect(within(screen.getByRole('list', { name: /章节路径/ })).getByRole('link', { name: /网络分层/ }))
+    .toHaveAttribute('href', '/study?chapter=hw-network');
+  fireEvent.click(within(entry).getByRole('link', { name: '打开章节导读' }));
+  expect(screen.getByRole('heading', { level: 1, name: '网络分层 · 章节导读' })).toBeInTheDocument();
+  expect(within(screen.getByRole('region', { name: '网络分层概念图' })).getByRole('img'))
+    .toHaveAccessibleName(/TCP.*封装/);
+  expect(screen.getByRole('link', { name: '开始本章学习' })).toHaveAttribute('href', '/study?chapter=hw-network');
+  expect(screen.queryByRole('link', { name: /实验/ })).toBeNull();
+  expect(screen.getAllByRole('link', { name: /^查看知识卡：/ })).toHaveLength(4);
+  for (const suffix of ['01', '02', '03', '04']) {
+    const card = getCard('hw-network-' + suffix)!;
+    fireEvent.click(screen.getByRole('link', { name: '查看知识卡：' + card.title }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(card.title);
+    fireEvent.click(screen.getByRole('link', { name: '阅读本章导读与贯穿案例' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('网络分层 · 章节导读');
+  }
+  fireEvent.click(screen.getByRole('link', { name: '返回章节路径' }));
+  expect(screen.getByRole('list', { name: /章节路径/ })).toBeInTheDocument();
+  expect(useStore.getState()).toBe(before);
+});
+
+it('新存档网络导读在地图和直接访问时保持锁定', () => {
+  const before = useStore.getState();
+  const view = open('/map/hardware');
+  expect(screen.queryByRole('region', { name: '网络分层导读入口' })).toBeNull();
+  expect(view.container.querySelector('a[href="/map/hardware/hw-network"]')).toBeNull();
+  view.unmount();
+  open('/map/hardware/hw-network');
+  expect(screen.getByRole('heading', { name: '章节尚未解锁' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: '开始本章学习' })).toBeNull();
+  expect(screen.queryByRole('heading', { name: /贯穿案例/ })).toBeNull();
+  expect(useStore.getState()).toBe(before);
+});
+
+it('锁定时网络四卡百科可读，但不提供导读或学习入口', () => {
+  const before = useStore.getState();
+  for (const suffix of ['01', '02', '03', '04']) {
+    const card = getCard('hw-network-' + suffix)!;
+    const view = open('/wiki/' + card.id);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(card.title);
+    expect(screen.queryByRole('link', { name: /去学|阅读本章导读与贯穿案例/ })).toBeNull();
+    view.unmount();
+  }
+  expect(useStore.getState()).toBe(before);
+});
+
+it('前章记牢后TLS导读四卡往返复用概念图，不写存档', () => {
+  useStore.setState({ progress: Object.fromEntries(['sec-xss-01', 'sec-web-02', 'sec-web-03', 'sec-web-04'].map((cardId) => {
+    return [cardId, { cardId, box: 4 as const, dueAt: 1900000000000, lastReviewedAt: 1794000000000, lapses: 0 }];
+  })) });
+  const before = useStore.getState();
+  open('/map/security');
+  const entry = screen.getByRole('region', { name: '传输与证书导读入口' });
+  expect(within(screen.getByRole('list', { name: /章节路径/ })).getByRole('link', { name: /传输与证书/ }))
+    .toHaveAttribute('href', '/study?chapter=sec-tls');
+  fireEvent.click(within(entry).getByRole('link', { name: '打开章节导读' }));
+  expect(screen.getByRole('heading', { level: 1, name: '传输与证书 · 章节导读' })).toBeInTheDocument();
+  expect(within(screen.getByRole('region', { name: '传输与证书概念图' })).getByRole('img'))
+    .toHaveAccessibleName(/TLS.*握手/);
+  expect(screen.getByRole('link', { name: '开始本章学习' })).toHaveAttribute('href', '/study?chapter=sec-tls');
+  expect(screen.queryByRole('link', { name: /实验/ })).toBeNull();
+  expect(screen.getAllByRole('link', { name: /^查看知识卡：/ })).toHaveLength(4);
+  for (const suffix of ['01', '02', '03', '04']) {
+    const card = getCard('sec-tls-' + suffix)!;
+    fireEvent.click(screen.getByRole('link', { name: '查看知识卡：' + card.title }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(card.title);
+    fireEvent.click(screen.getByRole('link', { name: '阅读本章导读与贯穿案例' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('传输与证书 · 章节导读');
+  }
+  fireEvent.click(screen.getByRole('link', { name: '返回章节路径' }));
+  expect(screen.getByRole('list', { name: /章节路径/ })).toBeInTheDocument();
+  expect(useStore.getState()).toBe(before);
+});
+
+it('新存档TLS导读在地图和直接访问时保持锁定', () => {
+  const before = useStore.getState();
+  const view = open('/map/security');
+  expect(screen.queryByRole('region', { name: '传输与证书导读入口' })).toBeNull();
+  expect(view.container.querySelector('a[href="/map/security/sec-tls"]')).toBeNull();
+  view.unmount();
+  open('/map/security/sec-tls');
+  expect(screen.getByRole('heading', { name: '章节尚未解锁' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: '开始本章学习' })).toBeNull();
+  expect(screen.queryByRole('heading', { name: /贯穿案例/ })).toBeNull();
+  expect(useStore.getState()).toBe(before);
+});
+
+it('锁定时TLS四卡百科可读，但不提供导读或学习入口', () => {
+  const before = useStore.getState();
+  for (const suffix of ['01', '02', '03', '04']) {
+    const card = getCard('sec-tls-' + suffix)!;
+    const view = open('/wiki/' + card.id);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(card.title);
+    expect(screen.queryByRole('link', { name: /去学|阅读本章导读与贯穿案例/ })).toBeNull();
+    view.unmount();
+  }
+  expect(useStore.getState()).toBe(before);
+});
+
 it('新存档直接访问二进制导读仍锁定', () => {
   const before = useStore.getState();
   open('/map/hardware/hw-binary');

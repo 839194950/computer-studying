@@ -42,6 +42,32 @@ it.each(['db-table', 'db-query', 'db-index', 'db-transaction', 'db-model'])('%s 
   });
 });
 
+it('网络图提供TCP封装可访问名称，四层标签与包体可高亮', () => {
+  const Diagram = getIllustration('network');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/TCP.*封装/);
+  for (const part of ['app', 'transport', 'network', 'link']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(2);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(6);
+  }
+  rerender(<Diagram />);
+  expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
+it('TLS图提供握手示例名称，四部件仍可独立高亮', () => {
+  const Diagram = getIllustration('tls');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/TLS.*握手/);
+  for (const part of ['handshake', 'cert', 'ca', 'encrypt']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(3);
+  }
+  rerender(<Diagram />);
+  expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
 it('hasIllustration 能区分已注册与未注册', () => {
   expect(hasIllustration('cpu')).toBe(true);
   expect(hasIllustration('poop')).toBe(false);

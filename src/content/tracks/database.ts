@@ -10,7 +10,7 @@ export const database: Track = {
         illustration: 'db-table',
         intro: '从一张图书表出发，把书的编号、书名和库存分开放进列里。先看懂一行代表什么，再认识类型、主键与缺失值，避免把未知库存误当成没有库存。',
         objectives: ['区分记录与字段', '选择合适类型和主键', '用 IS NULL 判断缺失值'],
-        prerequisites: ['知道表格有行和列，不需要 SQL 基础'],
+        prerequisites: ['知道表格有行和列，不需要 SQL 基础', '本主线 SQL 示例以 PostgreSQL 18 为参照，其他数据库的类型、索引和事务细节需查对应文档。'],
         scenario: { title: '整理图书清单', steps: [
           { heading: '一书一条记录', body: '约定一行代表一种图书，编号、书名和库存各占一列。新增图书时增加一行，而不是再建一列；这样所有记录遵循相同结构。', relatedCardIds: ['db-table-01'] },
           { heading: '给字段定类型', body: '库存采用整数，书名采用文本。像书号这样的标识符即使只包含数字，也可能需要保留前导零，不能仅凭外观决定类型。', relatedCardIds: ['db-table-02'] },
@@ -45,7 +45,7 @@ export const database: Track = {
           { heading: '缩小查找范围', body: '按编号找一本书时，有序索引可以先定位键，再找到对应记录，减少逐行比较。索引保存的是辅助查找结构，并不是把整张表免费复制到内存。', relatedCardIds: ['db-index-01'] },
           { heading: '计算维护成本', body: '入库新书或修改被索引的列时，数据库还要维护索引。索引占空间并增加写入工作，因此要围绕常用查询设计，而不是默认越多越好。', relatedCardIds: ['db-index-02'] },
           { heading: '看命中比例', body: '若查询要返回绝大多数图书，逐行扫描可能比走索引再取记录更省事。表很小时也可能如此，优化器会结合统计信息估算成本。', relatedCardIds: ['db-index-03'] },
-          { heading: '验证实际计划', body: '为分类和库存建立联合索引前，先看查询是否使用前导列，再用 EXPLAIN 检查计划。索引的列顺序和查询条件会影响能否有效缩小查找范围。', relatedCardIds: ['db-index-04'] },
+          { heading: '验证实际计划', body: '为分类和库存建立 B 树联合索引前，先分析列顺序与查询条件，再用 EXPLAIN 检查计划。前导列约束通常有帮助，但 PostgreSQL 18 也可能使用跳跃扫描，不能把未查前导列当成绝对不能用索引。', relatedCardIds: ['db-index-04'] },
         ] },
       },
     },
@@ -83,7 +83,7 @@ export const database: Track = {
   cards: [
     {
       id: 'db-table-01', track: 'database', chapter: 'db-table', title: '一行记录，一列属性', illustration: 'db-table',
-      explain: '表按行保存记录，按列描述属性；查询结果才有指定顺序。',
+      explain: '表按行保存记录、按列描述属性；查询需显式排序才能保证顺序。',
       steps: [{ caption: '图书表中，一行记录一种图书。', focus: ['rows'] }, { caption: '编号、书名和库存各是一列。', focus: ['columns'] }, { caption: '表中记录没有供查询依赖的天然顺序。', focus: ['rows', 'columns'] }],
       question: '图书表新增一种图书，通常应该怎么做？', options: ['新增一列书名', '新增一行记录', '把整张表复制一份', '把书名加进列名'], answerIndex: 1,
       explanation: '同类记录共享列结构，每新增一种图书增加一行；列描述属性，不代表某一本书。',
@@ -113,8 +113,8 @@ export const database: Track = {
       id: 'db-query-01', track: 'database', chapter: 'db-query', title: '筛选行与选择列', illustration: 'db-query',
       explain: 'WHERE 筛选符合条件的行，SELECT 决定输出哪些列。',
       steps: [{ caption: '从图书表读取记录，WHERE stock > 0 筛行。', focus: ['filter'] }, { caption: 'SELECT title 只输出书名，不修改原表。', focus: ['filter', 'result'] }],
-      question: 'WHERE stock > 0 会对原表做什么？', options: ['删除库存为零的行', '把库存改成正数', '不修改原表，只筛选结果', '把库存列隐藏并永久保存'], answerIndex: 2,
-      explanation: 'SELECT 查询只读取结果；WHERE 在此处筛选行，不会删除或更新未命中的记录。',
+      question: '在 SELECT title FROM books WHERE stock > 0 中，筛选会对原表做什么？', options: ['删除库存为零的行', '把库存改成正数', '不修改原表，只筛选结果', '把库存列隐藏并永久保存'], answerIndex: 2,
+      explanation: '这条 SELECT 只读取书名；WHERE 在这里筛选结果，不修改原表。UPDATE 或 DELETE 也能带 WHERE，不能仅凭这个子句判断是否写数据。',
     },
     {
       id: 'db-query-02', track: 'database', chapter: 'db-query', title: '排序需要明确说出来', illustration: 'db-query',
@@ -133,7 +133,7 @@ export const database: Track = {
     {
       id: 'db-query-04', track: 'database', chapter: 'db-query', title: '连接按条件配对记录', illustration: 'db-query',
       explain: 'JOIN 按关联条件组合记录，一对多关系可产生多行结果。',
-      steps: [{ caption: '借阅表 book_id 对应图书表 id。', focus: ['join'] }, { caption: 'INNER JOIN 只留下匹配，LEFT JOIN 保留左表。', focus: ['join', 'result'] }],
+      steps: [{ caption: '借阅表 book_id 对应图书表 id。', focus: ['join'] }, { caption: '连接阶段：INNER JOIN 留匹配，LEFT JOIN 保留左侧行。', focus: ['join', 'result'] }],
       question: '要保留没有借阅记录的图书，图书表在左侧应使用？', options: ['LEFT JOIN 借阅表', 'INNER JOIN 借阅表', '去掉连接条件随意组合', '只按书名排序'], answerIndex: 0,
       explanation: 'LEFT JOIN 保留左侧图书，无匹配时右侧列为 NULL；随后用 WHERE 筛右侧列时需注意可能排除这些行。',
     },

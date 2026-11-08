@@ -15,11 +15,11 @@ const ROWS = [
  */
 export function NetworkDiagram({ className, focus }: DiagramProps) {
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-label="TCP/IP 四层封装示意：应用数据、TCP 头、IP 头、链路帧头与帧尾">
       <DiagramDefs />
 
       <Label x={160} y={14} size={9} fill="#8B85A6">
-        往下走一层，就多包一个头
+        以 TCP 为例：逐层封装
       </Label>
 
       {ROWS.map((row, i) => {
@@ -88,7 +88,7 @@ export function NetworkDiagram({ className, focus }: DiagramProps) {
       </Part>
 
       <Label x={160} y={166} size={9} fill="#8B85A6">
-        接收端反过来，一层层把头剥掉
+        简化示意：省略 TLS、分段与字节比例
       </Label>
       {/* 同一份数据从上往下走，每过一层就多一个头 */}
       <Flow d="M101 38 V128" color={BRAND} dur={2.4} />
