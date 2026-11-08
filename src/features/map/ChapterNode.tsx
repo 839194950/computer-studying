@@ -1,3 +1,4 @@
+import { ChapterLabLink } from '../labs/LabsPage';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from '../../components/Icon';
@@ -15,6 +16,7 @@ const OFFSETS = [0, 56, 0, -56, 0];
 
 interface ChapterNodeProps {
   chapterId: string;
+  guidePath?: string;
   index: number;
   title: string;
   blurb: string;
@@ -26,7 +28,7 @@ interface ChapterNodeProps {
 }
 
 /** 地图上的一个章节：圆形 3D 按钮 + 进度弧 + 标题。正在学的那一个带脉冲光圈和「开始」气泡。 */
-export function ChapterNode({ chapterId, index, title, blurb, state, learned, total, theme }: ChapterNodeProps) {
+export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, learned, total, theme }: ChapterNodeProps) {
   const interactive = state !== 'locked';
   const offset = OFFSETS[index % OFFSETS.length];
   const ratio = total > 0 ? learned / total : 0;
@@ -123,6 +125,10 @@ export function ChapterNode({ chapterId, index, title, blurb, state, learned, to
             {disc}
             {caption}
           </div>
+        )}
+        <ChapterLabLink chapterId={chapterId} />
+        {interactive && guidePath && (
+          <Link to={guidePath} className="mt-2 block rounded-lg text-center text-sm font-extrabold text-brand underline focus-visible:ring-4 focus-visible:ring-brand/30">章节导读</Link>
         )}
       </div>
     </motion.li>

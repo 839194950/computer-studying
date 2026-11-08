@@ -80,6 +80,10 @@ export function HomePage() {
         <StatChips compact />
       </header>
 
+      <Link to="/labs" className="mb-5 flex min-h-16 items-center justify-between gap-3 rounded-2xl border-2 border-brand/30 bg-brand-soft p-4 font-extrabold text-brand-dark shadow-lip focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30">
+        <span>动手实验室<span className="mt-1 block text-xs font-semibold">进制实验台 · 索引查询演示 · 不计学习进度</span></span><Icon name="arrow-right" size={20} />
+      </Link>
+
       {/* 主横幅：问候 + 今日目标 + 开始按钮 */}
       <Rise>
         <section className="relative mb-4 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#8A6BFF] via-[#7B5CFF] to-[#5A3DE6] p-5 text-white shadow-float md:p-7">
@@ -266,7 +270,7 @@ export function HomePage() {
             ))}
           </ol>
           <p className="mt-3 text-[11px] font-bold text-muted">
-            四条主线 · {ALL_CARDS.length} 张卡：{TRACKS.map((t) => t.title).join(' / ')}
+            {TRACKS.length} 条主线 · {ALL_CARDS.length} 张卡：{TRACKS.map((t) => t.title).join(' / ')}
           </p>
         </StickerCard>
       </Rise>
@@ -278,7 +282,7 @@ export function HomePage() {
               <span className="tabular text-sm font-black text-ink">{mastery}</span>
             </ProgressRing>
             <div>
-              <h2 className="text-lg font-black leading-tight text-ink">四条主线</h2>
+              <h2 className="text-lg font-black leading-tight text-ink">{TRACKS.length} 条主线</h2>
               <p className="text-xs font-bold text-muted">总掌握度 {mastery}%</p>
             </div>
           </div>

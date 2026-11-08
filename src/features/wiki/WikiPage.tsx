@@ -13,7 +13,7 @@ import { searchCards } from './search';
 type Filter = TrackId | 'all';
 
 /**
- * 计算机百科：80 个条目随时可查，不受解锁和复习时间限制。
+ * 计算机百科：所有条目随时可查，不受解锁和复习时间限制。
  * 搜索词和筛选写进 URL，从条目返回时还停在原来的位置。
  */
 export function WikiPage() {

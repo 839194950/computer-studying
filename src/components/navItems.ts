@@ -26,6 +26,6 @@ export const NAV_ITEMS: NavItem[] = [
  */
 export function activeNavKey(pathname: string): NavKey | null {
   if (pathname === '/study') return null;
-  if (pathname === '/') return 'home';
+  if (pathname === '/' || pathname === '/labs' || pathname.startsWith('/labs/')) return 'home';
   return NAV_ITEMS.find((item) => item.to !== '/' && (pathname === item.to || pathname.startsWith(`${item.to}/`)))?.key ?? null;
 }

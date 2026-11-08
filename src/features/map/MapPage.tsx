@@ -74,6 +74,16 @@ export function TrackMapPage() {
       {back}
       <div className="mx-auto max-w-xl">
         <TrackBanner track={track} learned={learnedAll} />
+        {chapters.filter((chapter) => chapter.guide && chapterState(track, chapter.id, progress) !== 'locked').map((chapter) => (
+          <section key={chapter.id} aria-label={`${chapter.title}导读入口`} className="mt-5 rounded-3xl border-2 border-brand/25 bg-brand-soft p-5 shadow-lip">
+            <p className="flex items-center gap-2 text-sm font-black text-brand-dark"><Icon name="book" size={20} />章节导读 · 先看懂，再学习</p>
+            <h2 className="mt-2 text-lg font-black text-ink">{chapter.title}：从整体认识开始</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{chapter.guide!.intro} 阅读不计学习进度。</p>
+            <Link to={`/map/${track.id}/${chapter.id}`} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-extrabold text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30 focus-visible:ring-offset-2">
+              打开章节导读<Icon name="arrow-right" size={16} />
+            </Link>
+          </section>
+        ))}
         {chapters.length === 0 ? (
           <p className="mt-3 rounded-2xl border-2 border-dashed border-line px-3 py-4 text-center text-xs font-bold text-muted">这一条线还在写卡</p>
         ) : (
@@ -85,6 +95,7 @@ export function TrackMapPage() {
                 <ChapterNode
                   key={chapter.id}
                   chapterId={chapter.id}
+                  guidePath={chapter.guide ? `/map/${track.id}/${chapter.id}` : undefined}
                   index={i}
                   title={chapter.title}
                   blurb={chapter.blurb}

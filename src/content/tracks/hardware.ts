@@ -4,8 +4,49 @@ export const hardware: Track = {
   id: 'hardware',
   title: '硬件与原理',
   chapters: [
-    { id: 'hw-cpu', title: '计算机组成', blurb: 'CPU、内存、磁盘各自在忙什么' },
-    { id: 'hw-binary', title: '二进制与编码', blurb: '计算机唯一的字母表' },
+    {
+      id: 'hw-cpu', title: '计算机组成', blurb: 'CPU、内存、磁盘各自在忙什么',
+      guide: {
+        intro: '打开应用、输入文字、点击保存，看似连续的动作，其实由不同硬件接力完成。本章用一次编辑笔记的过程，串起 CPU 的指令执行与寄存器、缓存、内存、磁盘的分工。',
+        objectives: [
+          '用取指、译码、执行解释程序如何运行，区分时钟周期与指令周期。',
+          '按寄存器、缓存、内存、磁盘说明容量、速度与持久性的取舍。',
+          '解释再次打开应用可能更快、未保存文字可能丢失的原因。',
+        ],
+        prerequisites: ['会打开应用、编辑文字和保存文件即可，不要求编程基础。', '知道程序和文件都需要存放空间；本章会解释运行空间与长期存储的区别。'],
+        scenario: {
+          title: '从打开笔记应用到保存一句话',
+          steps: [
+            { heading: '打开：从磁盘到内存', body: '你双击本地笔记应用。操作系统建立进程，把运行所需的代码和数据按需装入内存，并非一次搬入整个应用。若文件内容已经在系统的内存缓存中，再次打开可能少读磁盘。', relatedCardIds: ['hw-cpu-03', 'hw-cpu-04'] },
+            { heading: '运行：指令开始接力', body: '轮到应用获得 CPU 时间后，处理器取得机器指令、译码并执行。计算常使用寄存器中的操作数，读写内存时通常经过缓存。显示窗口涉及许多指令和系统服务，不是一条“打开应用”指令。', relatedCardIds: ['hw-cpu-01', 'hw-cpu-02'] },
+            { heading: '输入：工作数据在变化', body: '你输入“今天学计算机”。应用更新内存中的文本，CPU 反复访问代码和附近数据时可能命中缓存。CPU 缓存由硬件管理，不是手动保存的位置；系统文件缓存也不是同一种缓存。', relatedCardIds: ['hw-cpu-02', 'hw-cpu-03'] },
+            { heading: '保存：走向持久存储', body: '点击保存后，应用请求系统写文件，数据可能先停在内存中的写缓冲，再落到 SSD 或机械盘。可靠落盘还涉及刷新与设备保证；未保存且没有自动恢复副本的修改，断电后通常无法找回。', relatedCardIds: ['hw-cpu-04', 'hw-cpu-03'] },
+          ],
+        },
+      },
+    },
+    {
+      id: 'hw-binary', title: '二进制与编码', blurb: '计算机唯一的字母表',
+      guide: {
+        intro: '同一串 0 和 1 不会自己说明含义：它可以表示整数，也可以是文字编码的一部分。本章从一个字节出发，先算位权，再比较无符号数与二补码，最后理解字符如何编码成字节。进制实验只演示整数解释，不支持文本编码。',
+        illustration: 'binary',
+        objectives: [
+          '根据位权把一个八位无符号二进制数转换成十进制。',
+          '区分同一八位位串的无符号与二补码解释，说明零和负数的边界。',
+          '区分字符、Unicode 码点与编码字节，解释 UTF-8 的变长特性。',
+        ],
+        prerequisites: ['知道计算机用内存保存运行中的数据，文件可以存放文字。', '会做整数加法，知道乘以二会翻倍；不要求编程或进制基础。'],
+        scenario: {
+          title: '同一串位如何表示数值和文字',
+          steps: [
+            { heading: '先数位：八个开关组成一个字节', body: '把内存中的一个字节想成八个只取 0 或 1 的开关。八位共有 256 种组合，01000001 只是其中一种；位串本身还没说明是数字还是文字。先分清 bit 与 byte，才不会把八个位误当成八个字节。', relatedCardIds: ['hw-binary-01'] },
+            { heading: '算位权：从位串读出整数', body: '先约定按无符号整数解释 01000001。从右向左的位权是 1、2、4、8、16、32、64、128，把为 1 的位权加起来得到 65。去进制实验切换开关，观察位串与数值一起变化；八位无符号数的范围是 0 到 255。', relatedCardIds: ['hw-binary-02'] },
+            { heading: '换解释：同一位串可以是负数', body: '把最高位打开得到 11000001：无符号读作 193，固定八位二补码则读作 -63，因为最高位权变成 -128。二补码最高位为 0 时表示非负数，包含零；全为 1 时是 -1。实验同时显示两种结果，改变的是解释规则，不是存下的位串。', relatedCardIds: ['hw-binary-03'] },
+            { heading: '读文字：编码连接码点与字节', body: '回到 01000001，按 ASCII 或 UTF-8 解码就是字母 A；但不是每个字符都只用一个字节。Unicode 给字符分配码点，UTF-8 再将码点编码成一至四个字节：“中”用三个字节，某些扩展汉字用四个。这里阅读编码知识卡，进制实验并不提供文本编码功能。', relatedCardIds: ['hw-binary-04'] },
+          ],
+        },
+      },
+    },
     { id: 'hw-compile', title: '编译与解释', blurb: '人写的代码怎么变成机器指令' },
     { id: 'hw-network', title: '网络分层', blurb: '数据怎么从这台机器走到那台' },
     { id: 'hw-perf', title: '性能与并发', blurb: '快慢到底由什么决定' },
@@ -18,7 +59,7 @@ export const hardware: Track = {
       chapter: 'hw-cpu',
       title: 'CPU 到底在重复什么',
       illustration: 'cpu',
-      explain: 'CPU 不聪明，它只是每秒把同一套动作重复几十亿次。',
+      explain: 'CPU 按指令工作，反复进行取指、译码和执行。',
       steps: [
         { caption: '先看全景：CPU、缓存、内存、磁盘，越往右越慢、越大。', focus: [] },
         { caption: 'CPU 里住着三个角色：控制器、运算器、寄存器。', focus: ['cpu'] },
@@ -27,7 +68,7 @@ export const hardware: Track = {
       question: 'CPU 执行指令的最小循环是？',
       options: ['读取 → 计算 → 写回', '取指 → 译码 → 执行', '编译 → 链接 → 运行', '分配 → 调度 → 回收'],
       answerIndex: 1,
-      explanation: '取指令、译码、执行（再加写回）构成指令周期，每秒重复数十亿次。',
+      explanation: '取指、译码、执行是指令周期的基本阶段；时钟周期不等于指令周期，执行速度还取决于指令与硬件。',
     },
     {
       id: 'hw-cpu-02',
@@ -37,8 +78,8 @@ export const hardware: Track = {
       illustration: 'cpu',
       explain: '缓存把常用数据搬到 CPU 手边，省下跑一趟内存的时间。',
       steps: [
-        { caption: 'CPU 算一次约 1 纳秒，去内存取个数却要约 100 纳秒。', focus: ['cpu', 'ram'] },
-        { caption: '空等 100 倍太浪费，于是在中间加一层缓存。', focus: ['cache'] },
+        { caption: 'CPU 运算与访问主内存存在速度差，具体延迟取决于硬件。', focus: ['cpu', 'ram'] },
+        { caption: '为减少等待，在处理器与主内存之间设置多级缓存。', focus: ['cache'] },
         { caption: '常用数据留在缓存里，命中就不用跑远路。', focus: ['cache', 'ram'] },
       ],
       question: '缓存存在的根本原因是？',
@@ -54,8 +95,8 @@ export const hardware: Track = {
       illustration: 'cpu',
       explain: '内存断电就清空，它只负责存「正在用」的数据。',
       steps: [
-        { caption: '程序运行时，代码和数据都被搬到内存里。', focus: ['ram'] },
-        { caption: '内存靠电维持每个格子的状态，一断电就全归零。', focus: ['ram'] },
+        { caption: '程序运行时，所需代码和数据通常按需进入内存。', focus: ['ram'] },
+        { caption: '常见主内存需要供电，断电后不能可靠保留数据。', focus: ['ram'] },
         { caption: '要长期保存，必须落到磁盘这类非易失存储上。', focus: ['ram', 'disk'] },
       ],
       question: '电脑突然断电，内存里还没保存的数据会怎样？',
@@ -69,9 +110,9 @@ export const hardware: Track = {
       chapter: 'hw-cpu',
       title: '磁盘慢，但它记得住',
       illustration: 'cpu',
-      explain: '磁盘慢三个数量级，换来断电也不丢的长期保存。',
+      explain: 'SSD 和机械盘通常比内存慢，但能在断电后保留已落盘的数据。',
       steps: [
-        { caption: '磁盘访问一次约 10 毫秒，比内存慢约十万倍。', focus: ['disk', 'ram'] },
+        { caption: '机械盘随机访问常为毫秒级，不能把这当成 SSD 的延迟。', focus: ['disk', 'ram'] },
         { caption: '机械盘要等盘片转到位；SSD 没有机械动作，随机读写快得多。', focus: ['disk'] },
         { caption: '再快也慢于内存，所以数据要先读进内存才能参与计算。', focus: ['disk', 'ram'] },
       ],
@@ -97,7 +138,7 @@ export const hardware: Track = {
       steps: [
         { caption: '一位只有两种状态：通电记作 1，断电记作 0。', focus: ['bit'] },
         { caption: '八位捆成一个字节，能表示 2 的 8 次方，共 256 种。', focus: ['byte'] },
-        { caption: '同一个字节，当数字读是 65，当字符读就是 A。', focus: ['number', 'text'] },
+        { caption: '01000001 当无符号数读是 65，按 ASCII 读是 A。', focus: ['number', 'text'] },
       ],
       question: '一个字节（byte）能表示多少种不同的值？',
       options: ['8 种', '256 种', '1024 种', '取决于操作系统'],
@@ -114,7 +155,7 @@ export const hardware: Track = {
       steps: [
         { caption: '从最右边开始，各位的权重是 1、2、4、8、16……', focus: ['bit'] },
         { caption: '往左每走一格，权重翻一倍，这就是「二进制」。', focus: ['bit'] },
-        { caption: '把为 1 的那些位的权重加起来，就是它的十进制值。', focus: ['bit', 'number'] },
+        { caption: '按无符号整数解释，把为 1 的位权相加就是数值。', focus: ['bit', 'number'] },
       ],
       question: '二进制 1010 等于十进制的多少？',
       options: ['8', '10', '12', '20'],
@@ -127,16 +168,16 @@ export const hardware: Track = {
       chapter: 'hw-binary',
       title: '负数怎么用 0 和 1 表示',
       illustration: 'binary',
-      explain: '补码让减法变成加法，CPU 不必为减法单独造一套电路。',
+      explain: '固定宽度的二补码表示有符号整数，让加减法共用加法电路。',
       steps: [
-        { caption: '最高位拿来当符号位：0 表示正，1 表示负。', focus: ['number'] },
-        { caption: '负数用补码存：原码取反，再加一。', focus: ['number'] },
-        { caption: '这样 -1 加 1 自然溢出成 0，减法直接变加法。', focus: ['number'] },
+        { caption: '固定八位二补码：最高位 0 表示非负，1 表示负。', focus: ['number'] },
+        { caption: '求负数补码：绝对值写成八位无符号数，取反加一，只留低八位。', focus: ['number'] },
+        { caption: '-1 的八位补码加 1，丢弃最高进位后得到 0。', focus: ['number'] },
       ],
       question: '8 位补码里，-1 的二进制是？',
       options: ['1000 0001', '1111 1111', '0000 0001', '1111 0000'],
       answerIndex: 1,
-      explanation: '1 是 0000 0001，取反得 1111 1110，加一得 1111 1111。',
+      explanation: '固定八位，先把绝对值 1 写成 0000 0001，逐位取反得 1111 1110，再加一得 1111 1111；按八位二补码解释就是 -1。',
     },
     {
       id: 'hw-binary-04',
@@ -144,16 +185,16 @@ export const hardware: Track = {
       chapter: 'hw-binary',
       title: '中文是怎么存进去的',
       illustration: 'binary',
-      explain: '编码是一张对照表，UTF-8 用变长字节装下全世界的字。',
+      explain: 'Unicode 为字符分配码点，UTF-8 将码点编码为变长字节。',
       steps: [
         { caption: '字符本身不是数字，得先按对照表换成编号。', focus: ['text'] },
-        { caption: 'ASCII 只用一个字节，装不下中文。', focus: ['byte', 'text'] },
-        { caption: 'UTF-8 变长：英文 1 字节，常用汉字通常 3 字节。', focus: ['text'] },
+        { caption: 'ASCII 只有 128 个编码位置，不包含中文。', focus: ['byte', 'text'] },
+        { caption: 'UTF-8：ASCII 字符 1 字节，常用汉字 3 字节，部分汉字 4 字节。', focus: ['text'] },
       ],
-      question: '同一段中文，用 UTF-8 存通常每个汉字占几个字节？',
+      question: '“中”这样的常用汉字，用 UTF-8 编码占几个字节？',
       options: ['1 个', '2 个', '3 个', '8 个'],
       answerIndex: 2,
-      explanation: '常用汉字在 UTF-8 里占 3 字节；GBK 是 2 字节，所以换编码后文件大小会变，读错就乱码。',
+      explanation: '“中”（U+4E2D）在 UTF-8 中占 3 字节，但不是所有汉字都固定三字节，例如扩展汉字“𠀀”（U+20000）占 4 字节。读取文字必须使用正确的编码。',
     },
 
     // ── 第三章 编译与解释 ──────────────────────────────

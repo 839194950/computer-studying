@@ -33,6 +33,6 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     globals: true,
     css: false,
-    exclude: ['node_modules/**', 'dist/**'],
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**'],
   },
 });

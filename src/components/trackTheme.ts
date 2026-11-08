@@ -2,7 +2,7 @@ import type { TrackId } from '../content/types';
 import type { IconName } from './Icon';
 
 /**
- * 四条主线的视觉身份：颜色、图标、一句口号。
+ * 所有主线的视觉身份：颜色、图标、一句口号。
  * 所有页面都从这里取，不要各写一套颜色。
  * 类名写全（不拼字符串），Tailwind 才能扫描到。
  */
@@ -29,6 +29,19 @@ export interface TrackTheme {
 }
 
 export const TRACK_THEME: Record<TrackId, TrackTheme> = {
+  database: {
+    short: '数据',
+    icon: 'database',
+    tagline: '从表与查询到事务，让数据可靠有序',
+    solid: 'bg-[#168C5E] text-white',
+    lip: 'shadow-[0_5px_0_#106B48]',
+    soft: 'bg-mint-soft',
+    text: 'text-[#106B48]',
+    bar: 'bg-[#168C5E]',
+    banner: 'bg-gradient-to-br from-[#4AD6A0] to-[#168C5E]',
+    hex: '#168C5E',
+    hexDark: '#106B48',
+  },
   hardware: {
     short: '硬件',
     icon: 'chip',

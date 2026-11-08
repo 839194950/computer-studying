@@ -1,9 +1,18 @@
-export type TrackId = 'hardware' | 'language' | 'os' | 'security';
+export type TrackId = 'hardware' | 'language' | 'os' | 'security' | 'database';
+
+export interface ChapterGuide {
+  illustration?: string;
+  intro: string;
+  objectives: string[];
+  prerequisites: string[];
+  scenario: { title: string; steps: DetailSection[] };
+}
 
 export interface Chapter {
   id: string;
   title: string;
   blurb: string;
+  guide?: ChapterGuide;
 }
 
 /** 讲解面的一步：把注意力聚到图上的某几块，并配一句旁白。 */
@@ -20,6 +29,7 @@ export interface DetailSection {
   heading: string;
   /** 60–160 字 */
   body: string;
+  relatedCardIds?: string[];
 }
 
 export interface Card {

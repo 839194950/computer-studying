@@ -46,6 +46,12 @@ it('学习页不显示顶部导航', () => {
   expect(container.querySelector('nav')).toBeNull();
 });
 
+it.each(['/labs', '/labs/binary', '/labs/index'])('实验页 %s 保留主站导航', (path) => {
+  render(<MemoryRouter initialEntries={[path]}><TopNav /><BottomNav /></MemoryRouter>);
+  expect(screen.getByRole('navigation', { name: '主导航' })).toBeInTheDocument();
+  expect(screen.getByRole('navigation', { name: '底部导航' })).toBeInTheDocument();
+});
+
 it('按钮禁用时不可点击', () => {
   render(<Button disabled>开始</Button>);
   expect(screen.getByRole('button', { name: '开始' })).toBeDisabled();

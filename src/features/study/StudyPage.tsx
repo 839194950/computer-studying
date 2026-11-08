@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Screen } from '../../components/Screen';
@@ -32,7 +32,14 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  * - /study?mode=weak     错题本：答错过且还没记牢的卡
  * 加 &free=1 时忽略到期时间，把这一章全部重练一遍。
  */
+const subscribeHydration = (notify: () => void) => {
+  const start = useStore.persist.onHydrate(notify);
+  const finish = useStore.persist.onFinishHydration(notify);
+  return () => { start(); finish(); };
+};
+
 export function StudyPage() {
+  const hydrated = useSyncExternalStore(subscribeHydration, useStore.persist.hasHydrated, () => false);
   const [params] = useSearchParams();
   const chapterId = params.get('chapter') ?? undefined;
   const mode: Mode = params.get('mode') === 'weak' ? 'weak' : 'today';
@@ -40,6 +47,9 @@ export function StudyPage() {
   const location = useLocation();
   // 同一自由复习地址再次进入时，也要重建本轮队列与战绩。
   const sessionKey = `${location.key}:${mode}:${chapterId ?? ''}:${free ? 'free' : ''}`;
+
+  // IndexedDB 异步恢复完成后才能建立本轮队列，避免刷新时把旧卡当新卡。
+  if (!hydrated) return <Screen title="正在恢复学习进度"><p role="status">正在读取本地存档…</p></Screen>;
 
   return <StudySession key={sessionKey} chapterId={chapterId} mode={mode} free={free} />;
 }

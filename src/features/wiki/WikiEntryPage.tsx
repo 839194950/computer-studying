@@ -12,6 +12,7 @@ import { cardStatus } from '../../lib/stats';
 import { chapterState } from '../../lib/queue';
 import { formatMonthDay } from '../../lib/time';
 import { STATUS_STYLE } from '../stats/statusStyle';
+import { ChapterLabLink, LABS } from '../labs/LabsPage';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -114,6 +115,12 @@ export function WikiEntryPage() {
                 <div key={section.heading}>
                   <h3 className={`text-[15px] font-black ${theme.text}`}>{section.heading}</h3>
                   <p className="mt-1 text-[15px] leading-[1.9] text-ink/80">{section.body}</p>
+                  {section.relatedCardIds && (
+                    <nav aria-label={`${section.heading}的知识关联`} className="mt-2 flex flex-wrap gap-3 text-sm font-bold text-brand">
+                      <span>知识关联</span>
+                      {section.relatedCardIds.map((id) => <Link key={id} to={`/wiki/${id}`} className="underline">{getCard(id)!.title}</Link>)}
+                    </nav>
+                  )}
                 </div>
               ))}
             </div>
@@ -168,6 +175,12 @@ export function WikiEntryPage() {
             </motion.p>
           )}
         </section>
+
+        {LABS.some((lab) => lab.relatedCardIds.includes(card.id)) && <ChapterLabLink chapterId={card.chapter} />}
+
+        {canStudy && scope.chapter.guide && (
+          <Link to={`/map/${scope.track.id}/${scope.chapter.id}`} className="mt-5 block font-bold text-brand underline">阅读本章导读与贯穿案例</Link>
+        )}
 
         {canStudy && (
           <ButtonLink to={`/study?chapter=${card.chapter}`} size="lg" full className="mt-5">

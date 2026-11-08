@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
+import { LabsPage, BinaryLabPage, IndexLabPage } from '../features/labs/LabsPage';
 import { HomePage } from '../features/home/HomePage';
 import { StudyPage } from '../features/study/StudyPage';
+import { ChapterGuidePage } from '../features/map/ChapterGuidePage';
 import { MapPage, TrackMapPage } from '../features/map/MapPage';
 import { StatsPage } from '../features/stats/StatsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
@@ -36,9 +38,13 @@ export function App() {
           <SaveNotice />
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/labs" element={<LabsPage />} />
+            <Route path="/labs/binary" element={<BinaryLabPage />} />
+            <Route path="/labs/index" element={<IndexLabPage />} />
             <Route path="/study" element={<StudyPage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/map/:trackId" element={<TrackMapPage />} />
+            <Route path="/map/:trackId/:chapterId" element={<ChapterGuidePage />} />
             <Route path="/wiki" element={<WikiPage />} />
             <Route path="/wiki/:cardId" element={<WikiEntryPage />} />
             <Route path="/stats" element={<StatsPage />} />

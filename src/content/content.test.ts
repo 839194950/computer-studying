@@ -2,13 +2,48 @@ import { TRACKS, ALL_CARDS, getDetail } from './index';
 import { DETAILS } from './details';
 import { getDiagramParts, hasIllustration } from '../illustrations/registry';
 
-it('四条主线，每条五章', () => {
-  expect(TRACKS.map((t) => t.id)).toEqual(['hardware', 'language', 'os', 'security']);
+it('计算机组成与数据库填充完整导读，案例与详情关联均指向真实卡片', () => {
+  const chapters = TRACKS.flatMap((t) => t.chapters);
+  expect(chapters.filter((c) => c.guide).map((c) => c.id)).toEqual(['hw-cpu', 'hw-binary', 'db-table', 'db-query', 'db-index', 'db-transaction', 'db-model']);
+  const guide = chapters.find((c) => c.id === 'hw-cpu')!.guide!;
+  expect(guide.intro.trim()).not.toBe('');
+  expect(guide.objectives.length).toBeGreaterThan(0);
+  expect(guide.prerequisites.length).toBeGreaterThan(0);
+  expect(guide.scenario.steps).toHaveLength(4);
+  const ids = new Set(ALL_CARDS.map((c) => c.id));
+  [...guide.scenario.steps, ...Object.values(DETAILS).flat()].forEach((s) => {
+    s.relatedCardIds?.forEach((id) => expect(ids.has(id)).toBe(true));
+    if (s.relatedCardIds) expect(new Set(s.relatedCardIds).size).toBe(s.relatedCardIds.length);
+  });
+  ALL_CARDS.filter((c) => c.chapter === 'hw-cpu').forEach((c) => {
+    expect(getDetail(c.id).some((s) => s.heading.startsWith('误区：') && s.relatedCardIds?.length)).toBe(true);
+    getDetail(c.id).forEach((s) => expect(s.relatedCardIds ?? []).not.toContain(c.id));
+  });
+});
+
+it('二进制导读复用概念图，四步依次关联四卡且内容完整', () => {
+  const guide = TRACKS.find((track) => track.id === 'hardware')!
+    .chapters.find((chapter) => chapter.id === 'hw-binary')!.guide;
+  expect(guide).toBeDefined();
+  expect(guide!.illustration).toBe('binary');
+  expect(guide!.objectives).toHaveLength(3);
+  expect(guide!.prerequisites.length).toBeGreaterThan(0);
+  expect(guide!.scenario.steps).toHaveLength(4);
+  expect(guide!.scenario.steps.flatMap((step) => step.relatedCardIds ?? []))
+    .toEqual(['hw-binary-01', 'hw-binary-02', 'hw-binary-03', 'hw-binary-04']);
+  guide!.scenario.steps.forEach((step) => {
+    expect(step.body.length).toBeGreaterThanOrEqual(60);
+    expect(step.body.length).toBeLessThanOrEqual(160);
+  });
+});
+
+it('五条主线，每条五章', () => {
+  expect(TRACKS.map((t) => t.id)).toEqual(['hardware', 'language', 'os', 'security', 'database']);
   TRACKS.forEach((t) => expect(t.chapters).toHaveLength(5));
 });
 
-it('一共 80 张卡，每条主线 20 张，每章 4 张', () => {
-  expect(ALL_CARDS).toHaveLength(80);
+it('一共 100 张卡，每条主线 20 张，每章 4 张', () => {
+  expect(ALL_CARDS).toHaveLength(100);
   TRACKS.forEach((t) => {
     expect(t.cards).toHaveLength(20);
     t.chapters.forEach((ch) => {
@@ -88,7 +123,7 @@ it('分步图解高亮的图元都真实存在', () => {
   });
 });
 
-it('四条主线都有卡片', () => {
+it('五条主线都有卡片', () => {
   TRACKS.forEach((t) => {
     expect(ALL_CARDS.filter((c) => c.track === t.id).length).toBeGreaterThan(0);
   });

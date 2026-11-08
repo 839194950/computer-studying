@@ -2,12 +2,13 @@ import { hardware } from './tracks/hardware';
 import { language } from './tracks/language';
 import { os } from './tracks/os';
 import { security } from './tracks/security';
+import { database } from './tracks/database';
 import type { Card, Chapter, Track, TrackId } from './types';
 
 export type { Card, Chapter, DetailSection, TeachStep, Track, TrackId } from './types';
 export { getDetail } from './details';
 
-export const TRACKS: Track[] = [hardware, language, os, security];
+export const TRACKS: Track[] = [hardware, language, os, security, database];
 
 export const ALL_CARDS: Card[] = TRACKS.flatMap((t) => t.cards);
 

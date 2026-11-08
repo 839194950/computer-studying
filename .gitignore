@@ -3,3 +3,5 @@ dist
 .superpowers/
 .workbuddy/
 *.local
+playwright-report/
+test-results/

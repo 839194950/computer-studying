@@ -16,6 +16,7 @@ export type IconName =
   | 'code'
   | 'terminal'
   | 'shield'
+  | 'database'
   | 'target'
   | 'gift'
   | 'arrow-right'
@@ -39,6 +40,7 @@ const PATHS: Record<IconName, string> = {
   star: 'm12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8L12 3.5Z',
   search: 'M10.5 17.5a7 7 0 1 0 0-14 7 7 0 0 0 0 14Zm5-2 5 5',
   chip: 'M7 7h10v10H7zM10 10h4v4h-4zM9.5 3.5V7m5-3.5V7m-5 10v3.5m5-3.5v3.5M3.5 9.5H7m-3.5 5H7m10-5h3.5m-3.5 5h3.5',
+  database: 'M4 6c0-4 16-4 16 0s-16 4-16 0Zm0 0v12c0 4 16 4 16 0V6M4 12c0 4 16 4 16 0',
   code: 'm8.5 7.5-5 4.5 5 4.5m7-9 5 4.5-5 4.5M13.5 5l-3 14',
   terminal: 'M3.5 5h17v14h-17zM7 9.5l3 2.5-3 2.5m5 .5h5',
   shield: 'M12 3.5 19 6v5.5c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6l7-2.5Zm-3 8.5 2.2 2.2L15.5 10',

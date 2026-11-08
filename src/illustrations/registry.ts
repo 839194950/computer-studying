@@ -22,6 +22,8 @@ import { TlsDiagram, TLS_PARTS } from './TlsDiagram';
 import { AuthDiagram, AUTH_PARTS } from './AuthDiagram';
 import { DefenseDiagram, DEFENSE_PARTS } from './DefenseDiagram';
 
+import { DbTableDiagram, DB_TABLE_PARTS, DbQueryDiagram, DB_QUERY_PARTS, DbIndexDiagram, DB_INDEX_PARTS, DbTransactionDiagram, DB_TRANSACTION_PARTS, DbModelDiagram, DB_MODEL_PARTS } from './DatabaseDiagrams';
+
 export interface DiagramSpec {
   Component: ComponentType<DiagramProps>;
   /** 这张图里可以被 focus 点亮的图元 id */
@@ -30,6 +32,11 @@ export interface DiagramSpec {
 
 const REGISTRY: Record<string, DiagramSpec> = {
   spark: { Component: Spark, parts: [] },
+  'db-table': { Component: DbTableDiagram, parts: DB_TABLE_PARTS },
+  'db-query': { Component: DbQueryDiagram, parts: DB_QUERY_PARTS },
+  'db-index': { Component: DbIndexDiagram, parts: DB_INDEX_PARTS },
+  'db-transaction': { Component: DbTransactionDiagram, parts: DB_TRANSACTION_PARTS },
+  'db-model': { Component: DbModelDiagram, parts: DB_MODEL_PARTS },
   cpu: { Component: CpuDiagram, parts: CPU_PARTS },
   binary: { Component: BinaryDiagram, parts: BINARY_PARTS },
   compile: { Component: CompileDiagram, parts: COMPILE_PARTS },

@@ -19,9 +19,9 @@ function renderMap(path = '/map') {
   );
 }
 
-it('总览只有四条主线入口，不渲染 20 个章节', () => {
+it('总览只有五条主线入口，不渲染 25 个章节', () => {
   renderMap();
-  expect(screen.getAllByRole('link')).toHaveLength(4);
+  expect(screen.getAllByRole('link')).toHaveLength(TRACKS.length);
   TRACKS.forEach((track) => {
     expect(screen.getByRole('link', { name: new RegExp(track.title) })).toHaveAttribute('href', `/map/${track.id}`);
     track.chapters.forEach((chapter) => expect(screen.queryByText(chapter.title)).not.toBeInTheDocument());
@@ -38,7 +38,9 @@ it.each(TRACKS)('$title 子页只渲染本线五章，并保留学习链接与�
   });
   expect(screen.getByRole('link', { name: new RegExp(track.chapters[0].title) })).toHaveAttribute('href', `/study?chapter=${track.chapters[0].id}`);
   expect(screen.getAllByLabelText('未解锁')).toHaveLength(4);
-  track.chapters.slice(1).forEach((chapter) => expect(screen.queryByRole('link', { name: new RegExp(chapter.title) })).toBeNull());
+  track.chapters.slice(1).forEach((chapter) => {
+    expect(screen.getAllByRole('link').some((link) => link.getAttribute('href') === `/study?chapter=${chapter.id}`)).toBe(false);
+  });
   expect(screen.getByRole('link', { name: '返回章节地图' })).toHaveAttribute('href', '/map');
 });
 

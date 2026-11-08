@@ -30,6 +30,18 @@ it('传入 focus 时图仍能渲染', () => {
   });
 });
 
+it.each(['db-table', 'db-query', 'db-index', 'db-transaction', 'db-model'])('%s 声明的每个图元均可独立高亮', (key) => {
+  const C = getIllustration(key);
+  const parts = getDiagramParts(key);
+  const { container, rerender } = render(<C />);
+  expect(container.querySelectorAll('.dg-part')).toHaveLength(parts.length);
+  parts.forEach((part) => {
+    rerender(<C focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(parts.length - 1);
+  });
+});
+
 it('hasIllustration 能区分已注册与未注册', () => {
   expect(hasIllustration('cpu')).toBe(true);
   expect(hasIllustration('poop')).toBe(false);

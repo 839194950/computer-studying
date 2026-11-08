@@ -99,7 +99,7 @@ it('首页同时给出复习入口和产品介绍，入口在最前面', () => {
   expect(screen.getByText('看懂一张图')).toBeInTheDocument();
   expect(screen.getByText('选一个答案')).toBeInTheDocument();
   expect(screen.getByText('到点再见一次')).toBeInTheDocument();
-  expect(screen.getByText(/四条主线 · 80 张卡/)).toBeInTheDocument();
+  expect(screen.getByText(/5 条主线 · 100 张卡/)).toBeInTheDocument();
 });
 
 it('今天没有待复习时，介绍依然在', () => {
@@ -121,7 +121,7 @@ it('今天没有待复习时，介绍依然在', () => {
   expect(screen.getByText('今天没事了')).toBeInTheDocument();
 });
 
-it('四条主线都能点进章节地图', () => {
+it('五条主线都能点进章节地图', () => {
   render(
     <MemoryRouter>
       <HomePage />
