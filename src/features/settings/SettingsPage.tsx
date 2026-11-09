@@ -32,6 +32,7 @@ export function SettingsPage() {
 
   const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [pending, setPending] = useState<{ raw: string; count: number } | null>(null);
 
   const learnedCount = Object.keys(progress).length;
@@ -58,11 +59,13 @@ export function SettingsPage() {
     setMessage(null);
   }
 
-  function confirmImport() {
-    if (!pending) return;
+  async function confirmImport() {
+    if (!pending || importing) return;
+    setImporting(true);
     download(`memory-chip-backup-${dayKey(Date.now())}.json`, exportJson());
-    const result = importJson(pending.raw);
     const incoming = pending.count;
+    const result = await importJson(pending.raw);
+    setImporting(false);
     setPending(null);
     setMessage(
       result.ok
@@ -131,6 +134,7 @@ export function SettingsPage() {
                 type="file"
                 accept="application/json,.json"
                 aria-label="导入数据"
+                disabled={importing}
                 className="sr-only"
                 onChange={(e) => {
                   void handleFile(e.target.files?.[0]);
@@ -144,8 +148,8 @@ export function SettingsPage() {
                   将导入 {pending.count} 张卡的进度，覆盖本地 {learnedCount} 张。确认后先自动下载一份当前数据作备份。
                 </p>
                 <div className="mt-2 flex gap-2">
-                  <Button onClick={confirmImport}>确认导入</Button>
-                  <Button variant="ghost" onClick={() => setPending(null)}>
+                  <Button disabled={importing} onClick={confirmImport}>{importing ? '正在保存…' : '确认导入'}</Button>
+                  <Button disabled={importing} variant="ghost" onClick={() => setPending(null)}>
                     取消
                   </Button>
                 </div>

@@ -9,7 +9,8 @@
 - 9份真实导读：hw-cpu、hw-binary、hw-network、sec-tls、db-table、db-query、db-index、db-transaction、db-model；其他16章没有占位导读。
 - 最近完成：数据库20卡/40节详解/5导读审校及导入保护；网络分层4卡/8节详解与导读；TLS4卡/8节详解与导读。勿重复开发。二进制导读与两个实验此前已完成。
 - 审校完成不等于所有100卡都已审校。RBAC（sec-auth-03）与目录权限（os-perm-01）是下一轮候选，用户尚未确认具体实施范围。
-- 当前验收规模：24测试文件、244单测；74项桌面/手机E2E，repeat-each=2共148次。数量变化须说明原因，不应删除测试凑数。TLS新增5项单测，但首份安全主线导读使“无导读主线”参数化用例减少1项，净增4项。
+- 当前验收规模：25测试文件、249单测；78项桌面/手机E2E，repeat-each=2共156次。本轮新增5项单测（恢复等待、读取失败重试、localStorage回退、导入写盘等待及失败重试）和2个源E2E用例（双视口共4项），既有测试未删除。
+- Linux复验发现存档恢复前可操作、导入写盘前提示成功两处时序缺口；现已等待恢复后展示应用，读取失败可重试，导入等待写盘结果，失败保留内存数据供导出/重试。存档版本与解析规则不变。
 
 ## 阅读顺序与规则
 
@@ -97,9 +98,54 @@ if ($LASTEXITCODE -ne 0) { throw "补丁空白检查失败" }
 - 测试使用隔离上下文；导读阅读、百科小测/往返、刷新和导入拒绝/取消保护均比较完整导出存档。测试不读取用户日常浏览器数据。
 - `npm.cmd run dev` 启动日常开发；`npm.cmd run preview` 可查看构建产物，但构建成功和预览启动不等于生产离线已验收。
 
+## Linux / Bash 安装与复验
+
+已实测Node v24.16.0、npm 11.13.0。以下命令在仓库根目录的同一Bash终端执行；先检查工作区，保留未提交文件。Linux不要求D盘，不需要复制Windows缓存。
+
+```bash
+set -euo pipefail
+git status -sb
+node --version
+npm --version
+qa=$(mktemp -d /tmp/memory-chip-qa-XXXXXX)
+export TMPDIR="$qa/temp"
+export npm_config_cache="$qa/npm-cache"
+export PLAYWRIGHT_HTML_OUTPUT_DIR="$qa/playwright-report"
+mkdir -p "$TMPDIR" "$npm_config_cache"
+npm ci > "$qa/install.log" 2>&1
+npm test > "$qa/tests.log" 2>&1
+npm run build > "$qa/build.log" 2>&1
+```
+
+浏览器二选一：已有兼容的Chromium时设置实际可执行文件路径；没有可用浏览器时才下载。不要照抄旧机器的绝对路径。
+
+```bash
+export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/实际路径/chrome
+test -x "$PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"
+```
+
+仅选择下载方案时运行：
+
+```bash
+unset PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+export PLAYWRIGHT_BROWSERS_PATH="$qa/browsers"
+npx playwright install chromium > "$qa/browser-install.log" 2>&1
+```
+
+然后运行完整回归（须允许本地服务监听和浏览器进程启动；缺少系统库时先处理环境，不跳过用例）：
+
+```bash
+npm run test:e2e -- --repeat-each=2 --output "$qa/test-results" > "$qa/e2e.log" 2>&1
+git diff --check
+printf '验证日志：%s\n' "$qa"
+```
+
+任一步失败即停止，查看相应日志；不要把未执行步骤当作通过。/tmp可能被清理，需要长期留存时将完整证据复制到自己的持久目录。
+
 ## 学习存档迁移与核心约束
 
 - 源码同步不搬运学习进度。旧浏览器在「我」中“导出数据”，安全保存JSON，再到新浏览器“导入数据”；查看摘要并确认，导入前保留新旧双方备份。不要提交个人存档。
+- 启动先等待存档读取；失败时使用“重试读取”，不要清空浏览器数据。导入显示“正在保存…”期间不要刷新/关闭页面；仅写入完成才提示成功。写盘失败时内存数据仍可导出，并可使用保存警告中的重试。
 - 应用JSON的version仍为1；Zustand持久化外壳沿用默认version=0，两者不是同一个版本号。不要因换机器修改版本或绕过解析校验。
 - 存档随浏览器与站点来源隔离，换主机名、端口、浏览器也可能像新用户；先导入，不应认定Git丢失进度。
 - 只读导读不发经验、不解锁、不改SRS。普通章节学习和自由复习会更新学习进度，不能当作只读验收。
@@ -109,12 +155,15 @@ if ($LASTEXITCODE -ne 0) { throw "补丁空白检查失败" }
 
 下列路径是原机器本地证据，**不随Git克隆**。新环境重新运行即可；若需历史截图/官方来源原文，应单独复制整个对应目录，不依赖旧截图才能启动应用。
 
-| 阶段 | 原机器D盘目录 | 实际结果 |
+| 阶段 | 当时环境的本地目录 | 实际结果 |
 |---|---|---|
 | 数据库收口 | D:/codex_tools/computer-studying-qa/database-quality/ | 235单测、构建、132次E2E |
 | 网络收口 | D:/codex_tools/computer-studying-qa/network-layer-review/20261108-230148/implementation/ | 240单测、构建、140次E2E |
 | TLS收口 | D:/codex_tools/computer-studying-qa/tls-quality/20261109-implementation/ | 244单测、构建、148次E2E；最新截图tls-visual-results/ |
-| 本次提交前复验 | D:/codex_tools/computer-studying-qa/handoff/20261109-release/ | 244单测、类型检查/构建、148次E2E全通过；退出码均0 |
+| Windows交接阶段复验 | D:/codex_tools/computer-studying-qa/handoff/20261109-release/ | 244单测、类型检查/构建、148次E2E全通过；退出码均0 |
+| Linux存档时序修复 | /tmp/memory-chip-fix-20261109/ | 249单测、类型检查/构建、156次E2E全通过；final-exit-codes.txt均0 |
+
+Linux环境为Node v24.16.0、npm 11.13.0，复用本机Chromium；没有D盘，日志及隔离浏览器报告保存在上述/tmp目录（临时目录可能被系统清理，不随Git交付）。最初失败证据保留于/tmp/memory-chip-qa-20261109-eirrqk/；修复中间失败亦保留，不将定向通过冒充全量通过。
 
 - 已知非失败提示：jsdom不实现下载导航、React Router未来行为提示、Framer Motion减少动效提示、主JS包超过500 kB提示；不为收口顺手升级依赖或改全局行为。
 - 尚未验证：Safari、Firefox、真实手机、生产离线、真实数据库和TLS协议的互操作/性能。Edge手机视口不等于真实手机验收。

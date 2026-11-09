@@ -13,6 +13,7 @@ type Writer = (name: string, value: string) => Promise<void>;
 let state: SaveState = { ok: true };
 let pending: { name: string; value: string } | null = null;
 let writer: Writer | null = null;
+let lastSave: Promise<void> = Promise.resolve();
 const listeners = new Set<() => void>();
 
 function setState(next: SaveState): void {
@@ -37,6 +38,15 @@ export function registerWriter(next: Writer): void {
   writer = next;
 }
 
+export function waitForSave(): Promise<void> {
+  return lastSave;
+}
+
+export function trackSave(save: Promise<void>): Promise<void> {
+  lastSave = save;
+  return save;
+}
+
 /**
  * 尝试写一次。失败不抛错（persist 不需要知道），
  * 但会记住这份数据，供重试时原样重放。
@@ -56,5 +66,6 @@ export async function attemptSave(name: string, value: string, write: Writer): P
 export async function retrySave(): Promise<void> {
   if (!pending || !writer) return;
   const { name, value } = pending;
-  await attemptSave(name, value, writer);
+  lastSave = attemptSave(name, value, writer);
+  await lastSave;
 }

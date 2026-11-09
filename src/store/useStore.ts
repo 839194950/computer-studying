@@ -4,8 +4,9 @@ import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { newProgress, review, type CardProgress } from '../lib/srs';
 import { bumpStreak, masteryPercent, resolveStreak, type Streak } from '../lib/stats';
 import { addDays, dayKey, startOfDay } from '../lib/time';
-import { attemptSave, registerWriter } from './persistence';
+import { attemptSave, getSaveState, registerWriter, trackSave, waitForSave } from './persistence';
 import { DEFAULT_DAILY_GOAL, pruneDaily, type DayStat } from '../lib/xp';
+import { setHydrationStatus } from './hydration';
 
 export interface DailySnapshot {
   date: string;
@@ -223,7 +224,7 @@ const idbStorage = createJSONStorage(() => ({
     return (await idbGet(name)) ?? null;
   },
   // 失败不往外抛：persist 会把 reject 变成未处理异常，界面也拿不到信号。
-  setItem: (name: string, value: string) => attemptSave(name, value, persistToDisk),
+  setItem: (name: string, value: string) => trackSave(attemptSave(name, value, persistToDisk)),
   removeItem: async (name: string) => {
     if (typeof indexedDB === 'undefined') {
       localStorage.removeItem(name);
@@ -240,7 +241,7 @@ interface Actions {
   setSettings: (patch: Partial<Settings>) => void;
   resetAll: () => void;
   exportJson: () => string;
-  importJson: (raw: string) => { ok: true } | { ok: false; error: string };
+  importJson: (raw: string) => Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
 export const useStore = create<AppState & Actions>()(
@@ -253,16 +254,22 @@ export const useStore = create<AppState & Actions>()(
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       resetAll: () => set(() => createAppState(Date.now())),
       exportJson: () => exportState(get()),
-      importJson: (raw) => {
+      importJson: async (raw) => {
         const parsed = parseState(raw);
         if (!parsed.ok) return parsed;
         set(() => parsed.state);
+        await waitForSave();
+        if (!getSaveState().ok) return { ok: false, error: '数据已载入，但未能保存。请勿刷新，请重试保存或导出备份。' };
         return { ok: true };
       },
     }),
     {
       name: 'memory-chip',
       storage: idbStorage,
+      onRehydrateStorage: () => {
+        setHydrationStatus('loading');
+        return (_state, error) => setHydrationStatus(error ? 'error' : 'ready');
+      },
       partialize: (s) => ({
         progress: s.progress,
         streak: resolveStreak(s.streak, Date.now()),

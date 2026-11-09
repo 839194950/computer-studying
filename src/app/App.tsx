@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { LabsPage, BinaryLabPage, IndexLabPage } from '../features/labs/LabsPage';
@@ -14,6 +14,8 @@ import { TopNav } from '../components/TopNav';
 import { BottomNav } from '../components/BottomNav';
 import { SaveNotice } from '../components/SaveNotice';
 import { useStore } from '../store/useStore';
+import { getHydrationStatus, subscribeHydration } from '../store/hydration';
+import { Button } from '../components/Button';
 
 /** 换页时回到顶部；百科条目之间跳转也一样。 */
 function ScrollToTop() {
@@ -28,6 +30,21 @@ function ScrollToTop() {
 
 export function App() {
   const reduced = useStore((s) => s.settings.reducedMotion);
+  const hydration = useSyncExternalStore(subscribeHydration, getHydrationStatus);
+
+  if (hydration !== 'ready') {
+    return (
+      <main className="mx-auto max-w-md p-6 text-ink">
+        {hydration === 'error' ? (
+          <div role="alert">
+            <h1 className="mb-2 text-xl font-black">学习存档读取失败</h1>
+            <p className="mb-4">为避免覆盖已有进度，暂未开启学习。请重试读取。</p>
+            <Button onClick={() => void useStore.persist.rehydrate()}>重试读取</Button>
+          </div>
+        ) : <p role="status">正在读取学习存档…</p>}
+      </main>
+    );
+  }
 
   return (
     <div data-motion={reduced ? 'reduced' : 'full'} className="min-h-screen overflow-x-hidden">
