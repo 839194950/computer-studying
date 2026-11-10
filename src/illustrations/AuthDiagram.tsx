@@ -9,7 +9,7 @@ export const AUTH_PARTS = ['authn', 'session', 'authz', 'idoref'];
  */
 export function AuthDiagram({ className, focus }: DiagramProps) {
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-label="认证、会话与资源授权示意图">
       <DiagramDefs />
 
       <Part id="authn" focus={focus}>

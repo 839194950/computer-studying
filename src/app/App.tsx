@@ -1,21 +1,26 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { lazy, useEffect, useSyncExternalStore } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
-import { LabsPage, BinaryLabPage, IndexLabPage } from '../features/labs/LabsPage';
 import { HomePage } from '../features/home/HomePage';
-import { StudyPage } from '../features/study/StudyPage';
-import { ChapterGuidePage } from '../features/map/ChapterGuidePage';
-import { MapPage, TrackMapPage } from '../features/map/MapPage';
-import { StatsPage } from '../features/stats/StatsPage';
-import { SettingsPage } from '../features/settings/SettingsPage';
-import { WikiPage } from '../features/wiki/WikiPage';
-import { WikiEntryPage } from '../features/wiki/WikiEntryPage';
 import { TopNav } from '../components/TopNav';
 import { BottomNav } from '../components/BottomNav';
 import { SaveNotice } from '../components/SaveNotice';
 import { useStore } from '../store/useStore';
 import { getHydrationStatus, subscribeHydration } from '../store/hydration';
 import { Button } from '../components/Button';
+import { RouteContent } from './RouteContent';
+
+const LabsPage = lazy(() => import('../features/labs/LabsPage').then((module) => ({ default: module.LabsPage })));
+const BinaryLabPage = lazy(() => import('../features/labs/LabsPage').then((module) => ({ default: module.BinaryLabPage })));
+const IndexLabPage = lazy(() => import('../features/labs/LabsPage').then((module) => ({ default: module.IndexLabPage })));
+const StudyPage = lazy(() => import('../features/study/StudyPage').then((module) => ({ default: module.StudyPage })));
+const ChapterGuidePage = lazy(() => import('../features/map/ChapterGuidePage').then((module) => ({ default: module.ChapterGuidePage })));
+const MapPage = lazy(() => import('../features/map/MapPage').then((module) => ({ default: module.MapPage })));
+const TrackMapPage = lazy(() => import('../features/map/MapPage').then((module) => ({ default: module.TrackMapPage })));
+const StatsPage = lazy(() => import('../features/stats/StatsPage').then((module) => ({ default: module.StatsPage })));
+const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((module) => ({ default: module.SettingsPage })));
+const WikiPage = lazy(() => import('../features/wiki/WikiPage').then((module) => ({ default: module.WikiPage })));
+const WikiEntryPage = lazy(() => import('../features/wiki/WikiEntryPage').then((module) => ({ default: module.WikiEntryPage })));
 
 /** 换页时回到顶部；百科条目之间跳转也一样。 */
 function ScrollToTop() {
@@ -53,21 +58,23 @@ export function App() {
           <ScrollToTop />
           <TopNav />
           <SaveNotice />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/labs" element={<LabsPage />} />
-            <Route path="/labs/binary" element={<BinaryLabPage />} />
-            <Route path="/labs/index" element={<IndexLabPage />} />
-            <Route path="/study" element={<StudyPage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/map/:trackId" element={<TrackMapPage />} />
-            <Route path="/map/:trackId/:chapterId" element={<ChapterGuidePage />} />
-            <Route path="/wiki" element={<WikiPage />} />
-            <Route path="/wiki/:cardId" element={<WikiEntryPage />} />
-            <Route path="/stats" element={<StatsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <RouteContent>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/labs" element={<LabsPage />} />
+              <Route path="/labs/binary" element={<BinaryLabPage />} />
+              <Route path="/labs/index" element={<IndexLabPage />} />
+              <Route path="/study" element={<StudyPage />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/map/:trackId" element={<TrackMapPage />} />
+              <Route path="/map/:trackId/:chapterId" element={<ChapterGuidePage />} />
+              <Route path="/wiki" element={<WikiPage />} />
+              <Route path="/wiki/:cardId" element={<WikiEntryPage />} />
+              <Route path="/stats" element={<StatsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </RouteContent>
           <BottomNav />
         </BrowserRouter>
       </MotionConfig>

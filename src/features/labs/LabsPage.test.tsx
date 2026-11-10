@@ -152,11 +152,11 @@ it('索引逐步命中、缺失、重置和输入校验，完成后禁止前进�
   expect(screen.getByText(/增加写入代价/)).toBeInTheDocument();
   expect(useStore.getState()).toBe(before);
 });
-it.each([['/labs', '动手实验室'], ['/labs/binary', '进制实验台'], ['/labs/index', '索引查询演示']])('App 正式路由 %s 可访问', (path, title) => {
+it.each([['/labs', '动手实验室'], ['/labs/binary', '进制实验台'], ['/labs/index', '索引查询演示']])('App 正式路由 %s 可访问', async (path, title) => {
   window.history.replaceState({}, '', path);
   const before = useStore.getState();
   const view = render(<App />);
-  expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument();
   expect(useStore.getState()).toBe(before);
   view.unmount();
   window.history.replaceState({}, '', '/');

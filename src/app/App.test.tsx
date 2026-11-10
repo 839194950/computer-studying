@@ -6,10 +6,12 @@ import { TRACKS } from '../content';
 
 afterEach(() => window.history.replaceState({}, '', '/'));
 
-it('主线子路由直达时，桌面和移动导航都高亮地图', () => {
+it('主线子路由等待加载时保留导航，直达后双端都高亮地图', async () => {
   window.history.replaceState({}, '', `/map/${TRACKS[0].id}`);
   render(<App />);
-  expect(screen.getByRole('heading', { name: `${TRACKS[0].title} · 章节路径` })).toBeInTheDocument();
+  expect(screen.getByRole('status')).toHaveTextContent('正在加载页面');
+  expect(screen.getByRole('navigation', { name: '主导航' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: `${TRACKS[0].title} · 章节路径` })).toBeInTheDocument();
   const links = screen.getAllByRole('link', { name: '地图' });
   expect(links).toHaveLength(2);
   links.forEach((link) => expect(link).toHaveAttribute('aria-current', 'page'));

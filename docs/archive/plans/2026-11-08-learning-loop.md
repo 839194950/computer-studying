@@ -1,5 +1,7 @@
 # 二进制章节与实验学习闭环 Implementation Plan
 
+> 历史归档（2026-11-10整理）：本任务已完成。下文安装、提交、子代理和下一轮提示仅保留当时语境，不是当前执行指令；现行状态与授权以 `docs/HANDOFF.md`、`docs/ROADMAP.md` 和用户当前指令为准。旧 `docs/superpowers/` 路径已迁至 `docs/archive/`。
+
 > **For agentic workers:** 使用 superpowers:executing-plans 逐项执行。未经用户明确授权不派子代理。步骤用复选框跟踪；本计划已于2026-11-08执行并验证，结果见文末执行记录。
 
 **Goal:** 补齐二进制与编码章节导读，并让知识条目与已有实验互相可达，在不改变解锁和存档规则的前提下形成理解、操作、自查的闭环。

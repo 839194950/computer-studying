@@ -215,12 +215,17 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
       ? mode === 'weak'
         ? '答错过的卡都已经记牢了，保持住。'
         : scope
-          ? chapterIsDone
-            ? '这一章都记牢了，下次复习时间还没到。想练可以再来一遍。'
-            : '本章到期的卡和今天的新卡都处理完了，明天再来。'
+          ? chapterStatus === 'locked'
+            ? '本章尚未解锁，需先记牢前一章的全部卡片。已学过不等于已记牢。'
+            : chapterIsDone
+              ? '这一章都记牢了，下次复习时间还没到。想练可以再来一遍。'
+              : '本章到期的卡和今天的新卡都处理完了，明天再来。'
           : '到期的卡都做完了，明天再来。想多学可以先去地图上开新章节。'
       : `完成 ${total.current} 张 · 连续打卡 ${resolveStreak(streak, Date.now()).current} 天`;
 
+    const chapterHint = chapterStatus === 'active'
+      ? ' 完成一轮不等于通关：全章卡片记牢（第 4 档及以上）才解锁下一章，按到期安排继续复习。'
+      : '';
     const canReplay = scope && chapterStatus !== 'locked' && (finished || (empty && chapterIsDone));
     const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
 
@@ -228,7 +233,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
       <Screen withNav={false}>
         <SessionDone
           title={invalidChapter ? '未找到这个章节' : title}
-          hint={invalidChapter ? '章节链接可能有误，请回学习台重新选择主线。' : canReplay ? `${hint} 提前复习会重排下次到期时间。` : hint}
+          hint={invalidChapter ? '章节链接可能有误，请回学习台重新选择主线。' : canReplay ? `${hint}${chapterHint} 提前复习会重排下次到期时间。` : `${hint}${chapterHint}`}
           celebrate={finished}
           xp={stats.xp}
           accuracy={accuracy}

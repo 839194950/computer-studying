@@ -113,6 +113,8 @@ it('未解锁的章节直接进会给出空态而不是白屏', () => {
       <StudyPage />
     </MemoryRouter>,
   );
+  expect(screen.getByText('本章尚未解锁，需先记牢前一章的全部卡片。已学过不等于已记牢。')).toBeInTheDocument();
+  expect(screen.queryByText(/本章到期的卡和今天的新卡都处理完了/)).not.toBeInTheDocument();
   expect(screen.getByText(/这一章今天没有安排/)).toBeInTheDocument();
   expect(screen.queryByRole('link', { name: '再练一遍' })).not.toBeInTheDocument();
   expect(screen.getByRole('link', { name: '回章节地图' })).toHaveAttribute('href', '/map/hardware');
@@ -274,6 +276,7 @@ it.each(TRACKS)('$title 完成一轮不等于通关，结算可返回本主线',
   expect(chapterState(track, chapter.id, useStore.getState().progress)).toBe('active');
   expect(chapterState(track, track.chapters[1].id, useStore.getState().progress)).toBe('locked');
   expect(screen.queryByText(/已通关/)).not.toBeInTheDocument();
+  expect(screen.getByText(/完成一轮不等于通关/)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: '再练一遍' })).toHaveAttribute('href', `/study?chapter=${chapter.id}&free=1`);
   fireEvent.click(screen.getByRole('link', { name: '回章节地图' }));
   expect(screen.getByRole('list', { name: `${track.title}章节路径` })).toBeInTheDocument();

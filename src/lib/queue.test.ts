@@ -105,3 +105,35 @@ it('buildCardQueue 按给定顺序原样返回', () => {
     { cardId: 'a1', isNew: false },
   ]);
 });
+
+const discontinuousTrack: Track = {
+  ...track,
+  chapters: [...track.chapters, { id: 'c3', title: '三', blurb: '' }, { id: 'c4', title: '四', blurb: '' }],
+  cards: [...track.cards, mk('c1-card', 'c3'), mk('d1', 'c4')],
+};
+
+it('不连续进度按直接前章判断，新卡队列与章节入口一致', () => {
+  const progress = { b1: mastered('b1') };
+  expect(chapterState(discontinuousTrack, 'c3', progress)).toBe('active');
+  expect(unlockedChapters(discontinuousTrack, progress)).toEqual(['c1', 'c2', 'c3']);
+  expect(buildQueue([discontinuousTrack], progress, { now, newLimit: 10, chapterId: 'c3' }))
+    .toEqual([{ cardId: 'c1-card', isNew: true }]);
+  expect(buildQueue([discontinuousTrack], progress, { now, newLimit: 10, chapterId: 'c4' })).toEqual([]);
+});
+
+it('每日队列纳入不连续解锁章节，保留新卡上限与到期优先', () => {
+  const progress = { b1: mastered('b1'), a1: { ...mastered('a1'), box: 2 as const, dueAt: now - 1 } };
+  expect(buildQueue([discontinuousTrack], progress, { now, newLimit: 2 })).toEqual([
+    { cardId: 'a1', isNew: false }, { cardId: 'a2', isNew: true }, { cardId: 'c1-card', isNew: true },
+  ]);
+  expect(buildQueue([discontinuousTrack], progress, { now, newLimit: 1 })).toEqual([
+    { cardId: 'a1', isNew: false }, { cardId: 'a2', isNew: true },
+  ]);
+});
+
+it('前章退档仅锁定新卡，已学到期卡仍可复习', () => {
+  const progress = { b1: { ...mastered('b1'), box: 3 as const }, 'c1-card': { ...mastered('c1-card'), box: 2 as const, dueAt: now - 1 } };
+  expect(chapterState(discontinuousTrack, 'c3', progress)).toBe('locked');
+  expect(buildQueue([discontinuousTrack], progress, { now, newLimit: 10, chapterId: 'c3' }))
+    .toEqual([{ cardId: 'c1-card', isNew: false }]);
+});

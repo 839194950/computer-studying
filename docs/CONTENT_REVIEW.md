@@ -1,6 +1,30 @@
 # 内容审校记录
 
-> 本文保留各阶段实际审校结论和当时的一手依据，不是当前环境的测试报告。当前项目状态与完整文档索引见 `docs/HANDOFF.md` 和 `docs/README.md`。2026-11-09的存档时序修复未改教材，也未重新核验本文外部来源。
+> 本文保留各阶段实际审校结论和当时的一手依据，不是当前环境的测试报告。当前项目状态与完整文档索引见 `docs/HANDOFF.md` 和 `docs/README.md`。当前累计完成36卡审校：二进制4、网络4、TLS4、数据库20、权限专题4。其余64卡未完成同等审校；2026-11-10文档收口不重新核验外部来源、不增加审校完成数。
+
+## RBAC与目录权限（2026-11-09）
+
+完整审校限于sec-auth-03/04、os-perm-01/03四卡八节详解及两图；其余同章卡仅关联查看，不计入完成数量。未改变卡片 ID、答案索引、学习规则、SRS、经验、解锁或存档格式。
+
+### 结论与修正
+
+| 范围 | 核查结论 | 修正 |
+|---|---|---|
+| RBAC | 原文把 RBAC 局限说得过于绝对，忽略资源/操作约束和访问时附加条件 | 改为说明核心 RBAC 的用户—角色—权限关系，并强调角色权限、资源、操作和附加约束都要审计 |
+| ABAC | 原文只写“按属性判断”，缺少授权输入边界 | 明确按主体、对象、操作及环境属性依据策略作判断；部门归属条件也可落实在查询或授权策略中 |
+| IDOR | 原文把“当前用户拥有资源”写成普遍防护条件，并把 UUID 放得过重 | 改为每次访问检查目标资源及操作权限；UUID 仅增加猜测难度，不能替代授权；共享和委托场景按策略处理 |
+| 目录权限 | 原文把目录 `x` 简化为“进入”，且未说明删除依赖父目录权限和 sticky bit | 改为“搜索/遍历”语义，补充路径各级目录、父目录 `w+x`、文件自身权限及 sticky bit 的边界 |
+| 权限图 | 图此前无读屏名称 | 增加两图可访问名称；目录d示例标签改为列名/改项/搜索；特权文案不再声称无限绕过 |
+
+### 依据与验收边界
+
+- RBAC：NIST RBAC FAQ，关注角色承载权限、主体—对象授权和约束边界。
+- ABAC：NIST SP 800-162，关注主体、对象、请求操作与环境属性按策略判定。
+- IDOR：OWASP Insecure Direct Object Reference Prevention Cheat Sheet，关注每次访问的对象级授权；不可预测标识符不能代替授权。
+- Unix 权限：Linux `path_resolution(7)`、`unlink(2)`，关注目录搜索、路径遍历、父目录写权限和删除约束。
+- 自动化：新增 `e2e/permissions-quality.spec.ts`，验证四卡高亮/撤销、八节详解、小测/重做、锁定和刷新存档保护，另验证两章学习写盘闭环；新增图示单测验证两个 SVG 的读屏名称。
+
+本轮是教材事实和可访问性审校，不是实际操作系统权限实验，也不声称覆盖所有平台、ACL、LSM、挂载选项或真实后端授权实现。
 
 ## 二进制与编码（2026-11-08）
 
@@ -171,3 +195,15 @@
 - 人工检查双端概念图、导读首屏/页底、八节详解、长选项/反馈和中文换行。无横向溢出、图元重叠或页底入口遮挡；最初详解元素截图叠入固定底栏，调整截图滚动居中后4项专项再通过，确认正文可完整阅读，没有改生产布局。
 - 证据根目录D:/codex_tools/computer-studying-qa/tls-quality/20261109-implementation/；最终全量final-tests.log/final-build.log/final-e2e.log、final-report/、final-results/；最新视觉tls-visual-results/、tls-visual.log与visual-checks-final/*-details-centered.png。范围审计content-scope-audit.json确认非TLS教材、ID/答案顺序和总量不变。
 - 未测真实手机、Safari、Firefox、生产离线、真实TLS握手/证书互操作与协议性能。保留既有警告，待用户教学体验；原数据库、网络修改与generated-images/保留，不提交推送。
+
+### 权限专题来源与最终验证
+
+web工具未返回正文，使用本机7897代理直接读取以下一手页面，HTML保存在证据目录sources/。
+
+- NIST RBAC FAQ：https://csrc.nist.gov/projects/role-based-access-control/faqs 。
+- NIST SP 800-162：https://csrc.nist.gov/publications/detail/sp/800-162/final 。
+- OWASP IDOR：https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html 。
+- Linux搜索/删除：https://man7.org/linux/man-pages/man7/path_resolution.7.html 、https://man7.org/linux/man-pages/man2/unlink.2.html 。
+- Linux权限/特殊位：https://man7.org/linux/man-pages/man7/inode.7.html 、https://man7.org/linux/man-pages/man2/chmod.2.html 、https://man7.org/linux/man-pages/man2/execve.2.html 。
+
+最终251单测、类型检查/构建、172次E2E全部通过。新增2项图示测试先红后绿，4个源E2E双视口运行；只读存档不变，正常学习更新目标章进度及经验/统计。现有结构测试检查长度及图元，不以词语匹配代替事实审校。证据：D:/codex_tools/computer-studying-qa/permissions-20261109/，包括final-tests.log、final-build.log、final-e2e.log、final-results/。

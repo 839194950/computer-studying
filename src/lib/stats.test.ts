@@ -5,6 +5,7 @@ import {
   resolveStreak,
   weakCards,
   pickFocusTrack,
+  learningProgress,
 } from './stats';
 import type { CardProgress } from './srs';
 
@@ -22,6 +23,23 @@ it('四色状态按"有没有进度 / 是否过期 / 档位"派生', () => {
   expect(cardStatus(p(3, now + 1000), now)).toBe('learning');
   expect(cardStatus(p(4, now + 1000), now)).toBe('mastered');
   expect(cardStatus(p(5, now - 1), now)).toBe('forgotten');
+});
+
+it('学习进度区分未作答、答错、记牢和到期，不改输入且只统计指定卡片', () => {
+  const cards = ['unseen', 'prepared', 'wrong', 'mastered', 'due', 'epoch'].map((id) => ({ id }));
+  const progress = {
+    prepared: { ...p(1, now), lastReviewedAt: null },
+    wrong: { ...p(1, now), lapses: 1 },
+    mastered: p(4, now + 1000),
+    due: p(5, now - 1000),
+    epoch: { ...p(1, now), lastReviewedAt: 0 },
+    unrelated: p(4, now),
+  };
+  const before = JSON.stringify(progress);
+  expect(learningProgress(cards, progress)).toEqual({ studied: 4, mastered: 2 });
+  expect(learningProgress([], progress)).toEqual({ studied: 0, mastered: 0 });
+  expect(learningProgress(cards, {})).toEqual({ studied: 0, mastered: 0 });
+  expect(JSON.stringify(progress)).toBe(before);
 });
 
 it('掌握度是加权百分比，空输入不产生 NaN', () => {

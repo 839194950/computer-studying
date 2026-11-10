@@ -39,17 +39,13 @@ export function chapterState(
   return isChapterSatisfied(track, prev.id, progress) ? 'active' : 'locked';
 }
 
-/** 从头按顺序推进，遇到第一个还没通关的章节就停（该章本身算解锁）。 */
 export function unlockedChapters(
   track: Track,
   progress: Record<string, CardProgress>,
 ): string[] {
-  const result: string[] = [];
-  for (const chapter of track.chapters) {
-    result.push(chapter.id);
-    if (!isChapterSatisfied(track, chapter.id, progress)) break;
-  }
-  return result;
+  return track.chapters
+    .filter((chapter) => chapterState(track, chapter.id, progress) !== 'locked')
+    .map((chapter) => chapter.id);
 }
 
 /** 把给定的卡按顺序排成队列，用于错题本这类定向练习。 */

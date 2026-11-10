@@ -3,6 +3,13 @@ import { dayKey, daysBetweenKeys } from './time';
 
 export type CardStatus = 'new' | 'learning' | 'mastered' | 'forgotten';
 
+export function learningProgress(cards: readonly { id: string }[], progress: Record<string, CardProgress>) {
+  return {
+    studied: cards.filter((card) => progress[card.id]?.lastReviewedAt != null).length,
+    mastered: cards.filter((card) => (progress[card.id]?.box ?? 0) >= 4).length,
+  };
+}
+
 export const BOX_WEIGHT: Record<Box, number> = {
   1: 0.1,
   2: 0.25,

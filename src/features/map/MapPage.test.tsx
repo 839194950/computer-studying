@@ -1,11 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MapPage, TrackMapPage } from './MapPage';
-import { useStore } from '../../store/useStore';
+import { createAppState, useStore } from '../../store/useStore';
 import { TRACKS } from '../../content';
+import { HomePage } from '../home/HomePage';
+import { waitForSave } from '../../store/persistence';
 
 beforeEach(() => {
-  useStore.setState({ progress: {} });
+  useStore.setState(createAppState(Date.now()));
 });
 
 function renderMap(path = '/map') {
@@ -14,6 +16,7 @@ function renderMap(path = '/map') {
       <Routes>
         <Route path="/map" element={<MapPage />} />
         <Route path="/map/:trackId" element={<TrackMapPage />} />
+        <Route path="/" element={<HomePage />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -63,6 +66,44 @@ it('不存在的主线显示友好空态，可以返回地图', () => {
   expect(screen.queryByRole('list')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('link', { name: '返回章节地图' }));
   expect(screen.getByRole('heading', { name: '章节地图' })).toBeInTheDocument();
+});
+
+it.each([
+  { studied: 0, mastered: 0, action: '开始', state: '学习中' },
+  { studied: 2, mastered: 0, action: '继续学习', state: '学习中' },
+  { studied: 4, mastered: 0, action: '继续复习', state: '学习中' },
+  { studied: 4, mastered: 3, action: '继续复习', state: '学习中' },
+  { studied: 4, mastered: 4, action: null, state: '已通关' },
+])('已学过 $studied、已记牢 $mastered 时，章节和主线口径一致且只读', async ({ studied, mastered, action, state }) => {
+  const track = TRACKS[0];
+  const cards = track.cards.filter((card) => card.chapter === track.chapters[0].id);
+  useStore.setState({ progress: Object.fromEntries(cards.slice(0, studied).map((card, index) => [card.id, {
+    cardId: card.id, box: index < mastered ? 4 as const : 1 as const,
+    dueAt: Date.now() - 1000, lastReviewedAt: Date.now() - 2000, lapses: 1,
+  }])) });
+  await waitForSave();
+  const before = useStore.getState().exportJson();
+  const diskBefore = localStorage.getItem('memory-chip');
+  const view = renderMap(`/map/${track.id}`);
+  const chapter = screen.getByRole('link', { name: `${track.chapters[0].title}（${state}，已学过 ${studied}/4，已记牢 ${mastered}/4）` });
+  expect(within(chapter).getByText(`已学过 ${studied}/4 · 已记牢 ${mastered}/4`)).toBeInTheDocument();
+  if (action) expect(within(chapter).getByText(action)).toBeInTheDocument();
+  expect(screen.getByText(/完成一轮不等于通关/)).toBeInTheDocument();
+  if (mastered < 4) {
+    expect(screen.getByText(`先记牢《计算机组成》全部卡片（已记牢 ${mastered}/4）`)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^二进制与编码（/ })).not.toBeInTheDocument();
+  } else {
+    expect(screen.getByRole('link', { name: /^二进制与编码（/ })).toBeInTheDocument();
+  }
+  expect(screen.getByText(`已学过 ${studied}/20 · 已记牢 ${mastered}/20`)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('link', { name: '返回章节地图' }));
+  expect(within(screen.getByRole('link', { name: /硬件与原理/ })).getByText(`已学过 ${studied}/20 · 已记牢 ${mastered}/20`)).toBeInTheDocument();
+  view.unmount();
+  renderMap('/');
+  expect(within(screen.getByRole('link', { name: /硬件与原理/ })).getByText(`已学过 ${studied}/20 · 已记牢 ${mastered}/20`)).toBeInTheDocument();
+  await waitForSave();
+  expect(useStore.getState().exportJson()).toBe(before);
+  expect(localStorage.getItem('memory-chip')).toBe(diskBefore);
 });
 
 it('从总览进入主线，返回后可切换到另一条线', () => {

@@ -307,7 +307,7 @@ export const security: Track = {
         { caption: '把 1234 改成 1235，就看到了别人的订单。', focus: ['idoref', 'authz'] },
       ],
       question: '防止越权（IDOR）最关键的检查是？',
-      options: ['检查用户是否登录', '检查该资源是否属于当前用户', '检查请求频率', '检查 User-Agent'],
+      options: ['检查用户是否登录', '检查当前用户对该资源及操作是否有权限', '检查请求频率', '检查 User-Agent'],
       answerIndex: 1,
       explanation: '登录只证明身份，必须再校验资源归属或权限；这是最常被漏掉的一步。',
     },

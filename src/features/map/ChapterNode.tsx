@@ -21,17 +21,19 @@ interface ChapterNodeProps {
   title: string;
   blurb: string;
   state: ChapterState;
-  learned: number;
+  studied: number;
+  mastered: number;
+  lockReason?: string;
   total: number;
   last?: boolean;
   theme: TrackTheme;
 }
 
 /** 地图上的一个章节：圆形 3D 按钮 + 进度弧 + 标题。正在学的那一个带脉冲光圈和「开始」气泡。 */
-export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, learned, total, theme }: ChapterNodeProps) {
+export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, studied, mastered, lockReason, total, theme }: ChapterNodeProps) {
   const interactive = state !== 'locked';
   const offset = OFFSETS[index % OFFSETS.length];
-  const ratio = total > 0 ? learned / total : 0;
+  const ratio = total > 0 ? mastered / total : 0;
   const R = 41;
   const C = 2 * Math.PI * R;
 
@@ -85,7 +87,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
           animate={{ x: '-50%', y: [0, -4, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {learned > 0 ? '继续' : '开始'}
+          {studied === 0 ? '开始' : studied < total ? '继续学习' : '继续复习'}
           <span className="absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-line bg-white" />
         </motion.span>
       )}
@@ -97,8 +99,9 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
       <span className={`block text-sm font-black ${interactive ? 'text-ink' : 'text-muted'}`}>{title}</span>
       <span className="mt-0.5 block text-[11px] font-semibold text-muted">{blurb}</span>
       <span className="tabular mt-0.5 block text-[11px] font-extrabold text-muted/80">
-        {learned}/{total}
+        已学过 {studied}/{total} · 已记牢 {mastered}/{total}
       </span>
+      {state === 'locked' && <span className="mt-1 block text-[11px] font-semibold text-muted">{lockReason}</span>}
     </span>
   );
 
@@ -114,7 +117,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
         {interactive ? (
           <Link
             to={`/study?chapter=${chapterId}`}
-            aria-label={`${title}（${LABEL[state]}，${learned}/${total}）`}
+            aria-label={`${title}（${LABEL[state]}，已学过 ${studied}/${total}，已记牢 ${mastered}/${total}）`}
             className="group flex flex-col items-center rounded-3xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
           >
             {disc}

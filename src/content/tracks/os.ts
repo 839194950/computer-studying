@@ -231,10 +231,10 @@ export const os: Track = {
       explain: '九位分三组，分别对应所有者、同组、其他人。',
       steps: [
         { caption: '权限串共十位，第一位是文件类型，d 表示目录。', focus: ['owner'] },
-        { caption: '后面九位分三组，每组 rwx 分别是读、写、执行。', focus: ['owner', 'group', 'other'] },
+        { caption: '后面九位分三组；普通文件 rwx 是读、写、执行，目录则是列名、修改目录项、搜索。', focus: ['owner', 'group', 'other'] },
         { caption: '缺哪个权限就用短横占位，位置不能省。', focus: ['other'] },
       ],
-      question: '权限 rw-r--r-- 表示什么？',
+      question: '普通文件权限 rw-r--r-- 表示什么？',
       options: ['所有人都能读写', '所有者读写，其他人都只读', '只有所有者能读', '所有人都只能读'],
       answerIndex: 1,
       explanation: '第一组 rw- 是所有者可读写，后两组 r-- 都只读；换成数字就是 644。',

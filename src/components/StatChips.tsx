@@ -3,12 +3,14 @@ import { CountUp } from './motion';
 import { useStore } from '../store/useStore';
 import { resolveStreak } from '../lib/stats';
 import { levelInfo } from '../lib/xp';
+import { useLocalDay } from '../lib/useLocalDay';
 
 /** 连胜 / 经验 / 等级三枚小徽章，首页和桌面顶栏共用。 */
 export function StatChips({ compact = false }: { compact?: boolean }) {
   const streak = useStore((s) => s.streak);
   const xp = useStore((s) => s.xp ?? 0);
-  const current = resolveStreak(streak, Date.now()).current;
+  const now = useLocalDay();
+  const current = resolveStreak(streak, now).current;
   const level = levelInfo(xp);
   const pad = compact ? 'px-2.5 py-1' : 'px-3 py-1.5';
 

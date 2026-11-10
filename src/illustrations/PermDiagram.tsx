@@ -31,7 +31,7 @@ function Bits({ x, bits, fill }: { x: number; bits: string[]; fill: string }) {
  */
 export function PermDiagram({ className, focus }: DiagramProps) {
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-label="目录权限与用户分组示意图">
       <DiagramDefs />
 
       <Box x={12} y={30} w={24} h={30} fill="#EEE9FF" rx={5} strokeWidth={2.2} dashed />
@@ -49,7 +49,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
           所有者
         </Label>
         <Label x={80} y={98} size={7} fill="#127A52">
-          读 写 执行
+          列名 改项 搜索
         </Label>
       </Part>
 
@@ -60,7 +60,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
           同组用户
         </Label>
         <Label x={162} y={98} size={7} fill="#8A6A16">
-          读 执行
+          列名 搜索
         </Label>
       </Part>
 
@@ -71,7 +71,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
           其他人
         </Label>
         <Label x={244} y={98} size={7} fill="#C1437E">
-          只读
+          仅列名
         </Label>
       </Part>
 
@@ -84,7 +84,7 @@ export function PermDiagram({ className, focus }: DiagramProps) {
       <Part id="root" focus={focus}>
         <Box x={6} y={128} w={308} h={40} fill={BRAND_SOFT} rx={10} strokeWidth={2.4} />
         <Label x={160} y={146} size={8.5}>
-          root（uid 0）不受这套检查约束
+          特权进程可绕过部分权限检查
         </Label>
         <Label x={160} y={160} size={7.5} fill="#8B85A6">
           所以服务进程要用专用低权限账号跑，别拿 root 顶

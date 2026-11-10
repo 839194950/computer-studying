@@ -1,5 +1,7 @@
 # 网络分层四卡审校与章节导读 Implementation Plan
 
+> 历史归档（2026-11-10整理）：本任务已完成。下文安装、提交、子代理和下一轮提示仅保留当时语境，不是当前执行指令；现行状态与授权以 `docs/HANDOFF.md`、`docs/ROADMAP.md` 和用户当前指令为准。旧 `docs/superpowers/` 路径已迁至 `docs/archive/`。
+
 > **执行方式：** 使用superpowers:executing-plans在当前工作区串行执行。用户明确禁止子代理、自动提交及推送，不新建分支/工作树。
 
 **Goal:** 审校网络分层四卡与八节详解，复用网络图新增真实导读，验证只读闭环与双视口布局。

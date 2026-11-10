@@ -40,7 +40,7 @@ it('恢复存档前不暴露操作入口，恢复后首次导出即包含完整�
     resolveRead(JSON.stringify({ state: saved, version: 0 }));
     await restoring;
   });
-  expect(screen.getByRole('button', { name: '导出数据' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: '导出数据' })).toBeInTheDocument();
   expect(JSON.parse(useStore.getState().exportJson())).toEqual(saved);
   expect(write).not.toHaveBeenCalled();
 });
@@ -68,6 +68,6 @@ it('没有 IndexedDB 时仍等待 localStorage 存档恢复', async () => {
   localStorage.setItem('memory-chip', JSON.stringify({ state: saved, version: 0 }));
   await useStore.persist.rehydrate();
   render(<App />);
-  expect(screen.getByRole('button', { name: '导出数据' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: '导出数据' })).toBeInTheDocument();
   expect(JSON.parse(useStore.getState().exportJson())).toEqual(saved);
 });

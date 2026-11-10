@@ -6,9 +6,10 @@ import { TRACK_THEME } from '../../components/trackTheme';
 import { TRACKS, type Track } from '../../content';
 import { useStore } from '../../store/useStore';
 import { chapterState } from '../../lib/queue';
+import { learningProgress } from '../../lib/stats';
 import { ChapterNode } from './ChapterNode';
 
-function TrackBanner({ track, learned }: { track: Track; learned: number }) {
+function TrackBanner({ track, studied, mastered }: { track: Track; studied: number; mastered: number }) {
   const theme = TRACK_THEME[track.id];
   return (
     <header className={`relative overflow-hidden rounded-[24px] p-5 text-white ${theme.banner} shadow-float`}>
@@ -21,10 +22,10 @@ function TrackBanner({ track, learned }: { track: Track; learned: number }) {
           <h2 className="text-lg font-black">{track.title}</h2>
           <p className="truncate text-xs font-bold text-white/80">{theme.tagline}</p>
         </div>
-        <span className="tabular shrink-0 rounded-xl bg-white/20 px-2.5 py-1 text-xs font-black">
-          {learned}/{track.cards.length}
-        </span>
       </div>
+      <p className="tabular relative mt-3 text-xs font-black">
+        已学过 {studied}/{track.cards.length} · 已记牢 {mastered}/{track.cards.length}
+      </p>
     </header>
   );
 }
@@ -40,7 +41,7 @@ export function MapPage() {
               to={`/map/${track.id}`}
               className="block rounded-[24px] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30 active:translate-y-[3px]"
             >
-              <TrackBanner track={track} learned={track.cards.filter((c) => (progress[c.id]?.box ?? 0) >= 4).length} />
+              <TrackBanner track={track} {...learningProgress(track.cards, progress)} />
               <p className="mt-3 px-2 text-sm font-extrabold text-muted">
                 {track.chapters.filter((ch) => track.cards.some((c) => c.chapter === ch.id)).length} 个章节 · 查看章节路径
               </p>
@@ -68,12 +69,14 @@ export function TrackMapPage() {
 
   const theme = TRACK_THEME[track.id];
   const chapters = track.chapters.filter((ch) => track.cards.some((c) => c.chapter === ch.id));
-  const learnedAll = track.cards.filter((c) => (progress[c.id]?.box ?? 0) >= 4).length;
   return (
-    <Screen title={`${track.title} · 章节路径`} subtitle="每通关一章，下一章才亮起来。">
+    <Screen title={`${track.title} · 章节路径`} subtitle="全章卡片记牢才算通关，下一章随之解锁。">
       {back}
       <div className="mx-auto max-w-xl">
-        <TrackBanner track={track} learned={learnedAll} />
+        <TrackBanner track={track} {...learningProgress(track.cards, progress)} />
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          已学过：已作答的卡片，答错也计入；只看讲解或导读不计入。已记牢：记忆达到第 4 档及以上的卡片，圆弧表示记牢进度。完成一轮不等于通关，按到期安排复习，逐步记牢。
+        </p>
         {chapters.filter((chapter) => chapter.guide && chapterState(track, chapter.id, progress) !== 'locked').map((chapter) => (
           <section key={chapter.id} aria-label={`${chapter.title}导读入口`} className="mt-5 rounded-3xl border-2 border-brand/25 bg-brand-soft p-5 shadow-lip">
             <p className="flex items-center gap-2 text-sm font-black text-brand-dark"><Icon name="book" size={20} />章节导读 · 先看懂，再学习</p>
@@ -90,7 +93,8 @@ export function TrackMapPage() {
           <ul key={track.id} aria-label={`${track.title}章节路径`} className="m-0 mt-8 list-none space-y-3 p-0">
             {chapters.map((chapter, i) => {
               const cards = track.cards.filter((c) => c.chapter === chapter.id);
-              const learned = cards.filter((c) => (progress[c.id]?.box ?? 0) >= 4).length;
+              const previous = track.chapters[track.chapters.indexOf(chapter) - 1];
+              const previousCards = previous ? track.cards.filter((card) => card.chapter === previous.id) : [];
               return (
                 <ChapterNode
                   key={chapter.id}
@@ -100,7 +104,8 @@ export function TrackMapPage() {
                   title={chapter.title}
                   blurb={chapter.blurb}
                   state={chapterState(track, chapter.id, progress)}
-                  learned={learned}
+                  {...learningProgress(cards, progress)}
+                  lockReason={previous ? `先记牢《${previous.title}》全部卡片（已记牢 ${learningProgress(previousCards, progress).mastered}/${previousCards.length}）` : undefined}
                   total={cards.length}
                   last={i === chapters.length - 1}
                   theme={theme}

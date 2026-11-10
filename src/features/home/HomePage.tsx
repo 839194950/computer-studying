@@ -12,8 +12,9 @@ import { Mascot } from '../../illustrations/Mascot';
 import { ALL_CARDS, TRACKS } from '../../content';
 import { DEFAULT_SETTINGS, useStore } from '../../store/useStore';
 import { buildQueue, chapterState } from '../../lib/queue';
-import { masteryPercent, resolveStreak, weakCards } from '../../lib/stats';
+import { learningProgress, masteryPercent, resolveStreak, weakCards } from '../../lib/stats';
 import { dayKey } from '../../lib/time';
+import { useLocalDay } from '../../lib/useLocalDay';
 import { dailyQuests, dayStat, lastSevenDays } from '../../lib/xp';
 import { DailyGoal } from './DailyGoal';
 import { TrackTile } from './TrackTile';
@@ -50,7 +51,7 @@ export function HomePage() {
   const daily = useStore((s) => s.daily);
   const snapshots = useStore((s) => s.snapshots);
 
-  const now = Date.now();
+  const now = useLocalDay();
   const queue = buildQueue(TRACKS, progress, { newLimit: settings.newCardsPerDay, now });
   const currentStreak = resolveStreak(streak, now).current;
   const doneToday = session.date === dayKey(now) ? session.reviewed.length : 0;
@@ -297,7 +298,7 @@ export function HomePage() {
               <TrackTile
                 key={track.id}
                 track={track}
-                learned={track.cards.filter((c) => (progress[c.id]?.box ?? 0) >= 4).length}
+                {...learningProgress(track.cards, progress)}
                 nextChapter={next?.title}
               />
             );

@@ -1,5 +1,7 @@
 # 记忆芯 Implementation Plan
 
+> 历史归档（2026-11-10整理）：本任务已完成。下文安装、提交、子代理和下一轮提示仅保留当时语境，不是当前执行指令；现行状态与授权以 `docs/HANDOFF.md`、`docs/ROADMAP.md` 和用户当前指令为准。旧 `docs/superpowers/` 路径已迁至 `docs/archive/`。
+
 > **状态：已完成（2026-11-05）。Task 1–17 全部落地，下面的 checkbox 已勾选。**
 >
 > 本文档是 2026-11-04 的**首发实施计划**，现作为历史存档保留。实际实现与计划存在偏差，以 `docs/PROGRESS.md` 为准：
