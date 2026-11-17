@@ -1,15 +1,15 @@
+import { useId } from 'react';
 import { MINT, Ripple, anim, Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const COMPILE_PARTS = ['source', 'compile', 'link', 'runtime'];
 
-/**
- * 从源码到运行：四段流水线。
- * 每一段都产出确定形态的中间物（.c → .o → 可执行文件 → 进程），
- * 让人看到"代码变成程序"不是一步，而是四次形态转换。
- */
 export function CompileDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>C 工具链示例：从编译到运行</title>
+      <desc id={descriptionId}>源码经预处理、编译和汇编形成目标文件，再链接并加载运行。图中编译栏合并前三步；这不是 Python 等所有语言的通用执行流程。</desc>
       <DiagramDefs />
 
       <Part id="source" focus={focus}>
@@ -31,7 +31,7 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
       <Part id="compile" focus={focus}>
         <Box x={86} y={38} w={68} h={72} fill={BRAND_SOFT} />
         <Label x={120} y={30} size={10}>
-          编译
+          编译等工序
         </Label>
         <Label x={120} y={56} size={8}>
           词法 · 语法
@@ -44,7 +44,7 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
           main.o
         </Label>
         <Label x={120} y={124} size={8} fill="#8B85A6">
-          一份机器码
+          目标文件
         </Label>
       </Part>
 
@@ -85,8 +85,11 @@ export function CompileDiagram({ className, focus }: DiagramProps) {
       <Arrow d="M74 74 H84" />
       <Arrow d="M156 74 H166" />
       <Arrow d="M238 74 H248" />
-      <Label x={160} y={166} size={9} fill="#8B85A6">
-        每一步都把代码换一种形态
+      <Label x={160} y={153} size={9} fill="#8B85A6">
+        常见 C 工具链示例，非所有语言通用
+      </Label>
+      <Label x={160} y={168} size={8} fill="#8B85A6">
+        编译栏合并预处理、编译和汇编
       </Label>
     </svg>
   );

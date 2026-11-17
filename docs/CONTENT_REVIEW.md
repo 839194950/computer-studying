@@ -1,6 +1,150 @@
 # 内容审校记录
 
-> 本文保留各阶段实际审校结论和当时的一手依据，不是当前环境的测试报告。当前项目状态与完整文档索引见 `docs/HANDOFF.md` 和 `docs/README.md`。当前累计完成36卡审校：二进制4、网络4、TLS4、数据库20、权限专题4。其余64卡未完成同等审校；2026-11-10文档收口不重新核验外部来源、不增加审校完成数。
+> 本文保留各阶段实际审校结论和当时的一手依据，不是当前环境的测试报告。当前项目状态与完整文档索引见 `docs/HANDOFF.md` 和 `docs/README.md`。当前累计完成52卡审校：变量与类型4、性能与并发4、编译与解释4、计算机组成4、二进制4、网络4、TLS4、数据库20、权限专题4。其余48卡未完成同等审校；文档收口本身不增加审校完成数，以下新增变量与类型记录来自实际核查与验证。
+
+## 变量与类型（2026-11-17）
+
+范围为lang-var-01至04、八节详解和既有VarDiagram。先只读审查并报告七类问题，用户确认后先补测试再实现；本章是语言主线首章、默认可学，没有导读，不新增。本轮只修改三份产品文件，保留卡片ID/标题/顺序、答案索引1/1/1/1、每步focus关联、八节标题和章节结构。
+
+| 范围 | 最小修正与边界 | 依据 |
+|---|---|---|
+| 01及两节详解 | 名字绑定显式限定Python；不保证每次新分配或即时回收；参数按赋值传递，区别重新绑定与共享修改，不冒充按引用传参 | Python Data model、Execution model、Programming FAQ；JLS及Microsoft C赋值说明 |
+| 02及两节详解 | Python简单名字赋值不复制对象；列表别名、重新绑定与浅拷贝分开解释，引用不是物理地址保证；跨语言对照限定Java基本值/引用值 | Python Classes、Built-in Types、Programming FAQ；JLS |
+| 03及两节详解 | 类型约束值和操作，不统一承诺固定大小；Java int位宽与Python整数区分；静态检查发现部分错误、可推断且不排除运行时检查；TS标注不自动校验运行时输入 | Python Data model、JLS第4章、TypeScript Handbook |
+| 04及两节详解 | 不可变不等于深度不可变/可哈希/所有共享状态免同步；元组含列表反例；分配/复用和拼接平方成本限定模型，删除时间内存翻倍 | Python Data model、Built-in Types |
+| 原图 | 统一Python整数/列表示例，补名字绑定箭头；共享修改说明归入ref，不再随type误亮；保留四焦点ID和原图上下结构，新增具名图像与独立title/desc引用 | 上述来源与定向图示测试/三视口截图 |
+
+### 一手依据与实际核查
+
+官方原文、提取文本与URL/HTTP索引见D:/codex_tools/computer-studying-qa/variable-review-20261117-105808/sources/source-index.json；正文已实际读取，Python固定3.13分支，不把浮动/3文档当版本保证。网页工具未提供正文时直接下载官方来源；C标准PDF虽下载但未提取阅读，未作依据。前置本机CPython3.13.7例子验证绑定/共享修改、元组含列表不可哈希及大整数，不作性能或多线程安全实验。
+
+- https://docs.python.org/3.13/reference/datamodel.html
+- https://docs.python.org/3.13/reference/executionmodel.html
+- https://docs.python.org/3.13/tutorial/classes.html
+- https://docs.python.org/3.13/library/stdtypes.html
+- https://docs.python.org/3.13/faq/programming.html
+- https://docs.oracle.com/javase/specs/jls/se25/html/jls-4.html
+- https://www.typescriptlang.org/docs/handbook/2/basic-types.html
+- https://learn.microsoft.com/en-us/cpp/c-language/simple-assignment-c?view=msvc-170
+
+### 实际验收与边界
+
+- 本轮实施前重新实跑30文件/284单测、类型检查/构建、双端重复292/292；并非沿用前置只读审查结果。先红：3单测捕获图像语义/多实例引用缺失及type/ref错误分组，2桌面E2E捕获图像无可访问名称。
+- 初次实现定向测试发现简介/旁白分别超出40/44字限制，精简两句后39项定向单测通过；未放宽测试。双端专项4/4通过。
+- 最终30文件/287单测、类型检查及全新release-dist生产构建通过；150项桌面/手机E2E重复两次300/300通过，零自动重试；生产1440×1000、390×844、320×720三视口，两种存档各重复两次12/12通过。
+- 生产专项检查新/非默认已有合成存档、四卡全部16选项、八节详解、高亮撤销、重做/导航/刷新、无导读、学习入口可见/未遮挡及完整导出不变；首章不人为制造锁定，后续四章保持锁定。其他主线既有进度保留。无新增横向溢出或SVG文字越界，实际页面无错误，只有预期禁用SW警告。
+- 单测日志中的chunk unavailable/jsdom navigation来自既有RouteContent故障恢复测试；不是实际页面故障。初次复用外部构建目录残留基线分包，改用全新release-dist重新构建，预缓存29项；旧日志/目录保留但不作为最终产物。
+- 证据：D:/codex_tools/computer-studying-qa/variable-quality-20261117-112111/，含red-*、green-*、green-tests-corrected.log、final-tests.log、release-build.log、final-e2e.log、production.log、final-exit-codes.json、visual/、content-scope-audit.json及final-preservation.json。其他96卡/详解、旧未提交修改、学习及存档规则均不变。
+- Browser插件不可用，使用现有Edge隔离上下文；生产禁用SW，不作离线验收。未验证真实手机、Safari/Firefox、跨语言性能、多线程安全或独立跨日探针；项目仅本地开发，未部署、未提交或推送。
+
+## 性能与并发（2026-11-10）
+
+范围为hw-perf-01至04、八节详解和原PerfDiagram；只读审查与基线实跑后，用户确认才补测试、观察失败并实现。本章没有导读，不新增。保留ID、标题、顺序、答案索引1/1/1/1、焦点和章节结构；硬件主线20卡至此完成同等审校。
+
+| 范围 | 问题与最小修正 | 一手依据 |
+|---|---|---|
+| 01及两节详解 | 去除固定延迟、固定慢速/优化倍数；区分SSD/机械盘与文件缓存，先测量计算、等待和竞争 | P1、P6 |
+| 02及两节详解 | 四级是教学模型；理想每周期完成一条需填满且无停顿，实际级数/分支处理/代价不同 | P3 |
+| 03及两节详解 | 统一线程上下文口径；同进程共享地址空间，不承诺每次换页表或所有缓存失效；线程数以实测调节 | P4、P5、P7、P8、P11 |
+| 04及两节详解 | 并发可交替也可并行；限定单逻辑处理器题设，承认SMT边界；竞态不只出现在多核 | P2、P4、P9、P10 |
+| 原图 | 原流水线九块/三色与“四条指令各占一级”矛盾，改为同一时刻四色四块、每条仅占一级；保留四象限及焦点，修正固定延迟/页表/多核唯一条件，添加独立title/desc引用 | 上述来源；图像与几何回归测试 |
+
+### 实际读取的一手依据
+
+官方原文、提取文本和HTTP200索引保存于D:/codex_tools/computer-studying-qa/perf-review-20261110T152905/sources/。网页工具未提供正文时使用直接下载的一手原文，不把搜索摘要作为依据；具体实现仅作机制与反例，不推广为所有平台保证。
+
+- **P1** https://www.intel.com/content/www/us/en/developer/articles/tool/intelr-memory-latency-checker.html — Intel Memory Latency Checker：延迟随访问位置和负载变化，需测量。
+- **P2** https://www.intel.com/content/www/us/en/gaming/resources/hyper-threading.html — Intel Hyper-Threading：物理核与逻辑处理器不是同一数量；不把 SMT 等同于增加物理核。
+- **P3** https://ibex-core.readthedocs.io/en/latest/03_reference/pipeline_details.html — Ibex Pipeline Details：默认两级，可配置第三级；吞吐、停顿与分支代价依实现和配置。
+- **P4** https://learn.microsoft.com/en-us/windows/win32/procthread/context-switches — Microsoft Context Switches：线程上下文保存/恢复，调度不只因 IO 等待发生。
+- **P5** https://learn.microsoft.com/en-us/windows/win32/procthread/about-processes-and-threads — Microsoft Processes and Threads：同进程线程共享虚拟地址空间，拥有各自寄存器和栈。
+- **P6** https://learn.microsoft.com/en-us/windows/win32/fileio/file-caching — Microsoft File Caching：文件读取可能由系统缓存满足，不必每次访问设备。
+- **P7** https://docs.kernel.org/core-api/cachetlb.html — Linux Cache/TLB：缓存处理与体系结构相关，不宣称切换清空所有热数据。
+- **P8** https://docs.kernel.org/arch/x86/pti.html — Linux PTI：PCID 等机制影响 TLB 刷新；不推广为所有切换都刷新或都不刷新。
+- **P9** https://go.dev/blog/waza-talk — Go Concurrency is not parallelism：独立任务的组织与同时计算不同，可同时成立。
+- **P10** https://go.dev/ref/mem — Go Memory Model：并发共享读写的同步与数据竞争，不把竞态限定为多核。
+- **P11** https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html — Oracle ThreadPoolExecutor：线程、队列、阻塞与资源开销需结合工作负载调节。
+
+### 实际验收与边界
+
+- 前置只读基线：30文件/281单测、类型检查/生产构建、双端重复284/284通过，170文件字节不变。实现先红：3项单测捕获无图像语义/引用和九块流水线，2项桌面E2E捕获无可访问图像；修正后定向36单测、4项双端E2E通过。
+- 最终实跑：30文件/284单测、类型检查与生产构建通过；146项桌面/手机E2E重复两次292/292通过，零自动重试；生产预览1440×1000、390×844、320×720三视口重复12/12通过，四项退出码均0。
+- 隔离合成存档覆盖锁定/解锁、全部16选项、八节详解、高亮/撤销、重做、同章导航和刷新；完整导出存档不变，锁定无学习入口，解锁入口点击位置未遮挡；本章为主线末章，无后章可检查。人工检查桌面图、手机详解、320px长题与入口，不用全文匹配测试替代事实审校。
+- 证据：D:/codex_tools/computer-studying-qa/perf-quality-20261110T155340/。与本轮起始快照比对而非HEAD，其他96卡/详解、既有CPU/编译修正及导读原样保留。SRS、记牢阈值、经验、解锁、队列、存档和跨日规则未改。
+- Browser插件不可用，使用现有Edge隔离上下文；生产专项禁用SW，不作离线验收。未测真实手机、Safari/Firefox、真实硬件性能或独立跨日探针；项目仍只在本地，未部署、未提交或推送。
+
+## 编译与解释（2026-11-10）
+
+范围为hw-compile-01至04、八节详解及既有CompileDiagram。只读审查后经用户确认，先补测试再实施；本章没有导读，不新增导读、实验或图示分支。卡片ID、标题、顺序、答案索引1/1/1/1、焦点及八节结构不变。
+
+| 范围 | 问题与修正 | 一手依据 |
+|---|---|---|
+| 01及两节详解 | 限定常见C工具链；区分图中合并工序与编译/汇编阶段，目标文件可含代码、数据和链接信息；增量构建受依赖影响，去除一分钟构建承诺 | C1、C2、C5 |
+| 02及两节详解 | 编译不只是检查声明；符号不限函数，链接包含解析和重定位，部分工作可延后；动态链接不只是记库名 | C2、C3 |
+| 03及两节详解 | 解释不是逐行读源码；区分CPython字节码与.pyc缓存，题目限定不启用JIT；执行策略依实现配置，性能须测量 | C4、C6 |
+| 04及第一节详解 | 题设限定静态类型规则；越界、除零等也可能静态诊断，不以错误类别绝对划分阶段；保留第二节逻辑错误示例 | C7 |
+| CompileDiagram | 保留原四部件与几何，补C工具链示例/合并阶段标注；添加具名图像及独立title/desc引用，保留高亮撤销 | C1、C4；图示单测及浏览器验证 |
+
+### 实际核查依据
+
+原文与下载状态在D:/codex_tools/computer-studying-qa/compile-review-20261110-224243/sources/；本轮重新阅读其中对应原文。网页工具未返回正文；前置审查通过直接下载成功获取资料，初始证书吊销检查失败及成功重试均保留，不以失败下载作为依据。
+
+- **C1 GCC阶段**：https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html ，四阶段、-c与-S；只作为常见C工具链示例。
+- **C2 ELF目标文件**：https://gabi.xinuos.com/elf/05-symtab.html 、https://gabi.xinuos.com/elf/06-reloc.html ，函数/数据符号与重定位；不推广为所有目标文件格式的逐项保证。
+- **C3 链接**：https://sourceware.org/binutils/docs/ld/Overview.html 、https://gabi.xinuos.com/elf/08-dynamic.html ，对象组合、符号引用及动态依赖/符号/重定位信息。
+- **C4 CPython**：https://docs.python.org/3.14/glossary.html （bytecode）、https://docs.python.org/3.14/tutorial/modules.html （6.1.3），字节码与缓存文件不同，命令行主模块不存该缓存。题目不声称所有Python实现或JIT配置相同。
+- **C5 增量构建**：https://www.gnu.org/software/make/manual/html_node/How-Make-Works.html ，依赖文件/头文件变更与重编译。
+- **C6 JIT边界**：https://v8.dev/blog/jitless ，实现可有解释模式，性能数据依负载与配置；不移植历史基准百分比，也不声称本项目测过编译性能。
+- **C7 静态诊断**：https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html ，-Warray-bounds、-Wno-div-by-zero及-Werror，区分诊断、拒绝编译与运行时检查。
+
+### 实际验收与边界
+
+- 本轮实跑：30文件/281单测、类型检查与生产构建通过；142项桌面/手机E2E重复两次284/284通过（8.7分钟、零自动重试）；生产预览1440×1000、390×844、320×720三视口重复12/12通过，四项退出码均0。
+- 先红后绿：2项图示单测、2项桌面E2E捕获缺失可访问语义；实现后定向33单测及4项双端E2E通过。只读回归不是学习规则调整，事实正确性按上述来源人工审校，不用全文匹配测试替代。
+- 三视口生产专项在隔离合成存档上逐卡覆盖全部16选项、八节详解、高亮/撤销、重做、同章导航与刷新；锁定时没有学习入口，直接前章记牢时入口可见且点击位置不被遮挡，后章仍锁定，完整导出存档不变。
+- 人工检查手机八节详解、桌面图示和320px长题目/反馈/入口；无新增横向溢出或文字重叠。证据：D:/codex_tools/computer-studying-qa/compile-quality-20261110T150704/。Browser插件不可用，使用现有Edge；禁用SW的生产专项不作离线验收。未测Safari/Firefox、真实手机、真实编译器执行/性能或独立跨日探针。
+
+## 计算机组成（2026-11-10）
+
+范围仅hw-cpu-01至04、八节详解、既有导读及CpuDiagram/三张导读专用图。先只读审查、复验基线并报告问题与文件范围，用户确认后再补测试与实现。原导读正文、三图结构、卡片ID/顺序/标题、答案索引1/1/1/0、图元和关联均保持不变；没有重建导读或添加功能。
+
+### 四卡、详解与图示台账
+
+| 范围 | 核查结论与最小修正 | 依据 |
+|---|---|---|
+| hw-cpu-01 | 三阶段为入门概括，不是固定流水线级数或单个时钟周期；结果写回依指令而异，分支/跳转可改变后续地址。保留主频不等于指令数的误区说明 | S1、S11 |
+| hw-cpu-02 | 缓存保留部分指令和数据副本；去除固定节省周期与几MB保证高命中率的推论，限定硬件层级、访问模式与数据量。保留时间/空间局部性、常见64字节缓存行及按行存储前提 | S2、S9 |
+| hw-cpu-03 | 简介/题目/题解与详解统一为DRAM断电后不能可靠保留，不等于每位瞬间清零；题目限定没有保存或恢复副本。虚拟地址不是假地址，隔离依赖映射和权限，也允许受控共享；不把虚拟分配等同立即分配物理内存 | S3、S4、S10 |
+| hw-cpu-04 | 机械盘简化读取过程为寻道、等待剩余旋转时间、传输，寻道期间盘片也旋转；普通应用加载场景不写成所有存储计算路径。保留闪存非易失、易失写缓存、页写块擦与后台回收边界 | S5、S6、S7、S8 |
+| CpuDiagram | 去除无条件的CPU/缓存/RAM/SSD统一延迟标注；说明缓存通常在CPU内、盘片仅示意机械盘、图不是物理布局。添加具名图像和独立title/desc引用；四部件高亮与撤销不变 | S2、S5、S6；可访问性单测 |
+| 既有导读三图 | 导读已正确区分CPU缓存/文件缓存、按需加载/全量加载及保存/可靠落盘，正文无需重写。运行图三条箭头文字原继承父组2px紫色描边；仅把描边移至箭头路径，不改全局Label或重绘三图 | S7、S8；双端截图和computed style |
+
+八节详解均核对，其中四节勘误、另外四节保留；其他96卡及其详解不变。RISC-V、Windows和Intel材料用于具体机制与反例，不把其实现细节冒充所有硬件/操作系统保证。
+
+### 实际读取的一手依据
+
+网页工具未返回可用正文，使用直接下载的官方页面、原始研究与教材作者原文。前置审查8份来源及索引在D:/codex_tools/computer-studying-qa/cpu-review-20261110-213552/sources/；实施补核在D:/codex_tools/computer-studying-qa/cpu-quality-20261110-215636/sources/。404、代理失败或跳转至无相关文章的通用页不作依据。
+
+- **S1 指令语义**：RISC-V官方RV32I 2.1，https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html ，控制转移、加载与存储；仅作指令集例子，不用它规定通用流水线级数。
+- **S2 缓存性能边界**：Intel VTune Memory Access Analysis，https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-0/memory-access-analysis.html ，L1/L2/L3、未命中、DRAM及不同访问路径指标。
+- **S3 DRAM残留**：Halderman等原始论文Lest We Remember: Cold Boot Attacks on Encryption Keys（USENIX Security 2008），https://www.usenix.org/legacy/event/sec08/tech/full_papers/halderman/halderman_html/ 。仅支持“不保证瞬间清零”，不推广固定残留时长或声称所有现代设备可恢复。
+- **S4 地址映射与隔离**：Microsoft Virtual Address Space，https://learn.microsoft.com/en-us/windows/win32/memory/virtual-address-space ，进程私有/共享地址空间与页表映射。
+- **S5 机械盘过程**：OSTEP作者发布的第37章，https://pages.cs.wisc.edu/~remzi/OSTEP/file-disks.pdf ，PDF第4页的寻道、剩余旋转等待与传输。
+- **S6 SSD操作**：OSTEP作者发布的第44章，https://pages.cs.wisc.edu/~remzi/OSTEP/file-ssd.pdf ，PDF第1–3、8–10页的非易失闪存、页写块擦、映射与回收。
+- **S7 设备写缓存**：Linux内核Explicit volatile write back cache control，https://docs.kernel.org/block/writeback_cache_control.html ，刷新与FUA，不把I/O完成一概等同持久化。
+- **S8 系统文件缓存**：Microsoft File Caching，https://learn.microsoft.com/en-us/windows/win32/fileio/file-caching ，写回、刷新与断电风险。
+- **S9 缓存行例子**：Intel VTune Cookbook False Sharing，https://www.intel.com/content/www/us/en/docs/vtune-profiler/cookbook/2024-0/false-sharing.html ，其Core i7例子使用64字节缓存行，不将64字节写成所有处理器的强制大小。
+- **S10 按需物理页**：Microsoft VirtualAlloc，https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualalloc ，MEM_COMMIT说明实际物理页在访问时分配；不声称malloc与VirtualAlloc是同一个接口。
+- **S11 周期与指令计数**：RISC-V官方Zicntr，https://docs.riscv.org/reference/isa/v20260120/unpriv/counters.html ，区分CYCLE、TIME、INSTRET，不把GHz换算成固定指令吞吐量。
+
+### 实际验收与边界
+
+- 前置只读基线：30文件/276单测、类型检查与生产构建、双端E2E重复268/268通过（8.1分钟）。只读探针最初遇到PowerShell中文管道编码、平滑滚动截图尚未到位的问题；修正外部检查方法后通过，原失败及无效截图保留，不改产品。
+- 实施红测：新增3单测、2源E2E；3单测与2项桌面E2E分别因缺少图像可访问语义和文字继承描边失败。改动后定向65单测及4项双端专项转绿；无需修改核心学习或存档行为。
+- 最终：30文件/279单测、类型检查与生产构建通过；138项桌面/手机E2E重复两次276/276通过（7.1分钟、零自动重试），三项退出码均0。本章生产预览1440×1000、390×844、320×720三视口重复12/12通过。
+- 使用Edge/Chromium隔离上下文；Browser插件不可用，未安装依赖或读取个人存档。合成存档含不同章节进度、非零经验、非默认设置、会话/错题、每日数据和快照。导读→四卡百科、高亮/撤销、全部16个选项与重做、返回/刷新后完整导出不变，下一章仍锁定；正常学习闭环复用全量既有测试。
+- 人工检查三图、八节详解及窄屏选项/反馈：箭头文字清楚、无横向溢出或长选项裁切，导读底部入口可命中。页面标题、非空内容、无框架覆盖及console error检查通过。生产专项禁用SW，不算离线测试；未测真实手机、Safari/Firefox、真实硬件性能或独立跨日探针。
+- 证据：实施目录的red-tests.log、red-e2e.log、green-tests.log、green-e2e.log、final-tests.log、final-build.log、final-e2e.log、final-exits.json、final-report/、final-results/、production-e2e.log、production-results/、production-exit.txt及content-scope-audit.json。存档规则、SRS、记牢阈值、经验、解锁、当前队列和跨日归属均未改。
 
 ## RBAC与目录权限（2026-11-09）
 

@@ -1,18 +1,19 @@
+import { useId } from 'react';
 import { MINT, Ripple, Arrow, Box, BRAND, DiagramDefs, Label, MINT_SOFT, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const VAR_PARTS = ['name', 'box', 'type', 'ref'];
 
-/**
- * 变量与类型：名字是贴纸，盒子是值，引用是两个名字贴到同一个盒子上。
- * 把「变量是盒子」这个直觉先立对，后面讲赋值、传参才不会错。
- */
 export function VarDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>变量与类型：名字、对象与共享引用</title>
+      <desc id={descriptionId}>以 Python 为例：名字 x 绑定到整数对象 42，int 的精度可增长，受内存限制；a 与 b 共享同一个列表，通过任一名字修改列表，另一个也能看到。重新绑定名字不等于修改对象；方框和箭头不是物理内存布局。</desc>
       <DiagramDefs />
 
       <Label x={10} y={20} size={9} anchor="start" fill="#8B85A6">
-        名字贴在值上
+        Python 示例：名字绑定对象
       </Label>
 
       <Part id="name" focus={focus}>
@@ -20,6 +21,7 @@ export function VarDiagram({ className, focus }: DiagramProps) {
         <Label x={29} y={48} size={11} mono>
           x
         </Label>
+        <Arrow d="M49 44 H61" color={BRAND} />
       </Part>
       <Part id="box" focus={focus}>
         <Box x={64} y={30} w={62} h={28} fill={MINT_SOFT} rx={7} strokeWidth={2.4} />
@@ -29,10 +31,10 @@ export function VarDiagram({ className, focus }: DiagramProps) {
       </Part>
       <Part id="type" focus={focus}>
         <Label x={134} y={44} size={9} anchor="start" fill="#5B4B9E">
-          int：固定宽度，
+          int：精度可增长，
         </Label>
         <Label x={134} y={57} size={9} anchor="start" fill="#5B4B9E">
-          值就装在这里
+          受可用内存限制
         </Label>
       </Part>
 
@@ -61,13 +63,13 @@ export function VarDiagram({ className, focus }: DiagramProps) {
           同一个对象
         </Label>
         <Label x={156} y={150} size={8} mono fill="#8B85A6">
-          {'{ n: 1 }'}
+          {'[1, 2]'}
         </Label>
       </Part>
 
-      <Part id="type" focus={focus}>
+      <Part id="ref" focus={focus}>
         <Label x={214} y={134} size={9} anchor="start" fill="#5B4B9E">
-          改 a 里的内容，
+          通过 a 改列表，
         </Label>
         <Label x={214} y={147} size={9} anchor="start" fill="#5B4B9E">
           b 看到的一样变

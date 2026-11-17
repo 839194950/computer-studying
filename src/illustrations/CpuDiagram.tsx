@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import {
   anim,
   Arrow,
@@ -22,26 +23,17 @@ import {
 
 export const CPU_PARTS = ['cpu', 'cache', 'ram', 'disk'];
 
-/** 盒子下方的延迟小胶囊 */
-function Latency({ x, y = 127, text }: { x: number; y?: number; text: string }) {
-  return (
-    <>
-      <Box x={x - 20} y={y} w={40} h={14} fill="#FFFFFF" rx={7} />
-      <Label x={x} y={y + 10.5} size={7.5} fill="#5B4B9E" mono>
-        {text}
-      </Label>
-    </>
-  );
-}
-
 /**
  * 计算机组成：CPU 内部三段 + 缓存 + 内存 + 磁盘。
  * 越往右越慢越大；底部的速度条上有一颗小球，越往右跑得越慢，直观表现"差好几个数量级"。
  * 动效都挂在细节上（时钟灯、齿轮、寄存器位、内存条扫描、盘片），主体结构保持静止好读。
  */
 export function CpuDiagram({ className, focus }: DiagramProps) {
+  const id = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={id + '-title'} aria-describedby={id + '-desc'}>
+      <title id={id + '-title'}>计算机组成与典型存储层级示意图</title>
+      <desc id={id + '-desc'}>CPU 执行指令，寄存器保存操作数与状态；缓存通常位于 CPU 芯片内，保留部分指令和数据的副本；主内存承载运行内容，SSD 或机械盘保存文件。缓存画在旁边是为了区分职责，不代表实际物理布局。盘片图案仅示意机械盘，SSD 没有机械寻道和旋转等待。寄存器、缓存、主内存、持久存储通常逐级更大、更慢，具体容量与访问延迟依硬件和负载而异。</desc>
       <DiagramDefs />
       <defs>
         <linearGradient id="cpu-speed" x1="0" x2="1" y1="0" y2="0">
@@ -90,7 +82,6 @@ export function CpuDiagram({ className, focus }: DiagramProps) {
             {...anim('pulse', { dur: 1.4, delay: i * 0.22 })}
           />
         ))}
-        <Latency x={48} y={139} text="<1 ns" />
       </Part>
 
       <Part id="cache" focus={focus}>
@@ -106,7 +97,7 @@ export function CpuDiagram({ className, focus }: DiagramProps) {
         <Label x={133} y={95} size={8.5}>
           L2
         </Label>
-        <Latency x={133} text="~5 ns" />
+        <Label x={133} y={140} size={8}>通常在 CPU 内</Label>
       </Part>
 
       <Part id="ram" focus={focus}>
@@ -129,7 +120,6 @@ export function CpuDiagram({ className, focus }: DiagramProps) {
             />
           </g>
         ))}
-        <Latency x={205} text="~100 ns" />
       </Part>
 
       <Part id="disk" focus={focus}>
@@ -145,7 +135,7 @@ export function CpuDiagram({ className, focus }: DiagramProps) {
         <circle cx={285} cy={84} r={3.6} fill={SKY} />
         <path d="M306 60 L293 77" stroke="#5B4B9E" strokeWidth={2.4} strokeLinecap="round" />
         <circle cx={306} cy={60} r={2.6} fill="#5B4B9E" />
-        <Latency x={285} text="~10 ms" />
+        <Label x={285} y={140} size={8}>机械盘示意</Label>
       </Part>
 
       <Arrow d="M90 80 H109" delay={0} />
@@ -170,7 +160,7 @@ export function CpuDiagram({ className, focus }: DiagramProps) {
         style={{ ...anim('travel', { dx: 186, dur: 3.6 }).style, animationTimingFunction: 'cubic-bezier(0.05, 0.9, 0.2, 1)' }}
       />
       <Label x={160} y={177} size={8} fill="#8B85A6">
-        越往右：容量越大，访问越慢
+        存储层级趋势示意，非物理布局或固定延迟
       </Label>
     </svg>
   );

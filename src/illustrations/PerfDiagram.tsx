@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import {
   anim,
   Box,
@@ -20,27 +21,26 @@ import {
 export const PERF_PARTS = ['latency', 'pipeline', 'switch', 'parallel'];
 
 const LATENCY = [
-  { name: '寄存器', w: 10, color: MINT, text: '1 ns' },
-  { name: '内存', w: 38, color: SUN, text: '100 ns' },
-  { name: '磁盘', w: 72, color: PINK, text: '10 ms' },
+  { name: '寄存器', w: 10, color: MINT, text: '近端' },
+  { name: '主存', w: 38, color: SUN, text: '访存' },
+  { name: '存储', w: 72, color: PINK, text: '设备 IO' },
 ];
 
 const STAGES = ['取', '译', '执', '写'];
-const ROW_COLORS = [BRAND, SKY, MINT];
+const ROW_COLORS = [BRAND, SKY, MINT, SUN];
 
-/**
- * 性能四象限，每格一个直觉：
- * 左上：延迟差几个数量级（条会反复长出来）；右上：流水线让几条指令同时各占一个阶段（竖条扫过表示"此刻"）；
- * 左下：切换进程要搬现场（一颗光点从 A 经 CPU 搬到 B）；右下：多核才是真并行（只有两核的进度条在长）。
- */
 export function PerfDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>性能与并发：延迟、流水线、切换与并行</title>
+      <desc id={descriptionId}>四象限示意：访问延迟取决于设备、操作、缓存与负载，条长不是比例尺；四级流水线的同一时刻，四种颜色的指令各占一个阶段；线程切换保存和恢复上下文，不一定更换地址空间；多核并行仅为一种示例，线程多不保证更快。</desc>
       <DiagramDefs />
 
       <Part id="latency" focus={focus}>
         <Label x={10} y={16} size={9} anchor="start">
-          延迟差几个数量级
+          访问延迟可能差很多
         </Label>
         {LATENCY.map((row, i) => (
           <g key={row.name}>
@@ -54,7 +54,7 @@ export function PerfDiagram({ className, focus }: DiagramProps) {
           </g>
         ))}
         <Label x={10} y={92} size={7} anchor="start" fill="#8B85A6">
-          条长只是示意，真实差距远比这大
+          条长非比例尺，具体延迟需测量
         </Label>
       </Part>
 
@@ -70,19 +70,11 @@ export function PerfDiagram({ className, focus }: DiagramProps) {
             </Label>
           </g>
         ))}
-        {ROW_COLORS.map((color, r) =>
-          STAGES.map((_, c) =>
-            c >= r ? (
-              <rect key={`${r}-${c}`} x={172 + c * 36} y={50 + r * 11} width={28} height={8} rx={4} fill={color} opacity={0.85} />
-            ) : null,
-          ),
-        )}
-        {/* travel 的关键帧会把 opacity 拉到 1，所以透明度放在外层 g 上 */}
-        <g opacity={0.14}>
-          <rect x={169} y={47} width={34} height={36} rx={6} fill={BRAND} {...anim('travel', { dx: 108, dur: 3.2 })} />
-        </g>
+        {ROW_COLORS.map((color, index) => (
+          <rect key={color} x={172 + (3 - index) * 36} y={48 + index * 10} width={28} height={8} rx={4} fill={color} opacity={0.85} />
+        ))}
         <Label x={170} y={95} size={7} anchor="start" fill="#8B85A6">
-          同一时刻，三条指令各占一个阶段
+          四级示意：四条指令各占一段
         </Label>
       </Part>
 
@@ -92,7 +84,7 @@ export function PerfDiagram({ className, focus }: DiagramProps) {
         </Label>
         <Box x={10} y={124} w={44} h={24} fill={SUN_SOFT} rx={7} />
         <Label x={32} y={140} size={8}>
-          进程 A
+          线程 A
         </Label>
         <circle cx={82} cy={136} r={12} fill="#FFFFFF" stroke="#8E84B3" strokeWidth={1.6} />
         <Label x={82} y={139} size={7.5}>
@@ -101,18 +93,18 @@ export function PerfDiagram({ className, focus }: DiagramProps) {
         <Ripple cx={82} cy={136} r={12} />
         <Box x={110} y={124} w={44} h={24} fill={MINT_SOFT} rx={7} />
         <Label x={132} y={140} size={8}>
-          进程 B
+          线程 B
         </Label>
         <path d="M32 122 C 44 111, 120 111, 132 122" stroke="#8E84B3" strokeWidth={1.4} strokeDasharray="3 3" className="dg-march" />
         <Flow d="M32 122 C 44 111, 120 111, 132 122" color={BRAND} dur={2.6} dash={8} />
         <Label x={10} y={166} size={7} anchor="start" fill="#8B85A6">
-          寄存器、栈、页表全要换，换一次就有开销
+          保存与恢复现场，不一定换地址空间
         </Label>
       </Part>
 
       <Part id="parallel" focus={focus}>
         <Label x={170} y={114} size={9} anchor="start">
-          多核才是真并行
+          多核并行是一种示例
         </Label>
         {[0, 1, 2, 3].map((i) => {
           const busy = i < 2;

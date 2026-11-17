@@ -16,8 +16,8 @@ function Diagram({ title, description, height, children }: {
 
 /** 箭头直接绘制，不依赖全局 marker ID；只表达图中注明的方向。 */
 function Down({ y, label }: { y: number; label?: string }) {
-  return <g stroke={BRAND} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-    <path d={`M180 ${y} v26 m-5 -5 l5 5 5 -5`} />
+  return <g>
+    <path d={`M180 ${y} v26 m-5 -5 l5 5 5 -5`} stroke={BRAND} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     {label && <Label x={194} y={y + 18} anchor="start" size={12}>{label}</Label>}
   </g>;
 }

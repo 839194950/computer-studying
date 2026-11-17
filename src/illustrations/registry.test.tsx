@@ -42,6 +42,35 @@ it.each(['db-table', 'db-query', 'db-index', 'db-transaction', 'db-model'])('%s 
   });
 });
 
+it('计算机组成图可被读屏识别，四部件仍可独立高亮和撤销', () => {
+  const Diagram = getIllustration('cpu');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/计算机组成/);
+  expect(getByRole('img')).toHaveAccessibleDescription(/缓存.*CPU.*机械盘/);
+  for (const part of ['cpu', 'cache', 'ram', 'disk']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(3);
+  }
+  rerender(<Diagram />);
+  expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
+it('计算机组成图多实例的可访问名称和说明引用各自节点', () => {
+  const Diagram = getIllustration('cpu');
+  const { getAllByRole } = render(<><Diagram /><Diagram /></>);
+  const ids: string[] = [];
+  getAllByRole('img').forEach((image) => {
+    for (const attribute of ['aria-labelledby', 'aria-describedby']) {
+      const id = image.getAttribute(attribute)!;
+      expect(id).toBeTruthy();
+      expect(Array.from(image.querySelectorAll('[id]')).some((node) => node.id === id)).toBe(true);
+      ids.push(id);
+    }
+  });
+  expect(new Set(ids).size).toBe(4);
+});
+
 it('网络图提供TCP封装可访问名称，四层标签与包体可高亮', () => {
   const Diagram = getIllustration('network');
   const { getByRole, container, rerender } = render(<Diagram />);
@@ -66,6 +95,114 @@ it('TLS图提供握手示例名称，四部件仍可独立高亮', () => {
   }
   rerender(<Diagram />);
   expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
+it('编译示例可被读屏识别且四部件高亮可撤销', () => {
+  const Diagram = getIllustration('compile');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/C.*编译/);
+  expect(getByRole('img')).toHaveAccessibleDescription(/预处理.*汇编.*Python/);
+  for (const part of ['source', 'compile', 'link', 'runtime']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(3);
+  }
+  rerender(<Diagram />);
+  expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
+it('编译图多实例的可访问引用保持独立', () => {
+  const Diagram = getIllustration('compile');
+  const { getAllByRole } = render(<><Diagram /><Diagram /></>);
+  const ids: string[] = [];
+  getAllByRole('img').forEach((image) => {
+    for (const attribute of ['aria-labelledby', 'aria-describedby']) {
+      const id = image.getAttribute(attribute)!;
+      expect(id).toBeTruthy();
+      expect(Array.from(image.querySelectorAll('[id]')).some((node) => node.id === id)).toBe(true);
+      ids.push(id);
+    }
+  });
+  expect(new Set(ids).size).toBe(4);
+});
+
+it('性能图可被读屏识别且四部件高亮可撤销', () => {
+  const Diagram = getIllustration('perf');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/性能与并发/);
+  expect(getByRole('img')).toHaveAccessibleDescription(/示意.*流水线.*切换.*并行/);
+  for (const part of ['latency', 'pipeline', 'switch', 'parallel']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(3);
+  }
+  rerender(<Diagram />);
+  expect(container.querySelectorAll('.dg-dim')).toHaveLength(0);
+});
+
+it('性能图多实例的可访问引用保持独立', () => {
+  const Diagram = getIllustration('perf');
+  const { getAllByRole } = render(<><Diagram /><Diagram /></>);
+  const ids: string[] = [];
+  getAllByRole('img').forEach((image) => {
+    for (const attribute of ['aria-labelledby', 'aria-describedby']) {
+      const id = image.getAttribute(attribute)!;
+      expect(id).toBeTruthy();
+      expect(Array.from(image.querySelectorAll('[id]')).some((node) => node.id === id)).toBe(true);
+      ids.push(id);
+    }
+  });
+  expect(new Set(ids).size).toBe(4);
+});
+
+it('四级流水线快照中每条指令只占一个阶段且阶段不重复', () => {
+  const Diagram = getIllustration('perf');
+  const { getByText } = render(<Diagram />);
+  const pipeline = getByText('流水线让指令重叠').closest('.dg-part')!;
+  const instructions = Array.from(pipeline.querySelectorAll('rect[height="8"]'));
+  expect(instructions).toHaveLength(4);
+  for (const attribute of ['x', 'y', 'fill']) {
+    expect(new Set(instructions.map((instruction) => instruction.getAttribute(attribute))).size).toBe(4);
+  }
+});
+
+it('变量图具备读屏语义且四种焦点均可高亮和撤销', () => {
+  const Diagram = getIllustration('variable');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/变量与类型/);
+  expect(getByRole('img')).toHaveAccessibleDescription(/Python.*绑定.*共享/);
+  for (const [part, count] of [['name', 2], ['box', 1], ['type', 1], ['ref', 2]] as const) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(count);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(6 - count);
+    rerender(<Diagram />);
+    expect(container.querySelectorAll('.dg-on, .dg-dim')).toHaveLength(0);
+  }
+});
+
+it('变量图多个实例的名称和描述引用属于各自图像', () => {
+  const Diagram = getIllustration('variable');
+  const { getAllByRole } = render(<><Diagram /><Diagram /></>);
+  const ids: string[] = [];
+  for (const diagram of getAllByRole('img')) {
+    for (const attribute of ['aria-labelledby', 'aria-describedby']) {
+      const id = diagram.getAttribute(attribute)!;
+      expect(id).toBeTruthy();
+      expect(Array.from(diagram.querySelectorAll('[id]')).some((element) => element.id === id)).toBe(true);
+      ids.push(id);
+    }
+  }
+  expect(new Set(ids).size).toBe(4);
+});
+
+it('共享修改说明随引用高亮，不随类型高亮', () => {
+  const Diagram = getIllustration('variable');
+  const { getByText, rerender } = render(<Diagram focus={['type']} />);
+  expect(getByText('b 看到的一样变').closest('.dg-part')).toHaveClass('dg-dim');
+  expect(getByText(/int[：:]/).closest('.dg-part')).toHaveClass('dg-on');
+  rerender(<Diagram focus={['ref']} />);
+  expect(getByText('b 看到的一样变').closest('.dg-part')).toHaveClass('dg-on');
+  expect(getByText(/int[：:]/).closest('.dg-part')).toHaveClass('dg-dim');
 });
 
 it('hasIllustration 能区分已注册与未注册', () => {

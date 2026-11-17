@@ -110,6 +110,14 @@ it('三张配图具有准确的名称、说明、响应式尺寸和图注', () =
   expect(within(section).getByText('持久存储 · SSD / 硬盘')).toBeInTheDocument();
 });
 
+it('运行图的箭头说明文字不继承路径描边', () => {
+  open('/map/hardware/hw-cpu');
+  const diagram = screen.getByRole('img', { name: '程序运行：从加载到执行，再到保存' });
+  for (const text of ['按需加载', '取指、读写数据', '需要保存时']) {
+    expect(within(diagram).getByText(text).closest('[stroke]:not([stroke="none"])')).toBeNull();
+  }
+});
+
 it('多实例 SVG 的 title/desc ID 唯一且各自引用有效', () => {
   const { container } = render(<><ChapterGuideDiagrams /><ChapterGuideDiagrams /></>);
   const images = screen.getAllByRole('img');
