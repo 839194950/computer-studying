@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { ChapterLabLink } from '../labs/LabsPage';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -87,7 +88,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
           animate={{ x: '-50%', y: [0, -4, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {studied === 0 ? '开始' : studied < total ? '继续学习' : '继续复习'}
+          {studied === 0 ? t("开始") : studied < total ? t("继续学习") : t("继续复习")}
           <span className="absolute -bottom-[7px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-line bg-white" />
         </motion.span>
       )}
@@ -99,7 +100,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
       <span className={`block text-sm font-black ${interactive ? 'text-ink' : 'text-muted'}`}>{title}</span>
       <span className="mt-0.5 block text-[11px] font-semibold text-muted">{blurb}</span>
       <span className="tabular mt-0.5 block text-[11px] font-extrabold text-muted/80">
-        已学过 {studied}/{total} · 已记牢 {mastered}/{total}
+        {t("已学过 ")}{studied}/{total} {t(" · 已记牢 ")}{mastered}/{total}
       </span>
       {state === 'locked' && <span className="mt-1 block text-[11px] font-semibold text-muted">{lockReason}</span>}
     </span>
@@ -107,7 +108,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
 
   return (
     <motion.li
-      aria-label={LABEL[state]}
+      aria-label={t(LABEL[state])}
       className="flex justify-center py-2"
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -117,7 +118,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
         {interactive ? (
           <Link
             to={`/study?chapter=${chapterId}`}
-            aria-label={`${title}（${LABEL[state]}，已学过 ${studied}/${total}，已记牢 ${mastered}/${total}）`}
+            aria-label={t("{0}（{1}，已学过 {2}/{3}，已记牢 {4}/{5}）", [title, LABEL[state], studied, total, mastered, total])}
             className="group flex flex-col items-center rounded-3xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
           >
             {disc}
@@ -131,7 +132,7 @@ export function ChapterNode({ chapterId, guidePath, index, title, blurb, state, 
         )}
         <ChapterLabLink chapterId={chapterId} />
         {interactive && guidePath && (
-          <Link to={guidePath} className="mt-2 block rounded-lg text-center text-sm font-extrabold text-brand underline focus-visible:ring-4 focus-visible:ring-brand/30">章节导读</Link>
+          <Link to={guidePath} className="mt-2 block rounded-lg text-center text-sm font-extrabold text-brand underline focus-visible:ring-4 focus-visible:ring-brand/30">{t("章节导读")}</Link>
         )}
       </div>
     </motion.li>

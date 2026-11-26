@@ -1,9 +1,11 @@
+import { t } from '../../i18n/locale';
 import { Link, useParams } from 'react-router-dom';
 import { Screen } from '../../components/Screen';
 import { Icon } from '../../components/Icon';
 import { Rise } from '../../components/motion';
 import { TRACK_THEME } from '../../components/trackTheme';
-import { TRACKS, type Track } from '../../content';
+import type { Track } from '../../content';
+import { useContent } from '../../content/localized';
 import { useStore } from '../../store/useStore';
 import { chapterState } from '../../lib/queue';
 import { learningProgress } from '../../lib/stats';
@@ -20,20 +22,21 @@ function TrackBanner({ track, studied, mastered }: { track: Track; studied: numb
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-black">{track.title}</h2>
-          <p className="truncate text-xs font-bold text-white/80">{theme.tagline}</p>
+          <p className="text-xs font-bold text-white/80">{t(theme.tagline)}</p>
         </div>
       </div>
       <p className="tabular relative mt-3 text-xs font-black">
-        已学过 {studied}/{track.cards.length} · 已记牢 {mastered}/{track.cards.length}
+        {t("已学过 ")}{studied}/{track.cards.length} {t(" · 已记牢 ")}{mastered}/{track.cards.length}
       </p>
     </header>
   );
 }
 
 export function MapPage() {
+  const { TRACKS } = useContent();
   const progress = useStore((s) => s.progress);
   return (
-    <Screen title="章节地图" subtitle="选择一条主线，进入它的章节路径。">
+    <Screen title={t("章节地图")} subtitle={t("选择一条主线，进入它的章节路径。")}>
       <div className="grid gap-6 lg:grid-cols-2">
         {TRACKS.map((track, i) => (
           <Rise key={track.id} delay={i * 0.06}>
@@ -43,8 +46,7 @@ export function MapPage() {
             >
               <TrackBanner track={track} {...learningProgress(track.cards, progress)} />
               <p className="mt-3 px-2 text-sm font-extrabold text-muted">
-                {track.chapters.filter((ch) => track.cards.some((c) => c.chapter === ch.id)).length} 个章节 · 查看章节路径
-              </p>
+                {track.chapters.filter((ch) => track.cards.some((c) => c.chapter === ch.id)).length} {t(" 个章节 · 查看章节路径")}</p>
             </Link>
           </Rise>
         ))}
@@ -54,14 +56,15 @@ export function MapPage() {
 }
 
 export function TrackMapPage() {
+  const { TRACKS } = useContent();
   const { trackId } = useParams();
   const progress = useStore((s) => s.progress);
   const track = TRACKS.find((item) => item.id === trackId);
-  const back = <Link to="/map" className="mb-5 inline-block rounded-lg text-sm font-extrabold text-brand hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30">返回章节地图</Link>;
+  const back = <Link to="/map" className="mb-5 inline-block rounded-lg text-sm font-extrabold text-brand hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30">{t("返回章节地图")}</Link>;
 
   if (!track) {
     return (
-      <Screen title="未找到这条主线" subtitle="这条路径不存在，请返回地图选择一条主线。">
+      <Screen title={t("未找到这条主线")} subtitle={t("这条路径不存在，请返回地图选择一条主线。")}>
         {back}
       </Screen>
     );
@@ -70,27 +73,26 @@ export function TrackMapPage() {
   const theme = TRACK_THEME[track.id];
   const chapters = track.chapters.filter((ch) => track.cards.some((c) => c.chapter === ch.id));
   return (
-    <Screen title={`${track.title} · 章节路径`} subtitle="全章卡片记牢才算通关，下一章随之解锁。">
+    <Screen title={t("{0} · 章节路径", [track.title])} subtitle={t("全章卡片记牢才算通关，下一章随之解锁。")}>
       {back}
       <div className="mx-auto max-w-xl">
         <TrackBanner track={track} {...learningProgress(track.cards, progress)} />
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          已学过：已作答的卡片，答错也计入；只看讲解或导读不计入。已记牢：记忆达到第 4 档及以上的卡片，圆弧表示记牢进度。完成一轮不等于通关，按到期安排复习，逐步记牢。
-        </p>
+          {t("已学过：已作答的卡片，答错也计入；只看讲解或导读不计入。已记牢：记忆达到第 4 档及以上的卡片，圆弧表示记牢进度。完成一轮不等于通关，按到期安排复习，逐步记牢。")}</p>
         {chapters.filter((chapter) => chapter.guide && chapterState(track, chapter.id, progress) !== 'locked').map((chapter) => (
-          <section key={chapter.id} aria-label={`${chapter.title}导读入口`} className="mt-5 rounded-3xl border-2 border-brand/25 bg-brand-soft p-5 shadow-lip">
-            <p className="flex items-center gap-2 text-sm font-black text-brand-dark"><Icon name="book" size={20} />章节导读 · 先看懂，再学习</p>
-            <h2 className="mt-2 text-lg font-black text-ink">{chapter.title}：从整体认识开始</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{chapter.guide!.intro} 阅读不计学习进度。</p>
+          <section key={chapter.id} aria-label={t("{0}导读入口", [chapter.title])} className="mt-5 rounded-3xl border-2 border-brand/25 bg-brand-soft p-5 shadow-lip">
+            <p className="flex items-center gap-2 text-sm font-black text-brand-dark"><Icon name="book" size={20} />{t("章节导读 · 先看懂，再学习")}</p>
+            <h2 className="mt-2 text-lg font-black text-ink">{chapter.title}{t("：从整体认识开始")}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{chapter.guide!.intro} {t(" 阅读不计学习进度。")}</p>
             <Link to={`/map/${track.id}/${chapter.id}`} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-extrabold text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30 focus-visible:ring-offset-2">
-              打开章节导读<Icon name="arrow-right" size={16} />
+              {t("打开章节导读")}<Icon name="arrow-right" size={16} />
             </Link>
           </section>
         ))}
         {chapters.length === 0 ? (
-          <p className="mt-3 rounded-2xl border-2 border-dashed border-line px-3 py-4 text-center text-xs font-bold text-muted">这一条线还在写卡</p>
+          <p className="mt-3 rounded-2xl border-2 border-dashed border-line px-3 py-4 text-center text-xs font-bold text-muted">{t("这一条线还在写卡")}</p>
         ) : (
-          <ul key={track.id} aria-label={`${track.title}章节路径`} className="m-0 mt-8 list-none space-y-3 p-0">
+          <ul key={track.id} aria-label={t("{0}章节路径", [track.title])} className="m-0 mt-8 list-none space-y-3 p-0">
             {chapters.map((chapter, i) => {
               const cards = track.cards.filter((c) => c.chapter === chapter.id);
               const previous = track.chapters[track.chapters.indexOf(chapter) - 1];
@@ -105,7 +107,7 @@ export function TrackMapPage() {
                   blurb={chapter.blurb}
                   state={chapterState(track, chapter.id, progress)}
                   {...learningProgress(cards, progress)}
-                  lockReason={previous ? `先记牢《${previous.title}》全部卡片（已记牢 ${learningProgress(previousCards, progress).mastered}/${previousCards.length}）` : undefined}
+                  lockReason={previous ? t("先记牢《{0}》全部卡片（已记牢 {1}/{2}）", [previous.title, learningProgress(previousCards, progress).mastered, previousCards.length]) : undefined}
                   total={cards.length}
                   last={i === chapters.length - 1}
                   theme={theme}

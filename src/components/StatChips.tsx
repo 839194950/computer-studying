@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { Icon } from './Icon';
 import { CountUp } from './motion';
 import { useStore } from '../store/useStore';
@@ -15,17 +16,17 @@ export function StatChips({ compact = false }: { compact?: boolean }) {
   const pad = compact ? 'px-2.5 py-1' : 'px-3 py-1.5';
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
       <span
-        title="连续打卡"
+        title={t("连续打卡")}
         className={`flex items-center gap-1 rounded-full ${pad} text-sm font-black ${
           current > 0 ? 'bg-flame-soft text-flame-dark' : 'bg-[#F0EEF6] text-muted'
         }`}
       >
         <Icon name="flame" size={17} className={current > 0 ? 'animate-flicker text-flame' : ''} />
-        <span className="tabular">{current} 天</span>
+        <span className="tabular">{current} {t(" 天")}</span>
       </span>
-      <span title="累计经验" className={`flex items-center gap-1 rounded-full bg-sun-soft ${pad} text-sm font-black text-[#B07F00]`}>
+      <span title={t("累计经验")} className={`flex items-center gap-1 rounded-full bg-sun-soft ${pad} text-sm font-black text-[#B07F00]`}>
         <Icon name="bolt" size={16} className="text-sun" />
         <CountUp value={xp} className="tabular" />
       </span>

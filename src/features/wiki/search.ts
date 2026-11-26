@@ -2,7 +2,7 @@ import type { Card } from '../../content';
 import { getDetail } from '../../content';
 
 /** 把一张卡能被搜到的文字拼起来，小写化，搜索时做子串匹配。 */
-function haystack(card: Card): string {
+function haystack(card: Card, detail: typeof getDetail): string {
   return [
     card.title,
     card.explain,
@@ -10,23 +10,23 @@ function haystack(card: Card): string {
     card.explanation,
     ...card.options,
     ...card.steps.map((s) => s.caption),
-    ...getDetail(card.id).flatMap((d) => [d.heading, d.body]),
+    ...detail(card.id).flatMap((d) => [d.heading, d.body]),
   ]
     .join('\n')
     .toLowerCase();
 }
 
-const INDEX = new Map<string, string>();
+const INDEX = new WeakMap<Card, string>();
 
 /** 按空格切成多个词，每个词都要命中。标题命中的排在前面。 */
-export function searchCards(cards: Card[], query: string): Card[] {
+export function searchCards(cards: Card[], query: string, detail = getDetail): Card[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return cards;
   const hits = cards.filter((card) => {
-    let text = INDEX.get(card.id);
+    let text = INDEX.get(card);
     if (text === undefined) {
-      text = haystack(card);
-      INDEX.set(card.id, text);
+      text = haystack(card, detail);
+      INDEX.set(card, text);
     }
     return terms.every((t) => text!.includes(t));
   });

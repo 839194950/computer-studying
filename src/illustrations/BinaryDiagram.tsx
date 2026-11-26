@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { anim, Box, BRAND, DiagramDefs, Flow, Label, MINT_SOFT, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const BINARY_PARTS = ['bit', 'byte', 'number', 'text'];
@@ -19,11 +20,9 @@ export function BinaryDiagram({ className, focus }: DiagramProps) {
       <Part id="byte" focus={focus}>
         <rect x={6} y={12} width={186} height={66} rx={12} fill="#FBFAFF" stroke="#BEAEFF" strokeWidth={1.6} strokeDasharray="5 4" className="dg-march" />
         <Label x={256} y={34} size={10.5}>
-          1 字节 = 8 位
-        </Label>
+          {t("1 字节 = 8 位")}</Label>
         <Label x={256} y={50} size={8.5} fill="#8B85A6">
-          2⁸ = 256 种组合
-        </Label>
+          {t("2⁸ = 256 种组合")}</Label>
         <Label x={256} y={64} size={8} fill="#8B85A6" mono>
           0 ~ 255
         </Label>
@@ -48,21 +47,18 @@ export function BinaryDiagram({ className, focus }: DiagramProps) {
           );
         })}
         <Label x={99} y={73} size={8} fill="#8B85A6">
-          每一位是一个开关：通 = 1，断 = 0
-        </Label>
+          {t("每一位是一个开关：通 = 1，断 = 0")}</Label>
       </Part>
 
       <Part id="number" focus={focus}>
         <Box x={6} y={96} w={150} h={66} fill={SUN_SOFT} rx={12} />
         <Label x={81} y={113} size={10}>
-          当数字读
-        </Label>
+          {t("当数字读")}</Label>
         <Label x={81} y={136} size={13} mono>
           64 + 1 = 65
         </Label>
         <Label x={81} y={153} size={8} fill="#8A6A16">
-          按每一位的权重相加
-        </Label>
+          {t("按每一位的权重相加")}</Label>
         <Flow d={`M${X0 + STEP + 8.5} 62 C ${X0 + STEP + 8.5} 86, 58 92, 62 120`} color={BRAND} dur={2.6} />
         <Flow d={`M${X0 + 7 * STEP + 8.5} 62 C ${X0 + 7 * STEP + 8.5} 86, 112 92, 104 120`} color={BRAND} dur={2.6} delay={1.3} />
       </Part>
@@ -70,8 +66,7 @@ export function BinaryDiagram({ className, focus }: DiagramProps) {
       <Part id="text" focus={focus}>
         <Box x={164} y={96} w={150} h={66} fill={MINT_SOFT} rx={12} />
         <Label x={239} y={113} size={10}>
-          当字符读
-        </Label>
+          {t("当字符读")}</Label>
         <Label x={222} y={138} size={13} mono>
           65 →
         </Label>
@@ -82,8 +77,7 @@ export function BinaryDiagram({ className, focus }: DiagramProps) {
           </Label>
         </g>
         <Label x={239} y={157} size={8} fill="#127A52">
-          查 ASCII / UTF-8 对照表
-        </Label>
+          {t("查 ASCII / UTF-8 对照表")}</Label>
       </Part>
     </svg>
   );

@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from './Icon';
@@ -14,7 +15,7 @@ export function BottomNav({ active: forced }: { active?: NavKey }) {
 
   return (
     <nav
-      aria-label="底部导航"
+      aria-label={t("底部导航")}
       className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-line bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
       <ul className="mx-auto flex max-w-[560px] items-stretch px-2">
@@ -39,7 +40,7 @@ export function BottomNav({ active: forced }: { active?: NavKey }) {
                   )}
                   <Icon name={item.icon} size={22} className="relative" />
                 </span>
-                {item.label}
+                {t(item.label)}
               </Link>
             </li>
           );

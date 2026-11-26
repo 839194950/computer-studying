@@ -205,6 +205,35 @@ it('共享修改说明随引用高亮，不随类型高亮', () => {
   expect(getByText(/int[：:]/).closest('.dg-part')).toHaveClass('dg-dim');
 });
 
+it('作用域图具备读屏语义且四种焦点均可高亮和撤销', () => {
+  const Diagram = getIllustration('scope');
+  const { getByRole, container, rerender } = render(<Diagram />);
+  expect(getByRole('img')).toHaveAccessibleName(/函数与作用域/);
+  expect(getByRole('img')).toHaveAccessibleDescription(/JavaScript.*绑定.*闭包/);
+  for (const part of ['global', 'local', 'block', 'closure']) {
+    rerender(<Diagram focus={[part]} />);
+    expect(container.querySelectorAll('.dg-on')).toHaveLength(1);
+    expect(container.querySelectorAll('.dg-dim')).toHaveLength(3);
+    rerender(<Diagram />);
+    expect(container.querySelectorAll('.dg-on, .dg-dim')).toHaveLength(0);
+  }
+});
+
+it('作用域图多个实例的名称和说明各自关联且不冲突', () => {
+  const Diagram = getIllustration('scope');
+  const { getAllByRole } = render(<><Diagram /><Diagram /></>);
+  const ids: string[] = [];
+  for (const diagram of getAllByRole('img')) {
+    for (const attribute of ['aria-labelledby', 'aria-describedby']) {
+      const id = diagram.getAttribute(attribute)!;
+      expect(id).toBeTruthy();
+      expect(Array.from(diagram.querySelectorAll('[id]')).some((element) => element.id === id)).toBe(true);
+      ids.push(id);
+    }
+  }
+  expect(new Set(ids).size).toBe(4);
+});
+
 it('hasIllustration 能区分已注册与未注册', () => {
   expect(hasIllustration('cpu')).toBe(true);
   expect(hasIllustration('poop')).toBe(false);

@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import type { Track } from '../content/types';
 import type { CardProgress } from './srs';
 import { chapterState } from './queue';
@@ -51,13 +52,13 @@ export function achievements({ tracks, progress, longestStreak, xp }: Achievemen
   });
 
   return [
-    make('first', '第一步', '学完第一张卡', 'mint', touched, 1),
-    make('ten', '十张入脑', '学过 10 张卡', 'sky', touched, 10),
-    make('streak3', '三天不断', '连续打卡 3 天', 'flame', longestStreak, 3),
-    make('streak7', '一周坚持', '连续打卡 7 天', 'flame', longestStreak, 7),
-    make('chapter', '首章通关', '记牢一整章', 'sun', chaptersDone, 1),
-    make('xp500', '五百经验', '累计 500 经验', 'brand', xp, 500),
-    make('track', '一线贯通', '记牢一整条主线', 'pink', tracksDone, 1),
-    make('master', '记忆大师', `记牢全部 ${cards.length} 张卡`, 'brand', mastered, cards.length),
+    make('first', t("第一步"), t("学完第一张卡"), 'mint', touched, 1),
+    make('ten', t("十张入脑"), t("学过 10 张卡"), 'sky', touched, 10),
+    make('streak3', t("三天不断"), t("连续打卡 3 天"), 'flame', longestStreak, 3),
+    make('streak7', t("一周坚持"), t("连续打卡 7 天"), 'flame', longestStreak, 7),
+    make('chapter', t("首章通关"), t("记牢一整章"), 'sun', chaptersDone, 1),
+    make('xp500', t("五百经验"), t("累计 500 经验"), 'brand', xp, 500),
+    make('track', t("一线贯通"), t("记牢一整条主线"), 'pink', tracksDone, 1),
+    make('master', t("记忆大师"), t("记牢全部 {0} 张卡", [cards.length]), 'brand', mastered, cards.length),
   ];
 }

@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Screen } from '../../components/Screen';
@@ -9,7 +10,8 @@ import { Icon, type IconName } from '../../components/Icon';
 import { Rise } from '../../components/motion';
 import { TRACK_THEME } from '../../components/trackTheme';
 import { Mascot } from '../../illustrations/Mascot';
-import { ALL_CARDS, TRACKS } from '../../content';
+import { ALL_CARDS } from '../../content';
+import { useContent } from '../../content/localized';
 import { DEFAULT_SETTINGS, useStore } from '../../store/useStore';
 import { buildQueue, chapterState } from '../../lib/queue';
 import { learningProgress, masteryPercent, resolveStreak, weakCards } from '../../lib/stats';
@@ -28,11 +30,11 @@ const STEPS: { title: string; hint: string; icon: IconName; tone: string }[] = [
 
 function greeting(now: number): string {
   const h = new Date(now).getHours();
-  if (h < 5) return '夜深了，学两张就睡';
-  if (h < 11) return '早上好';
-  if (h < 14) return '中午好';
-  if (h < 18) return '下午好';
-  return '晚上好';
+  if (h < 5) return t("夜深了，学两张就睡");
+  if (h < 11) return t("早上好");
+  if (h < 14) return t("中午好");
+  if (h < 18) return t("下午好");
+  return t("晚上好");
 }
 
 /** 按日期挑一张「今日知识」，同一天里固定不变。 */
@@ -44,6 +46,7 @@ function cardOfTheDay(now: number) {
 }
 
 export function HomePage() {
+  const { ALL_CARDS, TRACKS, getCard } = useContent();
   const progress = useStore((s) => s.progress);
   const streak = useStore((s) => s.streak);
   const settings = useStore((s) => s.settings);
@@ -66,23 +69,23 @@ export function HomePage() {
     [...snapshots.map((s) => s.date), ...(streak.lastActiveDate ? [streak.lastActiveDate] : [])],
     now,
   );
-  const featured = cardOfTheDay(now);
+  const featured = getCard(cardOfTheDay(now).id)!;
   const featuredTrack = TRACKS.find((t) => t.id === featured.track)!;
   const featuredTheme = TRACK_THEME[featured.track];
 
   return (
     <Screen>
-      <header className="mb-4 flex items-center justify-between gap-3 md:hidden">
-        <div className="flex items-center gap-2">
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 md:hidden">
+        <div className="flex shrink-0 items-center gap-2">
           <Mascot size={34} still />
           {/* 桌面端顶部导航已经有品牌名，这里只在移动端显示 */}
-          <h1 className="text-2xl font-black tracking-tight text-ink">记忆芯</h1>
+          <h1 className="whitespace-nowrap text-2xl font-black tracking-tight text-ink">{t("记忆芯")}</h1>
         </div>
         <StatChips compact />
       </header>
 
       <Link to="/labs" className="mb-5 flex min-h-16 items-center justify-between gap-3 rounded-2xl border-2 border-brand/30 bg-brand-soft p-4 font-extrabold text-brand-dark shadow-lip focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30">
-        <span>动手实验室<span className="mt-1 block text-xs font-semibold">进制实验台 · 索引查询演示 · 不计学习进度</span></span><Icon name="arrow-right" size={20} />
+        <span>{t("动手实验室")}<span className="mt-1 block text-xs font-semibold">{t("进制实验台 · 索引查询演示 · 不计学习进度")}</span></span><Icon name="arrow-right" size={20} />
       </Link>
 
       {/* 主横幅：问候 + 今日目标 + 开始按钮 */}
@@ -94,14 +97,13 @@ export function HomePage() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-extrabold text-white/75">
                 {greeting(now)}
-                {currentStreak > 0 ? ` · 已连续 ${currentStreak} 天` : ''}
+                {currentStreak > 0 ? t(" · 已连续 {0} 天", [currentStreak]) : ''}
               </p>
               <h2 className="mt-1 text-[22px] font-black leading-snug md:text-[28px]">
-                {empty ? '今天的队列已经清空' : `今天有 ${queue.length} 张卡在等你`}
+                {empty ? t("今天的队列已经清空") : t("今天有 {0} 张卡在等你", [queue.length])}
               </h2>
               <p className="mt-1 text-xs font-bold text-white/70">
-                已复习 {doneToday} 张 · 共 {ALL_CARDS.length} 张知识卡
-              </p>
+                {t("已复习 ")}{doneToday} {t(" 张 · 共 ")}{ALL_CARDS.length} {t(" 张知识卡")}</p>
             </div>
             <Mascot mood={empty ? 'sleep' : 'happy'} size={88} className="-mr-1 -mt-1 shrink-0 drop-shadow-lg" />
           </div>
@@ -113,10 +115,9 @@ export function HomePage() {
           <div className="relative mt-5">
             {empty ? (
               <div className="rounded-2xl bg-white/15 p-4 backdrop-blur">
-                <div className="text-base font-black">今天没事了</div>
+                <div className="text-base font-black">{t("今天没事了")}</div>
                 <p className="mt-1 text-xs font-semibold leading-relaxed text-white/80">
-                  到期的卡都做完了，明天再来。想多学可以去地图上开新章节，或者逛逛百科。
-                </p>
+                  {t("到期的卡都做完了，明天再来。想多学可以去地图上开新章节，或者逛逛百科。")}</p>
               </div>
             ) : (
               <ButtonLink
@@ -126,8 +127,7 @@ export function HomePage() {
                 className="!bg-white !text-brand-dark !shadow-[0_5px_0_rgba(43,35,71,0.25)] hover:!bg-[#FBFAFF]"
               >
                 <Icon name="play" size={18} />
-                开始今天的复习 · {queue.length} 张
-                <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+                {t("开始今天的复习 · ")}{queue.length} {t(" 张")}<span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
                   <span className="absolute inset-y-0 left-0 w-1/3 animate-shine bg-gradient-to-r from-transparent via-brand/10 to-transparent" />
                 </span>
               </ButtonLink>
@@ -146,11 +146,11 @@ export function HomePage() {
               !
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-black text-ink">薄弱 {weak.length} 张</div>
-              <p className="mt-0.5 text-xs font-bold text-ink/60">答错过、还没记牢的卡</p>
+              <div className="text-sm font-black text-ink">{t("薄弱 ")}{weak.length} {t(" 张")}</div>
+              <p className="mt-0.5 text-xs font-bold text-ink/60">{t("答错过、还没记牢的卡")}</p>
             </div>
             <span className="flex shrink-0 items-center gap-1 text-sm font-black text-pink-dark">
-              去练 <Icon name="arrow-right" size={16} className="transition-transform group-hover:translate-x-0.5" />
+              {t("去练 ")}<Icon name="arrow-right" size={16} className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
         </Rise>
@@ -162,11 +162,9 @@ export function HomePage() {
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-base font-black text-ink">
                 <Icon name="gift" size={20} className="text-flame" />
-                每日任务
-              </h2>
+                {t("每日任务")}</h2>
               <span className="text-xs font-bold text-muted">
-                {quests.filter((q) => q.value >= q.target).length}/{quests.length} 完成
-              </span>
+                {quests.filter((q) => q.value >= q.target).length}/{quests.length} {t(" 完成")}</span>
             </div>
             <ul className="m-0 list-none space-y-3 p-0">
               {quests.map((q, i) => {
@@ -208,9 +206,8 @@ export function HomePage() {
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-base font-black text-ink">
                 <Icon name="flame" size={20} className="text-flame" />
-                打卡日历
-              </h2>
-              <span className="text-xs font-bold text-muted">最长 {streak.longest} 天</span>
+                {t("打卡日历")}</h2>
+              <span className="text-xs font-bold text-muted">{t("最长 ")}{streak.longest} {t(" 天")}</span>
             </div>
             <ol className="m-0 grid list-none grid-cols-7 gap-1.5 p-0">
               {week.map((d, i) => (
@@ -230,15 +227,15 @@ export function HomePage() {
                     <Icon name={d.active ? 'flame' : 'flame'} size={16} filled={d.active} />
                   </motion.span>
                   <span className={`text-[11px] font-extrabold ${d.today ? 'text-flame-dark' : 'text-muted'}`}>
-                    {d.today ? '今' : d.label}
+                    {d.today ? t("今") : d.label}
                   </span>
                 </li>
               ))}
             </ol>
             <p className="mt-3 text-xs font-bold leading-relaxed text-muted">
               {currentStreak > 0
-                ? `火苗已经烧了 ${currentStreak} 天，今天也别让它灭掉。`
-                : '完成今天的一轮，点燃第一簇火苗。'}
+                ? t("火苗已经烧了 {0} 天，今天也别让它灭掉。", [currentStreak])
+                : t("完成今天的一轮，点燃第一簇火苗。")}
             </p>
           </StickerCard>
         </Rise>
@@ -248,10 +245,9 @@ export function HomePage() {
         <StickerCard className="mt-4 p-5">
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
-              <h2 className="text-base font-black text-ink">这是什么</h2>
+              <h2 className="text-base font-black text-ink">{t("这是什么")}</h2>
               <p className="mt-1 text-xs font-semibold leading-relaxed text-muted">
-                一本会考你的计算机百科。每张卡先看图解、再答一道题；快忘的时候，它自己回来找你。
-              </p>
+                {t("一本会考你的计算机百科。每张卡先看图解、再答一道题；快忘的时候，它自己回来找你。")}</p>
             </div>
           </div>
           <ol className="m-0 mt-4 grid list-none gap-3 p-0 sm:grid-cols-3">
@@ -264,14 +260,14 @@ export function HomePage() {
                   </span>
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-black text-ink">{step.title}</span>
-                  <span className="mt-0.5 block text-[11px] font-semibold leading-relaxed text-muted">{step.hint}</span>
+                  <span className="block text-sm font-black text-ink">{t(step.title)}</span>
+                  <span className="mt-0.5 block text-[11px] font-semibold leading-relaxed text-muted">{t(step.hint)}</span>
                 </span>
               </li>
             ))}
           </ol>
           <p className="mt-3 text-[11px] font-bold text-muted">
-            {TRACKS.length} 条主线 · {ALL_CARDS.length} 张卡：{TRACKS.map((t) => t.title).join(' / ')}
+            {TRACKS.length} {t(" 条主线 · ")}{ALL_CARDS.length} {t(" 张卡：")}{TRACKS.map((t) => t.title).join(' / ')}
           </p>
         </StickerCard>
       </Rise>
@@ -283,13 +279,12 @@ export function HomePage() {
               <span className="tabular text-sm font-black text-ink">{mastery}</span>
             </ProgressRing>
             <div>
-              <h2 className="text-lg font-black leading-tight text-ink">{TRACKS.length} 条主线</h2>
-              <p className="text-xs font-bold text-muted">总掌握度 {mastery}%</p>
+              <h2 className="text-lg font-black leading-tight text-ink">{TRACKS.length} {t(" 条主线")}</h2>
+              <p className="text-xs font-bold text-muted">{t("总掌握度 ")}{mastery}%</p>
             </div>
           </div>
           <Link to="/map" className="text-xs font-extrabold text-brand hover:underline">
-            查看地图
-          </Link>
+            {t("查看地图")}</Link>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {TRACKS.map((track) => {
@@ -308,14 +303,13 @@ export function HomePage() {
 
       <Rise delay={0.24}>
         <div className="mb-3 mt-7 flex items-end justify-between">
-          <h2 className="text-lg font-black text-ink">今日知识</h2>
+          <h2 className="text-lg font-black text-ink">{t("今日知识")}</h2>
           <Link to="/wiki" className="text-xs font-extrabold text-brand hover:underline">
-            逛逛百科
-          </Link>
+            {t("逛逛百科")}</Link>
         </div>
         <Link
           to={`/wiki/${featured.id}`}
-          aria-label={`今日知识：${featured.title}`}
+          aria-label={t("今日知识：{0}", [featured.title])}
           className="group flex items-center gap-4 rounded-blob border-2 border-line bg-white p-4 shadow-lip transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none"
         >
           <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${featuredTheme.solid} ${featuredTheme.lip}`}>

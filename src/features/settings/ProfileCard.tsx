@@ -1,8 +1,10 @@
+import { t } from '../../i18n/locale';
 import { motion } from 'framer-motion';
 import { Icon, type IconName } from '../../components/Icon';
 import { StickerCard } from '../../components/StickerCard';
 import { Mascot } from '../../illustrations/Mascot';
-import { TRACKS } from '../../content';
+
+import { useContent } from '../../content/localized';
 import { useStore } from '../../store/useStore';
 import { achievements, type Achievement } from '../../lib/achievements';
 import { resolveStreak } from '../../lib/stats';
@@ -30,6 +32,7 @@ const BADGE_ICON: Record<string, IconName> = {
 
 /** 「我」页顶部：等级卡 + 成就墙。数据全部从现有进度推出。 */
 export function ProfileCard() {
+  const { TRACKS } = useContent();
   const xp = useStore((s) => s.xp ?? 0);
   const streak = useStore((s) => s.streak);
   const progress = useStore((s) => s.progress);
@@ -58,15 +61,15 @@ export function ProfileCard() {
               />
             </div>
             <div className="tabular mt-1 text-[11px] font-bold text-white/75">
-              还差 {level.span - level.into} 经验升到 Lv.{level.level + 1}
+              {t("还差 ")}{level.span - level.into} {t(" 经验升到 Lv.")}{level.level + 1}
             </div>
           </div>
         </div>
         <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
           {[
-            { label: '累计经验', value: xp, icon: 'bolt' as const },
-            { label: '当前连胜', value: current, icon: 'flame' as const },
-            { label: '最长连胜', value: streak.longest, icon: 'star' as const },
+            { label: t("累计经验"), value: xp, icon: 'bolt' as const },
+            { label: t("当前连胜"), value: current, icon: 'flame' as const },
+            { label: t("最长连胜"), value: streak.longest, icon: 'star' as const },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/15 py-2.5">
               <div className="tabular flex items-center justify-center gap-1 text-lg font-black">
@@ -81,10 +84,9 @@ export function ProfileCard() {
 
       <StickerCard className="mb-4 p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-black text-ink">成就</h2>
+          <h2 className="text-base font-black text-ink">{t("成就")}</h2>
           <span className="text-xs font-bold text-muted">
-            {unlocked}/{list.length} 已解锁
-          </span>
+            {unlocked}/{list.length} {t(" 已解锁")}</span>
         </div>
         <ul className="m-0 grid list-none grid-cols-4 gap-x-2 gap-y-4 p-0">
           {list.map((a, i) => (

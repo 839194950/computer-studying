@@ -1,3 +1,5 @@
+import { t } from '../i18n/locale';
+import { useId } from 'react';
 import { anim, Arrow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, PINK_SOFT, SUN_SOFT, type DiagramProps } from './base';
 
 export const POINTER_PARTS = ['value', 'address', 'deref', 'null'];
@@ -7,14 +9,17 @@ export const POINTER_PARTS = ['value', 'address', 'deref', 'null'];
  * 左边指针盒只存地址，顺着箭头走过去才是真正的值——这就是「解引用」。
  */
 export function PointerDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>{t("指针与引用：地址、解引用与有效对象")}</title>
+      <desc id={descriptionId}>{t("C++对象指针示例：p指向示例地址0x7ff4的整数42，*p访问目标对象；地址不是物理布局保证。nullptr表示空指针，不能解引用。非空也不保证生命周期或边界有效；引用同样可能悬空。")}</desc>
       <DiagramDefs />
 
       <Part id="value" focus={focus}>
         <Label x={248} y={16} size={9}>
-          内存
-        </Label>
+          {t("示例地址")}</Label>
       </Part>
 
       <Part id="address" focus={focus}>
@@ -24,18 +29,16 @@ export function PointerDiagram({ className, focus }: DiagramProps) {
         </Label>
         <Box x={58} y={30} w={88} h={26} fill={BRAND_SOFT} rx={6} strokeWidth={2.4} />
         <Label x={102} y={47} size={10} mono>
-          0x7ffd4
+          0x7ff4
         </Label>
         <Label x={102} y={72} size={8} fill="#8B85A6">
-          只装地址，不装值
-        </Label>
+          {t("C++对象指针示例")}</Label>
       </Part>
 
       <Part id="deref" focus={focus}>
         <Arrow d="M148 43 C 172 43, 180 62, 186 76" color={BRAND} />
         <Label x={168} y={92} size={7.5} anchor="middle" fill="#5B4B9E">
-          *p 解引用
-        </Label>
+          {t("*p 解引用")}</Label>
       </Part>
 
       <Part id="value" focus={focus}>
@@ -69,11 +72,10 @@ export function PointerDiagram({ className, focus }: DiagramProps) {
       <Part id="null" focus={focus}>
         <Box x={10} y={100} w={150} h={54} fill={PINK_SOFT} rx={10} strokeWidth={2.6} />
         <Label x={30} y={120} size={10} anchor="start" mono>
-          null = 0x0
+          nullptr
         </Label>
         <Label x={30} y={136} size={8} anchor="start" fill="#8B85A6">
-          地址 0 不指向任何东西
-        </Label>
+          {t("空指针不可解引用")}</Label>
         <path d="M120 112 L140 140 M140 112 L120 140" stroke="#FF7AB5" strokeWidth={3.5} strokeLinecap="round" {...anim('shake')} />
       </Part>
     </svg>

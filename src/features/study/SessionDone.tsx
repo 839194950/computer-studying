@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Icon, type IconName } from '../../components/Icon';
@@ -81,15 +82,15 @@ export function SessionDone({ title, hint, celebrate, xp, accuracy, bestCombo, a
 
       {celebrate && (
         <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-3">
-          <Tile icon="bolt" label="经验" tone="border-sun bg-sun" delay={0.3}>
+          <Tile icon="bolt" label={t("经验")} tone="border-sun bg-sun" delay={0.3}>
             <CountUp value={xp} from={0} duration={1.1} />
           </Tile>
-          <Tile icon="target" label="正确率" tone="border-mint bg-mint" delay={0.4}>
+          <Tile icon="target" label={t("正确率")} tone="border-mint bg-mint" delay={0.4}>
             <span>
               <CountUp value={accuracy} from={0} duration={1.1} />%
             </span>
           </Tile>
-          <Tile icon="flame" label="最高连对" tone="border-flame bg-flame" delay={0.5}>
+          <Tile icon="flame" label={t("最高连对")} tone="border-flame bg-flame" delay={0.5}>
             <CountUp value={bestCombo} from={0} duration={0.9} />
           </Tile>
         </div>

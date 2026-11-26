@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { Button } from '../../components/Button';
@@ -46,7 +47,7 @@ export function FeedbackSheet({ correct, xp, combo, correctAnswer, explanation, 
             </motion.span>
             <div className="min-w-0 flex-1">
               <div className={`flex flex-wrap items-center gap-2 text-lg font-black ${tone.title}`}>
-                {correct ? PRAISE[seed % PRAISE.length] : '再想想，这张会再回来'}
+                {correct ? t(PRAISE[seed % PRAISE.length]) : t("再想想，这张会再回来")}
                 {xp > 0 && (
                   <motion.span
                     initial={{ opacity: 0, y: 8, scale: 0.6 }}
@@ -65,12 +66,12 @@ export function FeedbackSheet({ correct, xp, combo, correctAnswer, explanation, 
                     className="flex items-center gap-0.5 rounded-full bg-flame px-2 py-0.5 text-xs font-black text-white"
                   >
                     <Icon name="flame" size={12} />
-                    连对 {combo}
+                    {t("连对 ")}{combo}
                   </motion.span>
                 )}
               </div>
               {!correct && (
-                <p className="mt-0.5 text-sm font-extrabold text-[#B3243F]">正确答案：{correctAnswer}</p>
+                <p className="mt-0.5 text-sm font-extrabold text-[#B3243F]">{t("正确答案：")}{correctAnswer}</p>
               )}
             </div>
           </div>
@@ -80,9 +81,9 @@ export function FeedbackSheet({ correct, xp, combo, correctAnswer, explanation, 
         </div>
         <div className="md:w-56 md:shrink-0">
           <Button full size="lg" variant={correct ? 'success' : 'danger'} onClick={onNext} autoFocus>
-            {last ? '完成' : '下一张'}
+            {last ? t("完成") : t("下一张")}
           </Button>
-          <p className="mt-1.5 hidden text-center text-[11px] font-bold text-muted md:block">Enter 继续 · Esc 退出</p>
+          <p className="mt-1.5 hidden text-center text-[11px] font-bold text-muted md:block">{t("Enter 继续 · Esc 退出")}</p>
         </div>
       </div>
     </motion.div>,

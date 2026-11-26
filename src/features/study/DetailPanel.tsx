@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import type { DetailSection } from '../../content';
 import { Icon } from '../../components/Icon';
 
@@ -25,11 +26,9 @@ export function DetailPanel({
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-soft text-sky-dark">
             <Icon name="book" size={16} />
           </span>
-          详细讲解
-        </span>
+          {t("详细讲解")}</span>
         <span className="flex items-center gap-1.5 text-xs font-bold text-muted">
-          {detail.length} 节
-          <svg
+          {detail.length} {t(" 节")}<svg
             width="14"
             height="14"
             viewBox="0 0 24 24"

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface ScreenProps {
   title?: string;
@@ -26,6 +27,7 @@ export function Screen({ title, subtitle, children, withNav = true, aside, class
         withNav ? 'pb-32 md:pb-12' : 'pb-12'
       } ${className}`}
     >
+      <LanguageSwitcher />
       {title && (
         <header className="mb-5 flex items-end justify-between gap-3">
           <div>

@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -5,7 +6,8 @@ import { Screen } from '../../components/Screen';
 import { Icon } from '../../components/Icon';
 import { TRACK_THEME } from '../../components/trackTheme';
 import { STATUS_STYLE } from '../stats/statusStyle';
-import { ALL_CARDS, TRACKS, type TrackId } from '../../content';
+import { ALL_CARDS, type TrackId } from '../../content';
+import { useContent } from '../../content/localized';
 import { useStore } from '../../store/useStore';
 import { cardStatus } from '../../lib/stats';
 import { searchCards } from './search';
@@ -17,6 +19,7 @@ type Filter = TrackId | 'all';
  * 搜索词和筛选写进 URL，从条目返回时还停在原来的位置。
  */
 export function WikiPage() {
+  const { ALL_CARDS, TRACKS, getDetail } = useContent();
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState(params.get('q') ?? '');
   const filter = (params.get('track') as Filter | null) ?? 'all';
@@ -32,8 +35,8 @@ export function WikiPage() {
 
   const results = useMemo(() => {
     const pool = filter === 'all' ? ALL_CARDS : ALL_CARDS.filter((c) => c.track === filter);
-    return searchCards(pool, query);
-  }, [filter, query]);
+    return searchCards(pool, query, getDetail);
+  }, [filter, query, ALL_CARDS, getDetail]);
 
   const searching = query.trim().length > 0;
   const tracks = TRACKS.filter((t) => filter === 'all' || t.id === filter);
@@ -41,8 +44,8 @@ export function WikiPage() {
 
   return (
     <Screen
-      title="计算机百科"
-      subtitle={`${ALL_CARDS.length} 个条目随时翻阅，你已经学过 ${learned} 个。`}
+      title={t("计算机百科")}
+      subtitle={t("{0} 个条目随时翻阅，你已经学过 {1} 个。", [ALL_CARDS.length, learned])}
     >
       <div className="sticky top-0 z-20 -mx-4 bg-paper/90 px-4 pb-3 pt-1 backdrop-blur-md md:top-[62px]">
         <label className="flex items-center gap-2 rounded-2xl border-2 border-line bg-white px-4 py-3 shadow-lip focus-within:border-brand/50 focus-within:ring-4 focus-within:ring-brand/15">
@@ -54,14 +57,14 @@ export function WikiPage() {
               setQuery(e.target.value);
               update({ q: e.target.value });
             }}
-            placeholder="搜索：缓存、指针、TLS、进程…"
-            aria-label="搜索百科"
+            placeholder={t("搜索：缓存、指针、TLS、进程…")}
+            aria-label={t("搜索百科")}
             className="min-w-0 flex-1 bg-transparent text-[15px] font-bold text-ink outline-none placeholder:font-semibold placeholder:text-muted/70"
           />
           {query && (
             <button
               type="button"
-              aria-label="清空搜索"
+              aria-label={t("清空搜索")}
               onClick={() => {
                 setQuery('');
                 update({ q: '' });
@@ -73,11 +76,11 @@ export function WikiPage() {
           )}
         </label>
 
-        <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto" role="group" aria-label="按主线筛选">
+        <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto" role="group" aria-label={t("按主线筛选")}>
           {(['all', ...TRACKS.map((t) => t.id)] as Filter[]).map((id) => {
             const active = filter === id;
             const theme = id === 'all' ? null : TRACK_THEME[id];
-            const label = id === 'all' ? '全部' : TRACKS.find((t) => t.id === id)!.title;
+            const label = id === 'all' ? t("全部") : TRACKS.find((t) => t.id === id)!.title;
             return (
               <button
                 key={id}
@@ -102,11 +105,11 @@ export function WikiPage() {
 
       {searching ? (
         <section className="mt-3">
-          <p className="mb-3 text-sm font-bold text-muted">找到 {results.length} 个条目</p>
+          <p className="mb-3 text-sm font-bold text-muted">{t("找到 ")}{results.length} {t(" 个条目")}</p>
           {results.length === 0 ? (
             <div className="rounded-blob border-2 border-dashed border-line px-4 py-10 text-center">
-              <p className="text-base font-black text-ink">没找到相关条目</p>
-              <p className="mt-1 text-sm font-semibold text-muted">换个关键词试试，比如「内存」「加密」「线程」。</p>
+              <p className="text-base font-black text-ink">{t("没找到相关条目")}</p>
+              <p className="mt-1 text-sm font-semibold text-muted">{t("换个关键词试试，比如「内存」「加密」「线程」。")}</p>
             </div>
           ) : (
             <EntryGrid cards={results} progress={progress} now={now} />
@@ -122,7 +125,7 @@ export function WikiPage() {
                   <Icon name={theme.icon} size={17} />
                 </span>
                 <h2 className="text-lg font-black text-ink">{track.title}</h2>
-                <span className="text-xs font-bold text-muted">{track.cards.length} 条</span>
+                <span className="text-xs font-bold text-muted">{track.cards.length} {t(" 条")}</span>
               </div>
               {track.chapters.map((chapter) => {
                 const cards = track.cards.filter((c) => c.chapter === chapter.id);
@@ -184,8 +187,8 @@ function EntryGrid({
                 </span>
                 <i
                   role="img"
-                  aria-label={STATUS_STYLE[status].label}
-                  title={STATUS_STYLE[status].label}
+                  aria-label={t(STATUS_STYLE[status].label)}
+                  title={t(STATUS_STYLE[status].label)}
                   className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${STATUS_STYLE[status].bg}`}
                 />
               </Link>

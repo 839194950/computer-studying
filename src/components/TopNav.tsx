@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from './Icon';
@@ -16,17 +17,16 @@ export function TopNav() {
 
   return (
     <nav
-      aria-label="主导航"
+      aria-label={t("主导航")}
       className="sticky top-0 z-30 hidden border-b-2 border-line bg-white/85 backdrop-blur-md md:block"
     >
-      <div className="mx-auto flex max-w-[920px] items-center gap-4 px-4 py-2.5">
+      <div className="mx-auto flex max-w-[920px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5">
         <Link
           to="/"
-          className="flex items-center gap-2 rounded-xl text-lg font-black tracking-tight text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
+          className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl text-lg font-black tracking-tight text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
         >
           <Mascot size={30} mood="idle" still />
-          记忆芯
-        </Link>
+          {t("记忆芯")}</Link>
         <ul className="m-0 flex list-none items-center gap-1 p-0">
           {NAV_ITEMS.map((item) => {
             const isActive = item.key === active;
@@ -49,7 +49,7 @@ export function TopNav() {
                     />
                   )}
                   <Icon name={item.icon} size={18} className="relative" />
-                  <span className="relative">{item.label}</span>
+                  <span className="relative">{t(item.label)}</span>
                 </Link>
               </li>
             );

@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { useState } from 'react';
 import { Screen } from '../../components/Screen';
 import { StickerCard } from '../../components/StickerCard';
@@ -30,7 +31,7 @@ export function SettingsPage() {
   const resetAll = useStore((s) => s.resetAll);
   const progress = useStore((s) => s.progress);
 
-  const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
+  const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: () => string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [importing, setImporting] = useState(false);
   const [pending, setPending] = useState<{ raw: string; count: number } | null>(null);
@@ -52,7 +53,7 @@ export function SettingsPage() {
     const raw = await readFile(file);
     const parsed = parseState(raw);
     if (!parsed.ok) {
-      setMessage({ kind: 'bad', text: `导入失败：${parsed.error}` });
+      setMessage({ kind: 'bad', text: () => t("导入失败：{0}", [parsed.error]) });
       return;
     }
     setPending({ raw, count: Object.keys(parsed.state.progress).length });
@@ -69,35 +70,35 @@ export function SettingsPage() {
     setPending(null);
     setMessage(
       result.ok
-        ? { kind: 'ok', text: `导入成功：${incoming} 张卡；原来的 ${learnedCount} 张已备份下载` }
-        : { kind: 'bad', text: `导入失败：${result.error}` },
+        ? { kind: 'ok', text: () => t("导入成功：{0} 张卡；原来的 {1} 张已备份下载", [incoming, learnedCount]) }
+        : { kind: 'bad', text: () => t("导入失败：{0}", [result.error]) },
     );
   }
 
   return (
-    <Screen title="我的" subtitle="数据只存在这台设备的浏览器里。">
+    <Screen title={t("我的")} subtitle={t("数据只存在这台设备的浏览器里。")}>
         <ProfileCard />
 
         <StickerCard className="mb-4 p-5">
-          <h2 className="mb-3 text-base font-black text-ink">学习偏好</h2>
-          <div className="mb-1.5 text-sm font-bold text-ink">每天的新卡</div>
+          <h2 className="mb-3 text-base font-black text-ink">{t("学习偏好")}</h2>
+          <div className="mb-1.5 text-sm font-bold text-ink">{t("每天的新卡")}</div>
           <Segmented
             options={[5, 10, 20]}
             value={settings.newCardsPerDay}
-            unit="张"
+            unit={t("张")}
             onChange={(n) => setSettings({ newCardsPerDay: n })}
           />
-          <div className="mb-1.5 mt-4 text-sm font-bold text-ink">每日经验目标</div>
+          <div className="mb-1.5 mt-4 text-sm font-bold text-ink">{t("每日经验目标")}</div>
           <Segmented
             options={[20, 30, 50, 80]}
             value={settings.dailyGoal ?? DEFAULT_SETTINGS.dailyGoal}
-            unit="经验"
+            unit={t("经验")}
             onChange={(n) => setSettings({ dailyGoal: n })}
           />
           <div className="mt-4 divide-y-2 divide-line">
             <Toggle
-              label="音效"
-              hint="答对、答错和完成时播放提示音"
+              label={t("音效")}
+              hint={t("答对、答错和完成时播放提示音")}
               checked={settings.sound ?? DEFAULT_SETTINGS.sound}
               onChange={(v) => {
                 setSettings({ sound: v });
@@ -105,8 +106,8 @@ export function SettingsPage() {
               }}
             />
             <Toggle
-              label="降低动效"
-              hint="关掉纸屑、弹跳和滑动动画"
+              label={t("降低动效")}
+              hint={t("关掉纸屑、弹跳和滑动动画")}
               checked={settings.reducedMotion}
               onChange={(v) => setSettings({ reducedMotion: v })}
             />
@@ -114,10 +115,9 @@ export function SettingsPage() {
         </StickerCard>
 
         <StickerCard className="mb-4 p-5">
-          <h2 className="mb-1 text-base font-black text-ink">数据</h2>
+          <h2 className="mb-1 text-base font-black text-ink">{t("数据")}</h2>
           <p className="mb-3 text-[11px] font-bold text-muted">
-            已记录 {learnedCount} 张卡的进度，共 {ALL_CARDS.length} 张。
-          </p>
+            {t("已记录 {0} 张卡的进度，共 {1} 张。", [learnedCount, ALL_CARDS.length])}</p>
 
           <div className="space-y-2.5">
             <Button
@@ -125,15 +125,13 @@ export function SettingsPage() {
               variant="ghost"
               onClick={() => download(`memory-chip-${dayKey(Date.now())}.json`, exportJson())}
             >
-              导出数据
-            </Button>
+              {t("导出数据")}</Button>
 
             <label className="flex min-h-[44px] cursor-pointer items-center justify-center rounded-2xl bg-brand px-4 py-2 text-center text-sm font-extrabold text-white shadow-[0_4px_0_#5A3DE6] transition-transform focus-within:ring-4 focus-within:ring-brand/30 active:translate-y-[4px] active:shadow-none">
-              导入数据
-              <input
+              {t("导入数据")}<input
                 type="file"
                 accept="application/json,.json"
-                aria-label="导入数据"
+                aria-label={t("导入数据")}
                 disabled={importing}
                 className="sr-only"
                 onChange={(e) => {
@@ -145,19 +143,16 @@ export function SettingsPage() {
             {pending ? (
               <div className="rounded-2xl border-2 border-[#FBE3A0] bg-sun-soft p-3">
                 <p className="text-xs font-bold leading-relaxed text-ink">
-                  将导入 {pending.count} 张卡的进度，覆盖本地 {learnedCount} 张。确认后先自动下载一份当前数据作备份。
-                </p>
+                  {t("将导入 {0} 张卡的进度，覆盖本地 {1} 张。确认后先自动下载一份当前数据作备份。", [pending.count, learnedCount])}</p>
                 <div className="mt-2 flex gap-2">
-                  <Button disabled={importing} onClick={confirmImport}>{importing ? '正在保存…' : '确认导入'}</Button>
+                  <Button disabled={importing} onClick={confirmImport}>{importing ? t("正在保存…") : t("确认导入")}</Button>
                   <Button disabled={importing} variant="ghost" onClick={() => setPending(null)}>
-                    取消
-                  </Button>
+                    {t("取消")}</Button>
                 </div>
               </div>
             ) : (
               <p className="text-[10px] font-bold leading-relaxed text-muted">
-                导入会整包覆盖当前进度，导入前会自动导出一份备份。
-              </p>
+                {t("导入会整包覆盖当前进度，导入前会自动导出一份备份。")}</p>
             )}
 
             {message && (
@@ -169,39 +164,35 @@ export function SettingsPage() {
                     : 'border-bad/40 bg-bad-soft text-ink'
                 }`}
               >
-                {message.text}
+                {message.text()}
               </p>
             )}
           </div>
         </StickerCard>
 
         <StickerCard className="mb-4 p-5">
-          <h2 className="mb-2 text-base font-black text-ink">清空数据</h2>
+          <h2 className="mb-2 text-base font-black text-ink">{t("清空数据")}</h2>
           {confirmReset ? (
             <div className="space-y-2">
               <p className="text-xs font-bold text-ink">
-                会删掉全部进度和连胜，无法撤销。确定吗？
-              </p>
+                {t("会删掉全部进度和连胜，无法撤销。确定吗？")}</p>
               <div className="flex gap-2">
                 <Button
                   variant="danger"
                   onClick={() => {
                     resetAll();
                     setConfirmReset(false);
-                    setMessage({ kind: 'ok', text: '已清空，从今天重新开始' });
+                    setMessage({ kind: 'ok', text: () => t("已清空，从今天重新开始") });
                   }}
                 >
-                  确认清空
-                </Button>
+                  {t("确认清空")}</Button>
                 <Button variant="ghost" onClick={() => setConfirmReset(false)}>
-                  算了
-                </Button>
+                  {t("算了")}</Button>
               </div>
             </div>
           ) : (
             <Button variant="ghost" onClick={() => setConfirmReset(true)}>
-              清空全部进度
-            </Button>
+              {t("清空全部进度")}</Button>
           )}
         </StickerCard>
 

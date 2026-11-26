@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { Component, Suspense, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '../components/Button';
@@ -24,10 +25,10 @@ class RouteErrorBoundary extends Component<BoundaryProps, { failed: boolean; pat
       return (
         <Screen>
           <div role="alert" className="space-y-4">
-            <h1 className="text-xl font-black">页面加载失败</h1>
-            <p>请检查网络后刷新页面。如果有未保存提示，请先返回首页处理。</p>
-            <Button onClick={() => window.location.reload()}>刷新页面</Button>
-            <Link to="/" className="ml-4 font-bold text-brand-dark underline">返回首页</Link>
+            <h1 className="text-xl font-black">{t("页面加载失败")}</h1>
+            <p>{t("请检查网络后刷新页面。如果有未保存提示，请先返回首页处理。")}</p>
+            <Button onClick={() => window.location.reload()}>{t("刷新页面")}</Button>
+            <Link to="/" className="ml-4 font-bold text-brand-dark underline">{t("返回首页")}</Link>
           </div>
         </Screen>
       );
@@ -40,7 +41,7 @@ export function RouteContent({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   return (
     <RouteErrorBoundary pathname={pathname}>
-      <Suspense fallback={<Screen><p role="status">正在加载页面…</p></Screen>}>
+      <Suspense fallback={<Screen><p role="status">{t("正在加载页面…")}</p></Screen>}>
         {children}
       </Suspense>
     </RouteErrorBoundary>

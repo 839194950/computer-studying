@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
@@ -17,7 +18,7 @@ interface ProgressRingProps {
 export function ProgressRing({
   value,
   size = 96,
-  label = '记牢了',
+  label = t("记牢了"),
   stroke = 12,
   color = '#2FCB7E',
   track = '#EEEBF7',

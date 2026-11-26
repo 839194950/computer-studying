@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { motion } from 'framer-motion';
 import { Icon } from '../../components/Icon';
 
@@ -10,15 +11,14 @@ export function DailyGoal({ xp, goal }: { xp: number; goal: number }) {
       <div className="mb-1.5 flex items-center justify-between text-xs font-extrabold">
         <span className="flex items-center gap-1 text-white/85">
           <Icon name="bolt" size={14} className="text-sun" />
-          每日目标
-        </span>
+          {t("每日目标")}</span>
         <span className="tabular text-white">
-          {reached ? '已达成' : `${Math.min(xp, goal)} / ${goal} 经验`}
+          {reached ? t("已达成") : t("{0} / {1} 经验", [Math.min(xp, goal), goal])}
         </span>
       </div>
       <div
         role="progressbar"
-        aria-label="每日经验目标"
+        aria-label={t("每日经验目标")}
         aria-valuemin={0}
         aria-valuemax={goal}
         aria-valuenow={Math.min(xp, goal)}

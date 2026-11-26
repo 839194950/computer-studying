@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from '../../components/Icon';
@@ -34,12 +35,12 @@ export function TrackTile({ track, studied, mastered, nextChapter }: TrackTilePr
             <span className="text-base font-black text-ink">{track.title}</span>
           </div>
           <p className="tabular mt-1 text-xs font-extrabold text-muted">
-            已学过 {studied}/{total} · 已记牢 {mastered}/{total}
+            {t("已学过 ")}{studied}/{total} {t(" · 已记牢 ")}{mastered}/{total}
           </p>
           <p className="mt-0.5 truncate text-xs font-semibold text-muted">
-            {nextChapter ? `继续：${nextChapter}` : '整条线都记牢了'}
+            {nextChapter ? t("继续：{0}", [nextChapter]) : t("整条线都记牢了")}
           </p>
-          <div role="progressbar" aria-label={`${track.title}记牢进度`} aria-valuemin={0} aria-valuemax={total} aria-valuenow={mastered} className={`mt-2 h-2.5 overflow-hidden rounded-full ${theme.soft}`}>
+          <div role="progressbar" aria-label={t("{0}记牢进度", [track.title])} aria-valuemin={0} aria-valuemax={total} aria-valuenow={mastered} className={`mt-2 h-2.5 overflow-hidden rounded-full ${theme.soft}`}>
             <motion.div
               className={`h-full rounded-full ${theme.bar}`}
               initial={{ width: 0 }}

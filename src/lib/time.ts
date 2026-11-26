@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 export const DAY_MS = 86_400_000;
 
 /** 本地时区的当天零点。 */
@@ -28,7 +29,7 @@ export function dayKey(ts: number): string {
 /** 给人看的日期：`11 月 9 日`。 */
 export function formatMonthDay(ts: number): string {
   const d = new Date(ts);
-  return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+  return t("{0} 月 {1} 日", [d.getMonth() + 1, d.getDate()]);
 }
 
 /** b 比 a 晚多少个自然日。 */

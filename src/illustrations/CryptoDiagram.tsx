@@ -1,3 +1,5 @@
+import { t } from '../i18n/locale';
+import { useId } from 'react';
 import {
   anim,
   Arrow,
@@ -30,41 +32,41 @@ function Key({ cx, cy, color }: { cx: number; cy: number; color: string }) {
 
 /**
  * 密码学四件事：哈希只做指纹，对称用一把钥匙，非对称用两把，
- * 签名是把非对称反过来用——私钥签，公钥验。
+ * 签名使用独立的算法——私钥签，公钥验，不等于反向加密。
  * 动效：哈希的输入不断流进去、指纹不变；对称的锁一开一合；非对称两把钥匙交替发光；签名印章按下去。
  */
 export function CryptoDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>{t("密码学基础：哈希、加密与签名")}</title>
+      <desc id={descriptionId}>{t("密码学哈希不提供解密过程，但低熵输入仍可被猜测；图中摘要仅显示节选。对称加密使用共享密钥；图中非对称部分举公钥加密、私钥解密的例子。数字签名使用专门的签名与验证算法，不是反向加密，来源判断还依赖可信的公钥身份绑定。")}</desc>
       <DiagramDefs />
 
       <Part id="hash" focus={focus}>
         <Box x={6} y={10} w={150} h={78} fill={PINK_SOFT} rx={12} />
         <Label x={16} y={27} size={9} anchor="start">
-          哈希 · 单行道
-        </Label>
+          {t("哈希 · 指纹")}</Label>
         <Box x={14} y={36} w={46} h={22} fill="#FFFFFF" rx={6} />
         <Label x={37} y={50.5} size={7}>
-          任意长度
-        </Label>
+          {t("变长输入")}</Label>
         <Arrow d="M62 47 H78" color="#C1437E" />
         <Box x={82} y={36} w={66} h={22} fill="#FFFFFF" rx={6} />
         <Label x={115} y={50.5} size={7.5} mono>
-          a1b2c3d4
+          a1b2…
         </Label>
         <g {...anim('blink', { dur: 2.4 })}>
           <rect x={146} y={41} width={1.8} height={12} fill="#C1437E" />
         </g>
         <Label x={81} y={76} size={7.5} fill="#C1437E">
-          只能往下算，回不去
-        </Label>
+          {t("无解密过程，仍可能猜中")}</Label>
       </Part>
 
       <Part id="sym" focus={focus}>
         <Box x={164} y={10} w={150} h={78} fill={SUN_SOFT} rx={12} />
         <Label x={174} y={27} size={9} anchor="start">
-          对称 · 一把钥匙
-        </Label>
+          {t("对称 · 一把钥匙")}</Label>
         {/* 锁：锁梁上下跳表示开合 */}
         <path d="M184 47 V41 a8 8 0 0 1 16 0 V47" stroke="#E8B400" strokeWidth={3} strokeLinecap="round" {...anim('float', { dur: 1.8 })} />
         <Box x={178} y={46} w={28} h={24} fill="#FFFFFF" rx={6} />
@@ -73,51 +75,42 @@ export function CryptoDiagram({ className, focus }: DiagramProps) {
         <Key cx={238} cy={52} color="#E8B400" />
         <Flow d="M260 58 C 250 70, 222 72, 208 62" color={SUN} dur={1.8} dash={10} />
         <Label x={250} y={76} size={7.5} fill="#8A6A16">
-          加密解密都用它
-        </Label>
+          {t("加密解密都用它")}</Label>
       </Part>
 
       <Part id="asym" focus={focus}>
         <Box x={6} y={96} w={150} h={78} fill={BRAND_SOFT} rx={12} />
         <Label x={16} y={113} size={9} anchor="start">
-          非对称 · 两把钥匙
-        </Label>
+          {t("公钥加密示例")}</Label>
         <g {...anim('pulse', { dur: 2.4 })}>
           <Key cx={24} cy={131} color={BRAND} />
         </g>
         <Label x={52} y={134} size={7.5} anchor="start" fill="#5B4B9E">
-          公钥：公开，用来加密
-        </Label>
+          {t("公钥：公开，用来加密")}</Label>
         <g {...anim('pulse', { dur: 2.4, delay: 1.2 })}>
           <Key cx={24} cy={155} color="#C1437E" />
         </g>
         <Label x={52} y={158} size={7.5} anchor="start" fill="#C1437E">
-          私钥：只你有，用来解密
-        </Label>
+          {t("私钥：保密，用来解密")}</Label>
       </Part>
 
       <Part id="sign" focus={focus}>
         <Box x={164} y={96} w={150} h={78} fill={MINT_SOFT} rx={12} />
         <Label x={174} y={113} size={9} anchor="start">
-          签名 · 反过来用
-        </Label>
+          {t("签名 · 专门算法")}</Label>
         <Box x={174} y={122} w={40} h={42} fill="#FFFFFF" rx={6} />
         <path d="M181 132 H207 M181 140 H203 M181 148 H199" stroke="#A6EACD" strokeWidth={2} strokeLinecap="round" />
         <g {...anim('pop', { dur: 2.2 })}>
           <circle cx={208} cy={157} r={9} fill={MINT} />
           <Label x={208} y={160.5} size={8} fill="#FFFFFF">
-            签
-          </Label>
+            {t("签")}</Label>
         </g>
         <Label x={230} y={136} size={7.5} anchor="start" fill="#127A52">
-          私钥签名
-        </Label>
+          {t("私钥签名")}</Label>
         <Label x={230} y={150} size={7.5} anchor="start" fill="#127A52">
-          公钥验证
-        </Label>
+          {t("公钥验证")}</Label>
         <Label x={230} y={164} size={7} anchor="start" fill="#8B85A6">
-          证明是你发的
-        </Label>
+          {t("公钥身份须可信")}</Label>
       </Part>
     </svg>
   );

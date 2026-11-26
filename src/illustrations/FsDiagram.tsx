@@ -1,21 +1,26 @@
+import { t } from '../i18n/locale';
+import { useId } from 'react';
 import { MINT, anim, Arrow, Box, BRAND_SOFT, DiagramDefs, Label, MINT_SOFT, PAPER, Part, SUN_SOFT, type DiagramProps } from './base';
 
 export const FS_PARTS = ['tree', 'inode', 'block', 'journal'];
 
 /**
- * 文件系统：目录只是名字到编号的映射，编号（inode）才记着数据存在哪几块。
- * 所以「改名不搬家、删了还能被占着」都不奇怪。
+ * Unix式文件系统示例：目录关联名字与inode，inode记录属性及数据位置。
+ * 同文件系统改名通常不复制文件内容；移除名字不一定立即回收对象。
  */
 export function FsDiagram({ className, focus }: DiagramProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-labelledby={titleId} aria-describedby={descriptionId}>
+      <title id={titleId}>{t("文件系统：目录、inode与数据块")}</title>
+      <desc id={descriptionId}>{t("以Unix式文件系统为例，目录把文件名关联到inode，inode描述属性及数据位置。这里示意外部数据块，也有内联数据和稀疏文件。日志帮助恢复一致性，不能替代备份或保证所有应用数据持久化。")}</desc>
       <DiagramDefs />
 
       <Part id="tree" focus={focus}>
         <Box x={6} y={14} w={100} h={124} fill={PAPER} rx={10} strokeWidth={2.6} />
         <Label x={56} y={30} size={8}>
-          目录树
-        </Label>
+          {t("目录树")}</Label>
         <Box x={22} y={38} w={34} h={20} fill="#FFFFFF" rx={5} strokeWidth={2} />
         <Label x={39} y={52} size={7} mono>
           /
@@ -40,36 +45,29 @@ export function FsDiagram({ className, focus }: DiagramProps) {
       <Part id="inode" focus={focus}>
         <Box x={114} y={14} w={92} h={124} fill={BRAND_SOFT} rx={10} strokeWidth={2.6} />
         <Label x={160} y={30} size={8}>
-          inode 表
-        </Label>
+          {t("inode 表")}</Label>
         <Box x={120} y={38} w={80} h={26} fill="#FFFFFF" rx={5} strokeWidth={2} />
         <Label x={160} y={49} size={7} mono>
-          #12 文件
-        </Label>
+          {t("#12 文件")}</Label>
         <Label x={160} y={59} size={6} mono fill="#8B85A6">
-          大小 · 权限 · 块号
-        </Label>
+          {t("大小 · 权限 · 块号")}</Label>
         <Box x={120} y={72} w={80} h={26} fill="#FFFFFF" rx={5} strokeWidth={2} />
         <Label x={160} y={83} size={7} mono>
-          #13 目录
-        </Label>
+          {t("#13 目录")}</Label>
         <Label x={160} y={93} size={6} mono fill="#8B85A6">
-          名字 → 编号
-        </Label>
+          {t("名字 → 编号")}</Label>
         <Box x={120} y={106} w={80} h={26} fill="#FFFFFF" rx={5} strokeWidth={2} />
         <Label x={160} y={117} size={7} mono>
           #14
         </Label>
         <Label x={160} y={127} size={6} mono fill="#8B85A6">
-          块号列表
-        </Label>
+          {t("数据位置")}</Label>
       </Part>
 
       <Part id="block" focus={focus}>
         <Box x={214} y={14} w={100} h={124} fill={MINT_SOFT} rx={10} strokeWidth={2.6} />
         <Label x={264} y={30} size={8}>
-          数据块
-        </Label>
+          {t("数据块")}</Label>
         {[0, 1, 2, 3].map((i) => (
           <Box
             key={i}
@@ -103,8 +101,7 @@ export function FsDiagram({ className, focus }: DiagramProps) {
       <Part id="journal" focus={focus}>
         <Box x={6} y={150} w={308} h={24} fill={SUN_SOFT} rx={8} strokeWidth={2.2} />
         <Label x={160} y={166} size={7.5}>
-          先写日志再改数据：断电后照日志重放，才不会把文件系统撕成两半
-        </Label>
+          {t("日志帮助恢复一致性；覆盖范围依模式而定，不能替代备份")}</Label>
       </Part>
     </svg>
   );

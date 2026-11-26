@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { t } from '../i18n/locale';
 
 /** 所有概念图共用的入参：focus 为空表示整图正常显示。 */
 export interface DiagramProps {
@@ -105,6 +106,7 @@ export function Label({
   mono = false,
   weight = 800,
 }: LabelProps) {
+  const label = typeof children === 'string' ? t(children) : children;
   return (
     <text
       x={x}
@@ -115,7 +117,9 @@ export function Label({
       fontWeight={mono ? Math.min(weight, 700) : weight}
       fontFamily={mono ? MONO : SANS}
     >
-      {children}
+      {typeof label === 'string' && label.includes('\n')
+        ? label.split('\n').map((line, index) => <tspan key={index} x={x} dy={index ? size * 1.25 : 0}>{line}</tspan>)
+        : label}
     </text>
   );
 }

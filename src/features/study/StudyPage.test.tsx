@@ -171,7 +171,8 @@ it('通关的章节给出再练一遍的入口', () => {
     '/study?chapter=hw-cpu&free=1',
   );
   // 入口是链接本身，不再把 <button> 套进 <a>
-  expect(screen.queryByRole('button')).toBeNull();
+  expect(document.querySelector('a button')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Switch to English' })).toBeInTheDocument();
 });
 
 it('自由复习会把整章的卡都列出来', () => {

@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { lazy, useEffect, useSyncExternalStore } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
@@ -9,6 +10,8 @@ import { useStore } from '../store/useStore';
 import { getHydrationStatus, subscribeHydration } from '../store/hydration';
 import { Button } from '../components/Button';
 import { RouteContent } from './RouteContent';
+import { useLocale } from '../i18n/locale';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 const LabsPage = lazy(() => import('../features/labs/LabsPage').then((module) => ({ default: module.LabsPage })));
 const BinaryLabPage = lazy(() => import('../features/labs/LabsPage').then((module) => ({ default: module.BinaryLabPage })));
@@ -34,19 +37,28 @@ function ScrollToTop() {
 }
 
 export function App() {
+  const locale = useLocale();
+  useEffect(() => {
+    document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
+    document.title = locale === 'en' ? 'Memory Chip · Make computer science stick' : t("记忆芯 · 把计算机知识真正记住");
+    document.querySelector('meta[name="description"]')?.setAttribute('content', locale === 'en'
+      ? 'Learn computer science with diagrams, quizzes and spaced repetition.'
+      : t("用间隔重复把计算机知识真正记住。"));
+  }, [locale]);
   const reduced = useStore((s) => s.settings.reducedMotion);
   const hydration = useSyncExternalStore(subscribeHydration, getHydrationStatus);
 
   if (hydration !== 'ready') {
     return (
       <main className="mx-auto max-w-md p-6 text-ink">
+        <LanguageSwitcher />
         {hydration === 'error' ? (
           <div role="alert">
-            <h1 className="mb-2 text-xl font-black">学习存档读取失败</h1>
-            <p className="mb-4">为避免覆盖已有进度，暂未开启学习。请重试读取。</p>
-            <Button onClick={() => void useStore.persist.rehydrate()}>重试读取</Button>
+            <h1 className="mb-2 text-xl font-black">{t("学习存档读取失败")}</h1>
+            <p className="mb-4">{t("为避免覆盖已有进度，暂未开启学习。请重试读取。")}</p>
+            <Button onClick={() => void useStore.persist.rehydrate()}>{t("重试读取")}</Button>
           </div>
-        ) : <p role="status">正在读取学习存档…</p>}
+        ) : <p role="status">{t("正在读取学习存档…")}</p>}
       </main>
     );
   }

@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { Flow, Box, BRAND, BRAND_SOFT, DiagramDefs, Label, MINT, MINT_SOFT, PAPER, Part, SKY_SOFT, SUN, SUN_SOFT, type DiagramProps } from './base';
 
 export const NETWORK_PARTS = ['app', 'transport', 'network', 'link'];
@@ -15,12 +16,11 @@ const ROWS = [
  */
 export function NetworkDiagram({ className, focus }: DiagramProps) {
   return (
-    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-label="TCP/IP 四层封装示意：应用数据、TCP 头、IP 头、链路帧头与帧尾">
+    <svg className={className} viewBox="0 0 320 180" fill="none" role="img" aria-label={t("TCP/IP 四层封装示意：应用数据、TCP 头、IP 头、链路帧头与帧尾")}>
       <DiagramDefs />
 
       <Label x={160} y={14} size={9} fill="#8B85A6">
-        以 TCP 为例：逐层封装
-      </Label>
+        {t("以 TCP 为例：逐层封装")}</Label>
 
       {ROWS.map((row, i) => {
         const ids = ['app', 'transport', 'network', 'link'];
@@ -44,52 +44,42 @@ export function NetworkDiagram({ className, focus }: DiagramProps) {
       <Part id="transport" focus={focus}>
         <Box x={168} y={56} w={36} h={24} fill={SUN} rx={6} strokeWidth={2.4} />
         <Label x={186} y={72} size={8}>
-          TCP 头
-        </Label>
+          {t("TCP 头")}</Label>
         <Box x={204} y={56} w={108} h={24} fill={PAPER} rx={6} strokeWidth={2.4} />
         <Label x={258} y={72} size={8} fill="#8B85A6">
-          数据
-        </Label>
+          {t("数据")}</Label>
       </Part>
 
       <Part id="network" focus={focus}>
         <Box x={136} y={86} w={32} h={24} fill={BRAND} rx={6} strokeWidth={2.4} />
         <Label x={152} y={102} size={8} fill="#FFFFFF">
-          IP 头
-        </Label>
+          {t("IP 头")}</Label>
         <Box x={168} y={86} w={36} h={24} fill={SUN} rx={6} strokeWidth={2.4} />
         <Label x={186} y={102} size={8}>
-          TCP 头
-        </Label>
+          {t("TCP 头")}</Label>
         <Box x={204} y={86} w={108} h={24} fill={PAPER} rx={6} strokeWidth={2.4} />
         <Label x={258} y={102} size={8} fill="#8B85A6">
-          数据
-        </Label>
+          {t("数据")}</Label>
       </Part>
 
       <Part id="link" focus={focus}>
         <Box x={110} y={116} w={26} h={24} fill={MINT} rx={6} strokeWidth={2.4} />
         <Label x={123} y={132} size={7}>
-          帧头
-        </Label>
+          {t("帧头")}</Label>
         <Box x={136} y={116} w={32} h={24} fill={BRAND} rx={6} strokeWidth={2.4} />
         <Label x={152} y={132} size={8} fill="#FFFFFF">
-          IP 头
-        </Label>
+          {t("IP 头")}</Label>
         <Box x={168} y={116} w={36} h={24} fill={SUN} rx={6} strokeWidth={2.4} />
         <Label x={186} y={132} size={8}>
-          TCP 头
-        </Label>
+          {t("TCP 头")}</Label>
         <Box x={204} y={116} w={80} h={24} fill={PAPER} rx={6} strokeWidth={2.4} />
         <Box x={284} y={116} w={28} h={24} fill={MINT} rx={6} strokeWidth={2.4} />
         <Label x={298} y={132} size={7}>
-          帧尾
-        </Label>
+          {t("帧尾")}</Label>
       </Part>
 
       <Label x={160} y={166} size={9} fill="#8B85A6">
-        简化示意：省略 TLS、分段与字节比例
-      </Label>
+        {t("简化示意：省略 TLS、分段与字节比例")}</Label>
       {/* 同一份数据从上往下走，每过一层就多一个头 */}
       <Flow d="M101 38 V128" color={BRAND} dur={2.4} />
     </svg>

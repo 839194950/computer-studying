@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import type { CardStatus } from '../../lib/stats';
 import { STATUS_ORDER, STATUS_STYLE } from './statusStyle';
 
@@ -10,8 +11,7 @@ export function MasteryBar({ cards }: MasteryBarProps) {
   if (cards.length === 0) {
     return (
       <div className="rounded-blob border-2 border-line bg-white px-3 py-4 text-center text-xs font-bold text-muted">
-        还没有知识卡
-      </div>
+        {t("还没有知识卡")}</div>
     );
   }
 
@@ -23,8 +23,8 @@ export function MasteryBar({ cards }: MasteryBarProps) {
           .map((c) => (
             <span
               key={c.id}
-              aria-label={STATUS_STYLE[status].label}
-              title={STATUS_STYLE[status].label}
+              aria-label={t(STATUS_STYLE[status].label)}
+              title={t(STATUS_STYLE[status].label)}
               className={`h-6 w-6 rounded-lg ${STATUS_STYLE[status].bg} shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)]`}
             />
           )),

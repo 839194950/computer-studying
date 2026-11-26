@@ -1,3 +1,4 @@
+import { t } from '../i18n/locale';
 import { addDays, dayKey } from './time';
 
 /** 某一天的学习战绩。按 dayKey 存在 store.daily 里。 */
@@ -52,7 +53,7 @@ export function levelInfo(totalXp: number): LevelInfo {
   const base = xpToReach(level);
   return {
     level,
-    title: TITLES[Math.min(level - 1, TITLES.length - 1)],
+    title: t(TITLES[Math.min(level - 1, TITLES.length - 1)]),
     into: xp - base,
     span: xpToReach(level + 1) - base,
   };
@@ -81,11 +82,11 @@ export function lastSevenDays(
 ): WeekDay[] {
   const done = new Set(activeDates);
   return Array.from({ length: 7 }, (_, i) => {
-    const t = addDays(now, i - 6);
-    const key = dayKey(t);
+    const timestamp = addDays(now, i - 6);
+    const key = dayKey(timestamp);
     return {
       key,
-      label: WEEKDAY[new Date(t).getDay()],
+      label: t(WEEKDAY[new Date(timestamp).getDay()]),
       active: (daily?.[key]?.xp ?? 0) > 0 || done.has(key),
       today: i === 6,
     };
@@ -102,9 +103,9 @@ export interface Quest {
 /** 每日任务：全部由当天战绩推出来，不需要额外存档。 */
 export function dailyQuests(today: DayStat, goal: number): Quest[] {
   return [
-    { id: 'xp', title: `拿到 ${goal} 经验`, value: Math.min(today.xp, goal), target: goal },
-    { id: 'correct', title: '答对 8 道题', value: Math.min(today.correct, 8), target: 8 },
-    { id: 'combo', title: '连对 5 题', value: Math.min(today.bestCombo, 5), target: 5 },
+    { id: 'xp', title: t("拿到 {0} 经验", [goal]), value: Math.min(today.xp, goal), target: goal },
+    { id: 'correct', title: t("答对 8 道题"), value: Math.min(today.correct, 8), target: 8 },
+    { id: 'combo', title: t("连对 5 题"), value: Math.min(today.bestCombo, 5), target: 5 },
   ];
 }
 

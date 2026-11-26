@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -8,7 +9,8 @@ import { Icon } from '../../components/Icon';
 import { TRACK_THEME } from '../../components/trackTheme';
 import { Mascot } from '../../illustrations/Mascot';
 import { getIllustration } from '../../illustrations/registry';
-import { ALL_CARDS, TRACKS, findChapter, getCard, getDetail } from '../../content';
+
+import { useContent } from '../../content/localized';
 import { DEFAULT_SETTINGS, useStore } from '../../store/useStore';
 import { buildCardQueue, buildQueue, chapterState } from '../../lib/queue';
 import { resolveStreak, weakCards } from '../../lib/stats';
@@ -49,12 +51,13 @@ export function StudyPage() {
   const sessionKey = `${location.key}:${mode}:${chapterId ?? ''}:${free ? 'free' : ''}`;
 
   // IndexedDB 异步恢复完成后才能建立本轮队列，避免刷新时把旧卡当新卡。
-  if (!hydrated) return <Screen title="正在恢复学习进度"><p role="status">正在读取本地存档…</p></Screen>;
+  if (!hydrated) return <Screen title={t("正在恢复学习进度")}><p role="status">{t("正在读取本地存档…")}</p></Screen>;
 
   return <StudySession key={sessionKey} chapterId={chapterId} mode={mode} free={free} />;
 }
 
 function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mode; free: boolean }) {
+  const { ALL_CARDS, TRACKS, findChapter, getCard, getDetail } = useContent();
   const answer = useStore((s) => s.answer);
   const gain = useStore((s) => s.gain);
   const finishSession = useStore((s) => s.finishSession);
@@ -106,9 +109,9 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
 
   const backTo = scope ? `/map/${scope.track.id}` : '/';
   /** 顶部返回链接上写的字：告诉用户「现在在哪一章」。 */
-  const backText = mode === 'weak' ? '薄弱卡' : scope ? scope.chapter.title : '退出';
+  const backText = mode === 'weak' ? t("薄弱卡") : scope ? scope.chapter.title : t("退出");
   /** 空态主按钮上的字。 */
-  const backLabel = mode === 'weak' ? '回学习台' : scope ? '回章节地图' : '回学习台';
+  const backLabel = mode === 'weak' ? t("回学习台") : scope ? t("回章节地图") : t("回学习台");
 
   function pick(index: number) {
     if (!card || phase !== 'question') return;
@@ -205,26 +208,26 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
     const empty = total.current === 0;
     const title = empty
       ? mode === 'weak'
-        ? '暂时没有薄弱卡'
+        ? t("暂时没有薄弱卡")
         : scope
-          ? '这一章今天没有安排'
-          : '今天没有要复习的卡'
-      : '这一轮清空了！';
+          ? t("这一章今天没有安排")
+          : t("今天没有要复习的卡")
+      : t("这一轮清空了！");
 
     const hint = empty
       ? mode === 'weak'
-        ? '答错过的卡都已经记牢了，保持住。'
+        ? t("答错过的卡都已经记牢了，保持住。")
         : scope
           ? chapterStatus === 'locked'
-            ? '本章尚未解锁，需先记牢前一章的全部卡片。已学过不等于已记牢。'
+            ? t("本章尚未解锁，需先记牢前一章的全部卡片。已学过不等于已记牢。")
             : chapterIsDone
-              ? '这一章都记牢了，下次复习时间还没到。想练可以再来一遍。'
-              : '本章到期的卡和今天的新卡都处理完了，明天再来。'
-          : '到期的卡都做完了，明天再来。想多学可以先去地图上开新章节。'
-      : `完成 ${total.current} 张 · 连续打卡 ${resolveStreak(streak, Date.now()).current} 天`;
+              ? t("这一章都记牢了，下次复习时间还没到。想练可以再来一遍。")
+              : t("本章到期的卡和今天的新卡都处理完了，明天再来。")
+          : t("到期的卡都做完了，明天再来。想多学可以先去地图上开新章节。")
+      : t("完成 {0} 张 · 连续打卡 {1} 天", [total.current, resolveStreak(streak, Date.now()).current]);
 
     const chapterHint = chapterStatus === 'active'
-      ? ' 完成一轮不等于通关：全章卡片记牢（第 4 档及以上）才解锁下一章，按到期安排继续复习。'
+      ? t(" 完成一轮不等于通关：全章卡片记牢（第 4 档及以上）才解锁下一章，按到期安排继续复习。")
       : '';
     const canReplay = scope && chapterStatus !== 'locked' && (finished || (empty && chapterIsDone));
     const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
@@ -232,8 +235,8 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
     return (
       <Screen withNav={false}>
         <SessionDone
-          title={invalidChapter ? '未找到这个章节' : title}
-          hint={invalidChapter ? '章节链接可能有误，请回学习台重新选择主线。' : canReplay ? `${hint}${chapterHint} 提前复习会重排下次到期时间。` : `${hint}${chapterHint}`}
+          title={invalidChapter ? t("未找到这个章节") : title}
+          hint={invalidChapter ? t("章节链接可能有误，请回学习台重新选择主线。") : canReplay ? t("{0}{1} 提前复习会重排下次到期时间。", [hint, chapterHint]) : `${hint}${chapterHint}`}
           celebrate={finished}
           xp={stats.xp}
           accuracy={accuracy}
@@ -246,8 +249,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                   {backLabel}
                 </ButtonLink>
                 <ButtonLink to={`/study?chapter=${chapterId}&free=1`} variant="ghost" size="lg" className="flex-1">
-                  再练一遍
-                </ButtonLink>
+                  {t("再练一遍")}</ButtonLink>
               </>
             ) : (
               <>
@@ -255,8 +257,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                   {backLabel}
                 </ButtonLink>
                 <ButtonLink to="/stats" variant="ghost" size="lg" className="flex-1">
-                  去图谱看看
-                </ButtonLink>
+                  {t("去图谱看看")}</ButtonLink>
               </>
             )
           }
@@ -276,10 +277,10 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
     phase === 'explain'
       ? (step?.caption ?? card.explain)
       : phase === 'question'
-        ? '想清楚再点，不要猜。'
+        ? t("想清楚再点，不要猜。")
         : isCorrect
-          ? '答对了，记忆加深！'
-          : '没关系，看看讲解，它会再回来。';
+          ? t("答对了，记忆加深！")
+          : t("没关系，看看讲解，它会再回来。");
 
   return (
     <Screen withNav={false} className={phase === 'feedback' ? '!pb-72 md:!pb-48' : ''}>
@@ -311,7 +312,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 className="flex shrink-0 items-center gap-0.5 text-sm font-black text-flame"
-                title="连对"
+                title={t("连对")}
               >
                 <Icon name="flame" size={18} className="animate-flicker" />
                 <span className="tabular">{combo}</span>
@@ -335,7 +336,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                 <Icon name={theme.icon} size={15} />
               </span>
               <span className={`text-xs font-black ${theme.text}`}>
-                {current?.isNew ? '新知识' : '复习'} · {scope?.chapter.title ?? findChapter(card.chapter)?.chapter.title}
+                {current?.isNew ? t("新知识") : t("复习")} · {scope?.chapter.title ?? findChapter(card.chapter)?.chapter.title}
               </span>
             </div>
             <h2 className="text-[22px] font-black leading-snug text-ink md:text-2xl">
@@ -397,9 +398,9 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                 <DetailPanel cardId={card.id} detail={detail} />
                 <div className="sticky bottom-0 -mx-4 mt-4 bg-gradient-to-t from-paper via-paper to-transparent px-4 pb-4 pt-6">
                   <Button full size="lg" onClick={() => { playSound('step', soundOn); nextStep(); }}>
-                    {lastStep ? '懂了，考考我' : '看下一步'}
+                    {lastStep ? t("懂了，考考我") : t("看下一步")}
                   </Button>
-                  <p className="mt-2 hidden text-center text-[11px] font-bold text-muted md:block">Enter 继续 · Esc 退出</p>
+                  <p className="mt-2 hidden text-center text-[11px] font-bold text-muted md:block">{t("Enter 继续 · Esc 退出")}</p>
                 </div>
               </>
             ) : (
@@ -417,7 +418,7 @@ function StudySession({ chapterId, mode, free }: { chapterId?: string; mode: Mod
                   ))}
                 </div>
                 {phase === 'question' && (
-                  <p className="mt-3 hidden text-center text-[11px] font-bold text-muted md:block">按 1–4 或 A–D 选择</p>
+                  <p className="mt-3 hidden text-center text-[11px] font-bold text-muted md:block">{t("按 1–4 或 A–D 选择")}</p>
                 )}
                 {phase === 'feedback' && (
                   <DetailPanel cardId={`fb-${card.id}`} detail={detail} defaultOpen={!isCorrect} />

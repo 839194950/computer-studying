@@ -1,10 +1,11 @@
+import { t } from '../../i18n/locale';
 import { useId } from 'react';
 
 export function LabIllustration({ kind }: { kind: 'binary' | 'index' }) {
   const identifier = useId();
   const binary = kind === 'binary';
   return (
-    <svg viewBox="0 0 400 220" role="img" aria-label={binary ? '位开关与二进制数示意图' : '有序索引查找示意图'} className="h-auto w-full">
+    <svg viewBox="0 0 400 220" role="img" aria-label={binary ? t("位开关与二进制数示意图") : t("有序索引查找示意图")} className="h-auto w-full">
       <defs>
         <linearGradient id={identifier} x1="0" y1="0" x2="1" y2="1">
           <stop stopColor={binary ? '#A28BFF' : '#5BDCC0'} />

@@ -1,3 +1,4 @@
+import { t } from '../../i18n/locale';
 import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,7 +7,8 @@ import { Icon } from '../../components/Icon';
 import { ButtonLink } from '../../components/ButtonLink';
 import { TRACK_THEME } from '../../components/trackTheme';
 import { getIllustration } from '../../illustrations/registry';
-import { ALL_CARDS, findChapter, getCard, getDetail } from '../../content';
+
+import { useContent } from '../../content/localized';
 import { useStore } from '../../store/useStore';
 import { cardStatus } from '../../lib/stats';
 import { chapterState } from '../../lib/queue';
@@ -21,6 +23,7 @@ const LETTERS = ['A', 'B', 'C', 'D'];
  * 小测只用来自查，不写入复习进度，复习排期仍由学习页负责。
  */
 export function WikiEntryPage() {
+  const { ALL_CARDS, findChapter, getCard, getDetail } = useContent();
   const { cardId = '' } = useParams();
   const card = getCard(cardId);
   const progress = useStore((s) => s.progress);
@@ -49,8 +52,7 @@ export function WikiEntryPage() {
           className="mb-4 inline-flex items-center gap-1 rounded-xl px-1.5 py-1 text-sm font-extrabold text-muted hover:bg-white hover:text-ink"
         >
           <Icon name="arrow-left" size={18} />
-          百科
-        </Link>
+          {t("百科")}</Link>
 
         <header className={`relative overflow-hidden rounded-[26px] p-5 text-white shadow-float md:p-6 ${theme.banner}`}>
           <div aria-hidden className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10" />
@@ -63,9 +65,9 @@ export function WikiEntryPage() {
           <div className="relative mt-4 flex flex-wrap items-center gap-2 text-xs font-extrabold">
             <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1">
               <i className={`h-2.5 w-2.5 rounded-full ${STATUS_STYLE[status].bg}`} />
-              {STATUS_STYLE[status].label}
+              {t(STATUS_STYLE[status].label)}
             </span>
-            {p && <span className="rounded-full bg-white/20 px-2.5 py-1">下次复习 {formatMonthDay(p.dueAt)}</span>}
+            {p && <span className="rounded-full bg-white/20 px-2.5 py-1">{t("下次复习 ")}{formatMonthDay(p.dueAt)}</span>}
           </div>
         </header>
 
@@ -99,7 +101,7 @@ export function WikiEntryPage() {
               );
             })}
           </ol>
-          <p className="border-t-2 border-line bg-paper px-4 py-2 text-[11px] font-bold text-muted">点一条要点，图上对应的部分会亮起来。</p>
+          <p className="border-t-2 border-line bg-paper px-4 py-2 text-[11px] font-bold text-muted">{t("点一条要点，图上对应的部分会亮起来。")}</p>
         </section>
 
         {detail.length > 0 && (
@@ -108,16 +110,15 @@ export function WikiEntryPage() {
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-soft text-sky-dark">
                 <Icon name="book" size={16} />
               </span>
-              详细讲解
-            </h2>
+              {t("详细讲解")}</h2>
             <div className="mt-3 space-y-4">
               {detail.map((section) => (
                 <div key={section.heading}>
                   <h3 className={`text-[15px] font-black ${theme.text}`}>{section.heading}</h3>
                   <p className="mt-1 text-[15px] leading-[1.9] text-ink/80">{section.body}</p>
                   {section.relatedCardIds && (
-                    <nav aria-label={`${section.heading}的知识关联`} className="mt-2 flex flex-wrap gap-3 text-sm font-bold text-brand">
-                      <span>知识关联</span>
+                    <nav aria-label={t("{0}的知识关联", [section.heading])} className="mt-2 flex flex-wrap gap-3 text-sm font-bold text-brand">
+                      <span>{t("知识关联")}</span>
                       {section.relatedCardIds.map((id) => <Link key={id} to={`/wiki/${id}`} className="underline">{getCard(id)!.title}</Link>)}
                     </nav>
                   )}
@@ -132,8 +133,7 @@ export function WikiEntryPage() {
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sun-soft text-[#B07F00]">
               <Icon name="target" size={16} />
             </span>
-            小测一下
-            <span className="text-xs font-semibold text-muted">不计入复习进度</span>
+            {t("小测一下")}<span className="text-xs font-semibold text-muted">{t("不计入复习进度")}</span>
           </h2>
           <p className="mt-3 text-[15px] font-black text-ink">{card.question}</p>
           <div className="mt-3 space-y-2">
@@ -167,11 +167,10 @@ export function WikiEntryPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-3 rounded-xl bg-paper p-3 text-sm font-semibold leading-relaxed text-ink/80"
             >
-              {picked === card.answerIndex ? '答对了。' : '不对。'}
+              {picked === card.answerIndex ? t("答对了。") : t("不对。")}
               {card.explanation}
               <button type="button" onClick={() => setPicked(null)} className="ml-2 font-black text-brand">
-                重做
-              </button>
+                {t("重做")}</button>
             </motion.p>
           )}
         </section>
@@ -179,20 +178,19 @@ export function WikiEntryPage() {
         {LABS.some((lab) => lab.relatedCardIds.includes(card.id)) && <ChapterLabLink chapterId={card.chapter} />}
 
         {canStudy && scope.chapter.guide && (
-          <Link to={`/map/${scope.track.id}/${scope.chapter.id}`} className="mt-5 block font-bold text-brand underline">阅读本章导读与贯穿案例</Link>
+          <Link to={`/map/${scope.track.id}/${scope.chapter.id}`} className="mt-5 block font-bold text-brand underline">{t("阅读本章导读与贯穿案例")}</Link>
         )}
 
         {canStudy && (
           <ButtonLink to={`/study?chapter=${card.chapter}`} size="lg" full className="mt-5">
             <Icon name="play" size={18} />
-            去学「{scope.chapter.title}」这一章
-          </ButtonLink>
+            {t("去学「")}{scope.chapter.title}{t("」这一章")}</ButtonLink>
         )}
 
-        <nav aria-label="同章条目" className="mt-4 grid grid-cols-2 gap-3">
+        <nav aria-label={t("同章条目")} className="mt-4 grid grid-cols-2 gap-3">
           {prev ? (
             <Link to={`/wiki/${prev.id}`} className="rounded-2xl border-2 border-line bg-white p-3 shadow-lip transition-transform hover:-translate-y-0.5">
-              <span className="text-[11px] font-extrabold text-muted">← 上一条</span>
+              <span className="text-[11px] font-extrabold text-muted">{t("← 上一条")}</span>
               <span className="mt-0.5 block truncate text-sm font-black text-ink">{prev.title}</span>
             </Link>
           ) : (
@@ -200,7 +198,7 @@ export function WikiEntryPage() {
           )}
           {next && (
             <Link to={`/wiki/${next.id}`} className="rounded-2xl border-2 border-line bg-white p-3 text-right shadow-lip transition-transform hover:-translate-y-0.5">
-              <span className="text-[11px] font-extrabold text-muted">下一条 →</span>
+              <span className="text-[11px] font-extrabold text-muted">{t("下一条 →")}</span>
               <span className="mt-0.5 block truncate text-sm font-black text-ink">{next.title}</span>
             </Link>
           )}
